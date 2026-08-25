@@ -33,7 +33,26 @@ tauri-plugin-updater = { workspace = true }
 tauri-plugin-window-state = { workspace = true }
 theseus = { workspace = true, features = ["tauri"] }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["time"] }
+# === AI-WORKSHOP START ===
+# tokio 行重写于此：追加 "full" features（features 是叠加的，不影响其他 crate 依赖的 "time"）
+tokio = { workspace = true, features = ["time", "full"] }
+ammonia = "4"
+anthropic-sdk-rust = "0.1"
+async-openai = { version = "0.41", features = ["chat-completion"] }
+async-trait = { workspace = true }
+bytes = { workspace = true }
+futures-util = { workspace = true }
+git2 = { version = "0.20", features = ["vendored-libgit2"] }
+notify = { workspace = true }
+pulldown-cmark = "0.13"
+reqwest = { workspace = true, features = ["json", "stream"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
+schemars = "1"
+scraper = "0.24"
+tantivy = "0.26"
+tauri-plugin-store = "2"
+tokio-util = { workspace = true, features = ["rt", "sync"] }
+# === AI-WORKSHOP END ===
 tracing = { workspace = true }
 tracing-error = { workspace = true }
 url = { workspace = true }

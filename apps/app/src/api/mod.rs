@@ -30,6 +30,10 @@ pub mod files;
 pub mod friends;
 pub mod worlds;
 
+// === AI-WORKSHOP START ===
+pub mod ai_workshop;
+// === AI-WORKSHOP END ===
+
 mod oauth_utils;
 
 pub type Result<T> = std::result::Result<T, TheseusSerializableError>;

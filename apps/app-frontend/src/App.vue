@@ -25,6 +25,7 @@ import {
 	ServerStackIcon,
 	SettingsIcon,
 	ShirtIcon,
+	SparklesIcon,
 	SpinnerIcon,
 	ToggleRightIcon,
 	UserIcon,
@@ -536,6 +537,12 @@ const { formatMessage } = useVIntl()
 const formatBytes = useFormatBytes()
 
 const messages = defineMessages({
+	// === AI-WORKSHOP START ===
+	aiWorkbench: {
+		id: 'app.nav.ai-workbench',
+		defaultMessage: 'AI Workbench',
+	},
+	// === AI-WORKSHOP END ===
 	warning: { id: 'app.notification.warning', defaultMessage: 'Warning' },
 	goBack: { id: 'app.navigation.go-back', defaultMessage: 'Go back' },
 	goForward: { id: 'app.navigation.go-forward', defaultMessage: 'Go forward' },
@@ -2039,6 +2046,15 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<div
 			class="app-grid-navbar bg-bg-raised flex flex-col p-[0.5rem] pt-0 gap-[0.25rem] w-[--left-bar-width]"
 		>
+			<!-- === AI-WORKSHOP START === -->
+			<NavButton
+				v-tooltip.right="formatMessage(messages.aiWorkbench)"
+				to="/ai-workbench"
+				:is-primary="(route) => route.path === '/ai-workbench'"
+			>
+				<SparklesIcon class="text-brand" />
+			</NavButton>
+			<!-- === AI-WORKSHOP END === -->
 			<NavButton
 				v-tooltip.right="formatMessage(messages.home)"
 				to="/"

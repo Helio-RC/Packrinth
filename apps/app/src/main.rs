@@ -12,6 +12,9 @@ use tauri_plugin_fs::FsExt;
 use theseus::prelude::*;
 
 mod api;
+// === AI-WORKSHOP START ===
+mod ai_workshop;
+// === AI-WORKSHOP END ===
 mod error;
 
 #[cfg(target_os = "macos")]
@@ -270,6 +273,10 @@ fn main() {
         .plugin(api::ads::init())
         .plugin(api::friends::init())
         .plugin(api::worlds::init())
+        // === AI-WORKSHOP START ===
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(api::ai_workshop::init())
+        // === AI-WORKSHOP END ===
         .manage(PendingUpdateData::default())
         .invoke_handler(tauri::generate_handler![
             initialize_state,

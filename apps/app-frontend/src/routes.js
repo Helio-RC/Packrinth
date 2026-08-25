@@ -11,6 +11,13 @@ import * as Project from '@/pages/project'
 export default new createRouter({
 	history: createWebHistory(),
 	routes: [
+		// === AI-WORKSHOP START ===
+		{
+			path: '/ai-workbench',
+			name: 'AiWorkbench',
+			component: Pages.AiWorkbench,
+		},
+		// === AI-WORKSHOP END ===
 		{
 			path: '/',
 			name: 'Home',
