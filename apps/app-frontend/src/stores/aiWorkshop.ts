@@ -36,6 +36,7 @@ import {
 } from '@/lib/ai/tools'
 import type {
 	AiStatus,
+	AiWorkshopConfig,
 	Conversation,
 	KnowledgeHit,
 	Message,
@@ -96,6 +97,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 		streaming: false,
 		tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
 		aiStatus: null as AiStatus | null,
+		aiConfig: null as AiWorkshopConfig | null,
 		providerConfigured: false,
 		tools: [] as ToolInfo[],
 		toolOutputs: [] as ToolOutput[],
@@ -118,6 +120,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 				getAiStatus(),
 				listTools(),
 				listConversations(),
+				this.loadConfig(),
 			])
 			this.aiStatus = status
 			this.providerConfigured = status.providerConfigured
@@ -373,6 +376,26 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 		/** 应用修复建议。 */
 		async applyFix(fixId: string) {
 			await applyFixRequest(fixId)
+		},
+
+		/** 加载 AI 工作台完整配置。 */
+		async loadConfig() {
+			this.aiConfig = await getAiConfig()
+		},
+
+		/** 合并配置补丁并保存到后端；保存失败时回滚并重新抛出。 */
+		async updateConfig(patch: Partial<AiWorkshopConfig>) {
+			if (!this.aiConfig) await this.loadConfig()
+			if (!this.aiConfig) throw new Error('AI 配置不可用')
+			const previous = this.aiConfig
+			const next = { ...this.aiConfig, ...patch }
+			this.aiConfig = next
+			try {
+				await setAiConfig(next)
+			} catch (err) {
+				this.aiConfig = previous
+				throw err
+			}
 		},
 
 		/** 从 localStorage 恢复布局；无缓存时回退到后端配置。 */

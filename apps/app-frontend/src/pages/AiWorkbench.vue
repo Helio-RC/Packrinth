@@ -1,7 +1,11 @@
 <template>
 	<WorkbenchLayout>
 		<template #sidebar>
-			<div class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
+			<ConsoleView v-if="store.activeActivity === 'console'" />
+			<div
+				v-else
+				class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center"
+			>
 				<SparklesIcon class="text-3xl text-primary" />
 				<p class="text-sm text-secondary">{{ formatMessage(messages.sidebarPlaceholder) }}</p>
 			</div>
@@ -32,6 +36,7 @@ import { SparklesIcon } from '@modrinth/assets'
 import { defineMessages, useVIntl } from '@modrinth/ui'
 import { onMounted } from 'vue'
 
+import ConsoleView from '@/components/ai/sidebar/ConsoleView.vue'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
 defineOptions({
