@@ -133,7 +133,9 @@ fn git_log_impl(root: &Path, limit: usize) -> Result<Value, String> {
 /// git_commit 核心：全部暂存 + commit；无变更返回 Err("无变更可提交")。
 fn git_commit_impl(root: &Path, message: &str) -> Result<Value, String> {
 	let repo = open_repo(root)?;
-	let statuses = repo.statuses(None).map_err(|e| e.to_string())?;
+	let statuses = repo
+		.statuses(Some(StatusOptions::new().include_untracked(true)))
+		.map_err(|e| e.to_string())?;
 	let has_changes = statuses.iter().any(|e| {
 		let s = e.status();
 		!s.is_empty() && !s.contains(Status::IGNORED)
@@ -635,6 +637,15 @@ mod tests {
 		commit_file(&repo, "a.txt", "hello", "first");
 		let err = git_commit_impl(&root, "noop").unwrap_err();
 		assert!(err.contains("无变更"), "应报无变更，实际: {err}");
+	}
+
+	#[test]
+	fn commit_untracked_only_succeeds() {
+		let root = temp_repo();
+		std::fs::write(root.join("new.txt"), "hello").unwrap();
+		let out = git_commit_impl(&root, "first commit").unwrap();
+		assert_eq!(out["message"], "first commit");
+		assert_eq!(out["hash"].as_str().unwrap().len(), 7);
 	}
 
 	#[test]
