@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::ai_workshop::chat_history::models::Message;
-use crate::ai_workshop::providers::trait::{AiMessage, AiMessageRole, ToolCall};
+use crate::ai_workshop::providers::provider_trait::{AiMessage, AiMessageRole, ToolCall};
 use crate::ai_workshop::AiWorkshopState;
 
 /// 推理上下文：负责构建系统提示、注入技能与知识、读取历史消息。
@@ -80,7 +80,7 @@ impl InferenceContext {
 		if let Some(first) = messages.first() {
 			trimmed.push(first.clone());
 		}
-		let mut budget = 120_000
+		let mut budget = 120_000usize
 			.saturating_sub(trimmed.first().map(|message| message.content.len()).unwrap_or(0));
 		for message in messages.iter().rev().skip(1) {
 			if budget >= message.content.len() {

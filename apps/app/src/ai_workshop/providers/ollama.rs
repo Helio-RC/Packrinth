@@ -1,7 +1,7 @@
 use crate::ai_workshop::providers::openai::{
 	build_chat_body, chat_openai_compatible, stream_openai_compatible,
 };
-use crate::ai_workshop::providers::trait::{
+use crate::ai_workshop::providers::provider_trait::{
 	AiMessage, AiProvider, AiResponse, ProviderError, StreamEvent, ToolDefinition,
 };
 

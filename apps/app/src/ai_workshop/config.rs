@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Runtime};
 use tauri_plugin_store::StoreExt;
 
 use crate::api::Result;
@@ -188,7 +188,7 @@ pub struct ConfigManager {
 
 impl ConfigManager {
 	/// 从 theseus 数据目录加载（或初始化）配置；解析失败时记录警告并回退默认值。
-	pub async fn load(app: &AppHandle) -> Result<Arc<Self>> {
+	pub async fn load<R: Runtime>(_app: &AppHandle<R>) -> Result<Arc<Self>> {
 		let state = theseus::prelude::State::get().await?;
 		let ai_root = state.directories.settings_dir.join("ai-workshop");
 		std::fs::create_dir_all(&ai_root)?;
@@ -220,7 +220,7 @@ impl ConfigManager {
 
 		Ok(Arc::new(Self {
 			inner: RwLock::new(config),
-			ai_root,
+			ai_root: ai_root.clone(),
 			config_path,
 			secrets_path: ai_root.join("secrets.json"),
 		}))

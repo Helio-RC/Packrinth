@@ -1,6 +1,6 @@
 use futures_util::StreamExt;
 
-use crate::ai_workshop::providers::trait::ProviderError;
+use crate::ai_workshop::providers::provider_trait::ProviderError;
 
 /// 从 reqwest 响应字节流中解析 SSE 事件，逐行处理 "data: " 前缀的 JSON。
 pub async fn parse_sse<R>(

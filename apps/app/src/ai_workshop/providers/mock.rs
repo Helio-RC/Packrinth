@@ -1,4 +1,4 @@
-use crate::ai_workshop::providers::trait::{
+use crate::ai_workshop::providers::provider_trait::{
 	AiMessage, AiMessageRole, AiProvider, AiResponse, AiUsage, ProviderError, StreamEvent,
 	ToolCall, ToolDefinition,
 };

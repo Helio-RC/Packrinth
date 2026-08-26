@@ -148,11 +148,3 @@ pub trait AiProvider: Send + Sync {
 		tx: tokio::sync::mpsc::Sender<StreamEvent>,
 	) -> Result<(), ProviderError>;
 }
-
-/// 将 schemars RootSchema 转换为 OpenAI function parameters 兼容格式。
-pub fn json_schema_to_openai(schema: &schemars::schema::RootSchema) -> serde_json::Value {
-	serde_json::to_value(schema)
-		.ok()
-		.and_then(|value| value.get("schema").cloned())
-		.unwrap_or_else(|| serde_json::Value::Object(Default::default()))
-}

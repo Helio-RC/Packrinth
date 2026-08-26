@@ -1,4 +1,6 @@
 // === AI-WORKSHOP START ===
+// AI 工作台处于开发中：stub 接口与后续任务的填充面在此阶段允许 dead_code
+#![allow(dead_code)]
 pub mod chat_history;
 pub mod config;
 pub mod context_guard;
@@ -15,21 +17,22 @@ pub mod ui_commands;
 
 use std::sync::Arc;
 
-use tauri::{Listener, Runtime};
+use tauri::{Listener, Manager, Runtime};
+use notify::Watcher;
 
 use crate::api::Result;
 use chat_history::models::NewMessage;
-use chat_history::ChatHistoryRepository;
+use crate::ai_workshop::chat_history::repository::ChatHistoryRepository;
 use config::ConfigManager;
 use knowledge::KnowledgeRouter;
-use providers::trait::StreamEvent;
+use providers::provider_trait::StreamEvent;
 use skills::SkillLoader;
 use toolchain::ToolchainRegistry;
 use tools::context::{InstanceLockManager, TaskRegistry};
 use tools::registry::ToolRegistry;
 use troubleshooter::LogBuffer;
 
-fn other_err(msg: impl Into<String>) -> crate::api::TheseusSerializableError {
+pub(crate) fn other_err(msg: impl Into<String>) -> crate::api::TheseusSerializableError {
 	crate::api::TheseusSerializableError::Theseus(
 		theseus::Error::from(theseus::ErrorKind::OtherError(msg.into())),
 	)
@@ -53,48 +56,50 @@ pub struct AiWorkshopState {
 }
 
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
-	tauri::plugin::Builder::new("ai_workshop")
+	tauri::plugin::Builder::<R>::new("ai_workshop")
 		.setup(|app, _api| {
 			// theseus State 已由 main.rs 的 initialize_state 命令初始化，此处直接使用
-			let config_manager = ConfigManager::load(app).await?;
-			let chat_history =
-				Arc::new(ChatHistoryRepository::open(&config_manager.chat_db_path())?);
-			let tool_registry = Arc::new(ToolRegistry::new());
-			tools::register_builtin_tools(&tool_registry);
-			let toolchain_registry = Arc::new(ToolchainRegistry::new());
-			toolchain::register_builtin_toolchains(&toolchain_registry);
-			let skill_loader = Arc::new(SkillLoader::new(config_manager.skills_dir()));
-			let failed_skills = skill_loader.load_all().await;
-			if !failed_skills.is_empty() {
-				tracing::warn!("ai_workshop: failed to load skills: {failed_skills:?}");
-			}
-			let knowledge_router =
-				Arc::new(KnowledgeRouter::new(config_manager.bm25_index_dir()));
-			let log_buffer = Arc::new(LogBuffer::new(config_manager.config().log_lines));
-			let instance_lock_manager = Arc::new(InstanceLockManager::default());
-			let task_registry = Arc::new(TaskRegistry::default());
+			tauri::async_runtime::block_on(async {
+				let config_manager = ConfigManager::load(app).await?;
+				let chat_history =
+					Arc::new(ChatHistoryRepository::open(&config_manager.chat_db_path())?);
+				let tool_registry = Arc::new(ToolRegistry::new());
+				tools::register_builtin_tools(&tool_registry);
+				let toolchain_registry = Arc::new(ToolchainRegistry::new());
+				toolchain::register_builtin_toolchains(&toolchain_registry);
+				let skill_loader = Arc::new(SkillLoader::new(config_manager.skills_dir()));
+				let failed_skills = skill_loader.load_all().await;
+				if !failed_skills.is_empty() {
+					tracing::warn!("ai_workshop: failed to load skills: {failed_skills:?}");
+				}
+				let knowledge_router =
+					Arc::new(KnowledgeRouter::new(config_manager.bm25_index_dir()));
+				let log_buffer = Arc::new(LogBuffer::new(config_manager.config().log_lines));
+				let instance_lock_manager = Arc::new(InstanceLockManager::default());
+				let task_registry = Arc::new(TaskRegistry::default());
 
-			app.manage(AiWorkshopState {
-				config_manager: config_manager.clone(),
-				chat_history: chat_history.clone(),
-				tool_registry: tool_registry.clone(),
-				toolchain_registry: toolchain_registry.clone(),
-				skill_loader: skill_loader.clone(),
-				knowledge_router: knowledge_router.clone(),
-				instance_lock_manager: instance_lock_manager.clone(),
-				log_buffer: log_buffer.clone(),
-				task_registry: task_registry.clone(),
-			});
+				app.manage(AiWorkshopState {
+					config_manager: config_manager.clone(),
+					chat_history: chat_history.clone(),
+					tool_registry: tool_registry.clone(),
+					toolchain_registry: toolchain_registry.clone(),
+					skill_loader: skill_loader.clone(),
+					knowledge_router: knowledge_router.clone(),
+					instance_lock_manager: instance_lock_manager.clone(),
+					log_buffer: log_buffer.clone(),
+					task_registry: task_registry.clone(),
+				});
 
-			spawn_log_persist_loop(&config_manager, &log_buffer);
-			spawn_skill_watcher(&config_manager, &skill_loader);
+				spawn_log_persist_loop(&config_manager, &log_buffer);
+				spawn_skill_watcher(&config_manager, &skill_loader);
 
-			let close_task_registry = task_registry.clone();
-			app.listen("tauri://close-requested", move |_| {
-				close_task_registry.cancel_all();
-			});
+				let close_task_registry = task_registry.clone();
+				app.listen("tauri://close-requested", move |_| {
+					close_task_registry.cancel_all();
+				});
 
-			Ok(())
+				Ok(())
+			})
 		})
 		.invoke_handler(tauri::generate_handler![
 			ai_chat, ai_stream, ai_confirm_tool,
@@ -171,13 +176,13 @@ fn spawn_skill_watcher(config_manager: &Arc<ConfigManager>, skill_loader: &Arc<S
 
 /// 单轮非流式对话。执行推理、持久化 user/assistant 消息，返回 `{ reply, usage }`。
 #[tauri::command]
-pub async fn ai_chat(
-	app: tauri::AppHandle,
+pub async fn ai_chat<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	content: String,
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
-	let engine = inference::engine::InferenceEngine::new(state.inner().clone());
+	let engine = inference::engine::InferenceEngine::new(Arc::new(state.inner().clone()));
 	let result = engine.run_single_turn(&conversation_id, &content).await?;
 
 	state
@@ -206,8 +211,8 @@ pub async fn ai_chat(
 
 /// 流式多轮对话。后台执行推理循环（含工具调用轮次），事件经 Channel 推送前端。
 #[tauri::command]
-pub async fn ai_stream(
-	app: tauri::AppHandle,
+pub async fn ai_stream<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	content: String,
 	on_event: tauri::ipc::Channel<StreamEvent>,
@@ -225,7 +230,8 @@ pub async fn ai_stream(
 		.await?;
 
 	tauri::async_runtime::spawn(async move {
-		let engine = inference::engine::InferenceEngine::new(state.clone());
+		let engine = inference::engine::InferenceEngine::new(Arc::new(state.clone()));
+		let event_sender = on_event.clone();
 		let mut done_event = StreamEvent {
 			delta: None,
 			tool_calls: None,
@@ -237,8 +243,8 @@ pub async fn ai_stream(
 			.run_multi_turn(
 				&conversation_id,
 				&content,
-				Box::new(|event: StreamEvent| {
-					let _ = on_event.send(event);
+				Box::new(move |event: StreamEvent| {
+					let _ = event_sender.send(event);
 				}),
 			)
 			.await
@@ -260,8 +266,8 @@ pub async fn ai_stream(
 
 /// 记录用户对某次工具调用的确认结果（role="tool"），供推理引擎下一轮读取。
 #[tauri::command]
-pub async fn ai_confirm_tool(
-	app: tauri::AppHandle,
+pub async fn ai_confirm_tool<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	tool_call_id: String,
 	approved: bool,
@@ -287,8 +293,8 @@ pub async fn ai_confirm_tool(
 
 /// 手动执行工具（供前端工具面板调用），返回 ToolResponse（含 task_id 便于取消）。
 #[tauri::command]
-pub async fn tool_execute(
-	app: tauri::AppHandle,
+pub async fn tool_execute<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	name: String,
 	params: serde_json::Value,
 ) -> Result<serde_json::Value> {
@@ -303,7 +309,7 @@ pub async fn tool_execute(
 
 /// 通过 task_id 取消进行中的工具任务。
 #[tauri::command]
-pub async fn cancel_task(app: tauri::AppHandle, task_id: String) -> Result<()> {
+pub async fn cancel_task<R: Runtime>(app: tauri::AppHandle<R>, task_id: String) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	let _ = state.task_registry.cancel(&task_id);
 	Ok(())
@@ -311,7 +317,7 @@ pub async fn cancel_task(app: tauri::AppHandle, task_id: String) -> Result<()> {
 
 /// 列出全部已注册工具（含参数 Schema）。
 #[tauri::command]
-pub async fn list_tools(app: tauri::AppHandle) -> Result<Vec<serde_json::Value>> {
+pub async fn list_tools<R: Runtime>(app: tauri::AppHandle<R>) -> Result<Vec<serde_json::Value>> {
 	let state = app.state::<AiWorkshopState>();
 	let mut tools = Vec::new();
 	for tool in state.tool_registry.list() {
@@ -329,7 +335,7 @@ pub async fn list_tools(app: tauri::AppHandle) -> Result<Vec<serde_json::Value>>
 
 /// 获取单个工具的 JSON Schema（供前端动态渲染表单）。
 #[tauri::command]
-pub async fn get_tool_schema(app: tauri::AppHandle, name: String) -> Result<serde_json::Value> {
+pub async fn get_tool_schema<R: Runtime>(app: tauri::AppHandle<R>, name: String) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
 	let schema = state
 		.tool_registry
@@ -342,8 +348,8 @@ pub async fn get_tool_schema(app: tauri::AppHandle, name: String) -> Result<serd
 
 /// 列出会话，按 `updated_at` 降序分页。
 #[tauri::command]
-pub async fn list_conversations(
-	app: tauri::AppHandle,
+pub async fn list_conversations<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	instance_id: Option<String>,
 	limit: Option<u32>,
 	offset: Option<u32>,
@@ -361,8 +367,8 @@ pub async fn list_conversations(
 
 /// 获取单个会话及其消息，返回 `{ conversation, messages }`。
 #[tauri::command]
-pub async fn get_conversation(
-	app: tauri::AppHandle,
+pub async fn get_conversation<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	limit: Option<u32>,
 	offset: Option<u32>,
@@ -383,8 +389,8 @@ pub async fn get_conversation(
 
 /// 新建会话。
 #[tauri::command]
-pub async fn create_conversation(
-	app: tauri::AppHandle,
+pub async fn create_conversation<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	title: String,
 	instance_id: Option<String>,
 ) -> Result<chat_history::models::Conversation> {
@@ -397,8 +403,8 @@ pub async fn create_conversation(
 
 /// 重命名会话。
 #[tauri::command]
-pub async fn rename_conversation(
-	app: tauri::AppHandle,
+pub async fn rename_conversation<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	new_title: String,
 ) -> Result<()> {
@@ -411,8 +417,8 @@ pub async fn rename_conversation(
 
 /// 删除会话及其全部消息。
 #[tauri::command]
-pub async fn delete_conversation(
-	app: tauri::AppHandle,
+pub async fn delete_conversation<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 ) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
@@ -424,8 +430,8 @@ pub async fn delete_conversation(
 
 /// 导出会话为 `json` 或 `markdown`。
 #[tauri::command]
-pub async fn export_conversation(
-	app: tauri::AppHandle,
+pub async fn export_conversation<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	conversation_id: String,
 	format: String,
 ) -> Result<String> {
@@ -438,7 +444,7 @@ pub async fn export_conversation(
 
 /// 清空全部会话（需 `confirm=true`），返回删除的会话数。
 #[tauri::command]
-pub async fn clear_all_conversations(app: tauri::AppHandle, confirm: bool) -> Result<usize> {
+pub async fn clear_all_conversations<R: Runtime>(app: tauri::AppHandle<R>, confirm: bool) -> Result<usize> {
 	if !confirm {
 		return Err(other_err("clear_all_conversations requires confirm=true"));
 	}
@@ -450,7 +456,7 @@ pub async fn clear_all_conversations(app: tauri::AppHandle, confirm: bool) -> Re
 
 /// 列出全部技能（含启用状态）。
 #[tauri::command]
-pub async fn list_skills(app: tauri::AppHandle) -> Result<Vec<serde_json::Value>> {
+pub async fn list_skills<R: Runtime>(app: tauri::AppHandle<R>) -> Result<Vec<serde_json::Value>> {
 	let state = app.state::<AiWorkshopState>();
 	let mut skills = Vec::new();
 	for skill in state.skill_loader.skills() {
@@ -461,8 +467,8 @@ pub async fn list_skills(app: tauri::AppHandle) -> Result<Vec<serde_json::Value>
 
 /// 获取技能详情及 guide.md 全文，返回 `{ skill, guide_md }`。
 #[tauri::command]
-pub async fn get_skill_content(
-	app: tauri::AppHandle,
+pub async fn get_skill_content<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	skill_name: String,
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
@@ -479,22 +485,22 @@ pub async fn get_skill_content(
 
 /// 启用技能。
 #[tauri::command]
-pub async fn enable_skill(app: tauri::AppHandle, skill_name: String) -> Result<()> {
+pub async fn enable_skill<R: Runtime>(app: tauri::AppHandle<R>, skill_name: String) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.skill_loader.set_enabled(&skill_name, true)
 }
 
 /// 禁用技能。
 #[tauri::command]
-pub async fn disable_skill(app: tauri::AppHandle, skill_name: String) -> Result<()> {
+pub async fn disable_skill<R: Runtime>(app: tauri::AppHandle<R>, skill_name: String) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.skill_loader.set_enabled(&skill_name, false)
 }
 
 /// 强制加载单个技能（绕过自动匹配）。
 #[tauri::command]
-pub async fn force_load_skill(
-	app: tauri::AppHandle,
+pub async fn force_load_skill<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	skill_name: String,
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
@@ -504,14 +510,14 @@ pub async fn force_load_skill(
 
 /// 重新扫描技能目录，返回加载失败的技能名列表。
 #[tauri::command]
-pub async fn refresh_skills(app: tauri::AppHandle) -> Result<Vec<String>> {
+pub async fn refresh_skills<R: Runtime>(app: tauri::AppHandle<R>) -> Result<Vec<String>> {
 	let state = app.state::<AiWorkshopState>();
 	Ok(state.skill_loader.refresh().await)
 }
 
 /// 将用户提供的技能目录复制到 skills 目录（safe_path 校验由 loader 完成）。
 #[tauri::command]
-pub async fn import_skill(app: tauri::AppHandle, path: String) -> Result<()> {
+pub async fn import_skill<R: Runtime>(app: tauri::AppHandle<R>, path: String) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.skill_loader.import_skill(&path).await
 }
@@ -520,8 +526,8 @@ pub async fn import_skill(app: tauri::AppHandle, path: String) -> Result<()> {
 
 /// BM25 知识检索。
 #[tauri::command]
-pub async fn search_knowledge(
-	app: tauri::AppHandle,
+pub async fn search_knowledge<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	query: String,
 	top_k: Option<usize>,
 	source: Option<String>,
@@ -535,7 +541,7 @@ pub async fn search_knowledge(
 
 /// 手动刷新知识索引。
 #[tauri::command]
-pub async fn refresh_knowledge(app: tauri::AppHandle) -> Result<()> {
+pub async fn refresh_knowledge<R: Runtime>(app: tauri::AppHandle<R>) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.knowledge_router.refresh().await
 }
@@ -544,15 +550,15 @@ pub async fn refresh_knowledge(app: tauri::AppHandle) -> Result<()> {
 
 /// 获取当前 AI 工作台配置。
 #[tauri::command]
-pub async fn get_ai_config(app: tauri::AppHandle) -> Result<config::AiWorkshopConfig> {
+pub async fn get_ai_config<R: Runtime>(app: tauri::AppHandle<R>) -> Result<config::AiWorkshopConfig> {
 	let state = app.state::<AiWorkshopState>();
 	Ok(state.config_manager.config())
 }
 
 /// 保存 AI 工作台配置。
 #[tauri::command]
-pub async fn set_ai_config(
-	app: tauri::AppHandle,
+pub async fn set_ai_config<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	config: config::AiWorkshopConfig,
 ) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
@@ -561,7 +567,7 @@ pub async fn set_ai_config(
 
 /// 获取 AI 工作台运行状态摘要。
 #[tauri::command]
-pub async fn get_ai_status(app: tauri::AppHandle) -> Result<serde_json::Value> {
+pub async fn get_ai_status<R: Runtime>(app: tauri::AppHandle<R>) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
 	let config = state.config_manager.config();
 	let provider_configured = config
@@ -586,8 +592,8 @@ pub async fn get_ai_status(app: tauri::AppHandle) -> Result<serde_json::Value> {
 
 /// 分析崩溃日志（当前返回原始日志，AI 分析由高级场景层实现）。
 #[tauri::command]
-pub async fn analyze_crash(
-	app: tauri::AppHandle,
+pub async fn analyze_crash<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	instance_id: Option<String>,
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
@@ -602,8 +608,8 @@ pub async fn analyze_crash(
 
 /// 获取日志缓冲区内容（供 AI 分析）。
 #[tauri::command]
-pub async fn get_logs_for_ai(
-	app: tauri::AppHandle,
+pub async fn get_logs_for_ai<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	limit: Option<usize>,
 ) -> Result<Vec<String>> {
 	let state = app.state::<AiWorkshopState>();
@@ -612,8 +618,8 @@ pub async fn get_logs_for_ai(
 
 /// 生成修复建议（当前返回空列表，AI 建议由高级场景层实现）。
 #[tauri::command]
-pub async fn suggest_fix(
-	app: tauri::AppHandle,
+pub async fn suggest_fix<R: Runtime>(
+	app: tauri::AppHandle<R>,
 	crash_log: Option<String>,
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
@@ -629,7 +635,7 @@ pub async fn suggest_fix(
 
 /// 应用修复建议（尚未实现，返回明确错误）。
 #[tauri::command]
-pub async fn apply_fix(app: tauri::AppHandle, fix_id: String) -> Result<()> {
+pub async fn apply_fix<R: Runtime>(app: tauri::AppHandle<R>, fix_id: String) -> Result<()> {
 	let _ = app;
 	Err(other_err(format!(
 		"apply_fix({fix_id}) is not implemented yet"
@@ -639,7 +645,7 @@ pub async fn apply_fix(app: tauri::AppHandle, fix_id: String) -> Result<()> {
 /// 仅测试用：向日志缓冲区注入崩溃日志。
 #[tauri::command]
 #[cfg(debug_assertions)]
-pub async fn inject_crash_log(app: tauri::AppHandle, log_content: String) -> Result<()> {
+pub async fn inject_crash_log<R: Runtime>(app: tauri::AppHandle<R>, log_content: String) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.log_buffer.inject(log_content);
 	Ok(())

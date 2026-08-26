@@ -5,7 +5,7 @@ use crate::ai_workshop::providers::anthropic::AnthropicProvider;
 use crate::ai_workshop::providers::mock::MockProvider;
 use crate::ai_workshop::providers::ollama::OllamaProvider;
 use crate::ai_workshop::providers::openai::OpenAIProvider;
-use crate::ai_workshop::providers::trait::AiProvider;
+use crate::ai_workshop::providers::provider_trait::AiProvider;
 
 /// 根据配置创建 AI 提供商实例。
 pub fn create_provider(config: &AiWorkshopConfig) -> Result<Arc<dyn AiProvider>, String> {

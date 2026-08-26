@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::ai_workshop::chat_history::models::NewMessage;
 use crate::ai_workshop::providers::factory::create_provider;
-use crate::ai_workshop::providers::trait::{
+use crate::ai_workshop::providers::provider_trait::{
 	AiMessage, AiMessageRole, AiProvider, AiUsage, StreamEvent, ToolCall, ToolDefinition,
 };
 use crate::ai_workshop::AiWorkshopState;
