@@ -2,9 +2,16 @@
 	<WorkbenchLayout>
 		<template #sidebar>
 			<ChatHistory v-if="store.activeActivity === 'chat'" />
-			<div v-else class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
+			<SkillsView v-else-if="store.activeActivity === 'skills'" />
+			<KnowledgeView v-else-if="store.activeActivity === 'knowledge'" />
+			<ToolsView v-else-if="store.activeActivity === 'tools'" />
+			<ConsoleView v-else-if="store.activeActivity === 'console'" />
+			<div
+				v-else
+				class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center bg-bg-raised"
+			>
 				<SparklesIcon class="text-3xl text-primary" />
-				<p class="text-sm text-secondary">{{ formatMessage(messages.sidebarPlaceholder) }}</p>
+				<p class="text-sm text-secondary">{{ placeholderMessage() }}</p>
 			</div>
 		</template>
 
@@ -50,6 +57,10 @@ import { nextTick, onMounted, ref, watch } from 'vue'
 import ChatInput from '@/components/ai/chat/ChatInput.vue'
 import ChatMessage from '@/components/ai/chat/ChatMessage.vue'
 import ChatHistory from '@/components/ai/sidebar/ChatHistory.vue'
+import ConsoleView from '@/components/ai/sidebar/ConsoleView.vue'
+import KnowledgeView from '@/components/ai/sidebar/KnowledgeView.vue'
+import SkillsView from '@/components/ai/sidebar/SkillsView.vue'
+import ToolsView from '@/components/ai/sidebar/ToolsView.vue'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
 defineOptions({
@@ -68,11 +79,21 @@ const messages = defineMessages({
 		id: 'ai.workbench.description',
 		defaultMessage: '使用自然语言与 AI 协作，完成模组安装、配置修改与内容定制。',
 	},
-	sidebarPlaceholder: {
-		id: 'ai.workbench.sidebar-placeholder',
-		defaultMessage: '侧边面板内容将在此显示',
+	filesPlaceholder: {
+		id: 'ai.workbench.files-placeholder',
+		defaultMessage: '实例树将在流 C 提供',
+	},
+	settingsPlaceholder: {
+		id: 'ai.workbench.settings-placeholder',
+		defaultMessage: '设置将在流 E 提供',
 	},
 })
+
+const placeholderMessage = () => {
+	if (store.activeActivity === 'files') return formatMessage(messages.filesPlaceholder)
+	if (store.activeActivity === 'settings') return formatMessage(messages.settingsPlaceholder)
+	return ''
+}
 
 const scrollEl = ref<HTMLElement | null>(null)
 
