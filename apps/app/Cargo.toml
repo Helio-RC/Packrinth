@@ -46,12 +46,11 @@ git2 = { version = "0.20", features = ["vendored-libgit2"] }
 notify = { workspace = true }
 pulldown-cmark = "0.13"
 reqwest = { workspace = true, features = ["json", "stream"] }
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
 schemars = "1"
 scraper = "0.24"
 tantivy = "0.26"
 tauri-plugin-store = "2"
-tokio-util = { workspace = true, features = ["rt", "sync"] }
 # === AI-WORKSHOP END ===
 tracing = { workspace = true }
 tracing-error = { workspace = true }

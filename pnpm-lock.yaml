@@ -149,6 +149,9 @@ importers:
       intl-messageformat:
         specifier: ^10.7.7
         version: 10.7.18
+      monaco-editor:
+        specifier: ^0.52.0
+        version: 0.52.2
       ofetch:
         specifier: ^1.3.4
         version: 1.5.1
@@ -158,6 +161,9 @@ importers:
       posthog-js:
         specifier: ^1.158.2
         version: 1.337.1
+      splitpanes:
+        specifier: ^4.1.2
+        version: 4.1.2(vue@3.5.27(typescript@5.9.3))
       three:
         specifier: ^0.172.0
         version: 0.172.0
@@ -7956,6 +7962,9 @@ packages:
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
 
+  monaco-editor@0.52.2:
+    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+
   motion-dom@12.38.0:
     resolution: {integrity: sha512-pdkHLD8QYRp8VfiNLb8xIBJis1byQ9gPT3Jnh2jqfFtAsWUA3dEepDlsWe/xMpO8McV+VdpKVcp+E+TGJEtOoA==}
 
@@ -9329,6 +9338,11 @@ packages:
   speakingurl@14.0.1:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
+
+  splitpanes@4.1.2:
+    resolution: {integrity: sha512-frNchoCv7w0nMQEuaDGgMGMU6jv3NhN6bBGQVfCNgwJdVcYaRmi1dwYDjp7SifAoUFdiQjBRB254LJNidzo15Q==}
+    peerDependencies:
+      vue: ^3.2.0
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
@@ -18689,6 +18703,8 @@ snapshots:
 
   module-details-from-path@1.0.4: {}
 
+  monaco-editor@0.52.2: {}
+
   motion-dom@12.38.0:
     dependencies:
       motion-utils: 12.36.0
@@ -20505,6 +20521,10 @@ snapshots:
   spdx-license-ids@3.0.22: {}
 
   speakingurl@14.0.1: {}
+
+  splitpanes@4.1.2(vue@3.5.27(typescript@5.9.3)):
+    dependencies:
+      vue: 3.5.27(typescript@5.9.3)
 
   sprintf-js@1.0.3: {}
 
