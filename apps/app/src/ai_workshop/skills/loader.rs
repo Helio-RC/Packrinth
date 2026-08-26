@@ -151,11 +151,20 @@ impl SkillLoader {
 		self.get_skill(name).ok_or_else(|| other_err(format!("Unknown skill: {name}")))
 	}
 
-	/// 将用户提供的技能目录复制到 base_path（safe_path 校验），随后重新加载。
+	/// 将用户提供的技能目录复制到 base_path，随后重新加载。
+	/// 来源可为任意已存在的目录（canonicalize + 存在性/目录校验，不做前缀包含限制）；
+	/// 目标始终为 `base_path.join(dir_name)`，其中 dir_name 取自规范化后来源的叶名，
+	/// 因此不会逃逸 base_path。
 	pub async fn import_skill(&self, path: &str) -> Result<()> {
 		let src = PathBuf::from(path);
-		// 路径遍历防护：canonicalize 后必须仍位于 base_path 内。
-		let canonical_src = safe_path(&self.base_path, &src).map_err(other_err)?;
+		let canonical_src = std::fs::canonicalize(&src)
+			.map_err(|e| other_err(format!("无法解析来源路径 {}: {e}", src.display())))?;
+		if !canonical_src.is_dir() {
+			return Err(other_err(format!(
+				"技能来源不是目录: {}",
+				canonical_src.display()
+			)));
+		}
 		let dir_name = canonical_src
 			.file_name()
 			.ok_or_else(|| other_err("无效技能目录"))?
@@ -203,7 +212,7 @@ fn validate_toml(parsed: &SkillToml) -> std::result::Result<(), String> {
 		|| !parsed
 			.name
 			.chars()
-			.all(|c| c.is_ascii_alphanumeric() || c == ' ' || c == '-')
+			.all(|c| c.is_alphanumeric() || c == ' ' || c == '-')
 	{
 		return Err(format!("name 仅允许字母、数字、空格和连字符: {:?}", parsed.name));
 	}
@@ -214,18 +223,6 @@ fn validate_toml(parsed: &SkillToml) -> std::result::Result<(), String> {
 		return Err(format!("keywords 必须为 1~20 个: {}", parsed.keywords.len()));
 	}
 	Ok(())
-}
-
-/// 路径遍历防护：canonicalize 用户路径后与 base_path 前缀比较，`../` 逃逸拒绝。
-fn safe_path(base_path: &Path, candidate: &Path) -> std::result::Result<PathBuf, String> {
-	let canonical_base = std::fs::canonicalize(base_path)
-		.map_err(|e| format!("无法解析技能根目录 {}: {e}", base_path.display()))?;
-	let canonical_candidate = std::fs::canonicalize(candidate)
-		.map_err(|e| format!("无法解析路径 {}: {e}", candidate.display()))?;
-	if !canonical_candidate.starts_with(&canonical_base) {
-		return Err(format!("不安全路径，已逃逸技能目录: {}", candidate.display()));
-	}
-	Ok(canonical_candidate)
 }
 
 /// 递归复制目录内容。
@@ -336,6 +333,27 @@ keywords = ["a"]
 	}
 
 	#[tokio::test]
+	async fn accepts_unicode_name() {
+		let base = temp_base();
+		write_skill(
+			&base,
+			"中文技能",
+			r#"
+name = "中文技能 助手"
+description = "x"
+keywords = ["中文"]
+"#,
+			None,
+		);
+		let loader = SkillLoader::new(base);
+		let failed = loader.load_all().await;
+		assert!(failed.is_empty(), "中文名技能应加载成功，失败: {failed:?}");
+		let skills = loader.skills();
+		assert_eq!(skills.len(), 1);
+		assert_eq!(skills[0].name, "中文技能 助手");
+	}
+
+	#[tokio::test]
 	async fn rejects_empty_keywords() {
 		let base = temp_base();
 		write_skill(
@@ -396,26 +414,52 @@ keywords = ["a"]
 	}
 
 	#[tokio::test]
-	async fn import_rejects_path_traversal() {
+	async fn import_accepts_external_dir_without_escape() {
 		let base = temp_base();
+		// base 之外的目录，作为导入来源。
+		let outside = base.parent().unwrap().join("outside");
 		write_skill(
-			&base,
-			"src-skill",
+			&outside,
+			"external",
 			r#"
-name = "src"
+name = "external"
 description = "x"
 keywords = ["a"]
 "#,
 			None,
 		);
-		// base 之外的目录
-		let outside = base.parent().unwrap().join("outside");
-		std::fs::create_dir_all(&outside).unwrap();
 		let loader = SkillLoader::new(base.clone());
-		// 通过 ../ 逃逸到 base 之外。
-		let escaped = base.join("src-skill").join("../../outside");
-		let res = loader.import_skill(escaped.to_str().unwrap()).await;
-		assert!(res.is_err(), "逃逸路径应被拒绝，实际: {res:?}");
+		// 来源不受 base_path 限制；即使通过 ../ 拼出外部路径，canonicalize 也会解析到
+		// 该外部目录，其叶名作为目标，落点在 base_path 内，不会逃逸。
+		let external_path = base.join("..").join("outside").join("external");
+		let res = loader.import_skill(external_path.to_str().unwrap()).await;
+		assert!(res.is_ok(), "导入外部目录应成功，实际: {res:?}");
+		// 目标位于 base_path 内（叶名），而非写入 base_path 之外。
+		// 技能目录被复制到 base_path 内（叶名），而非写入 base_path 之外。
+		assert!(base.join("external").is_dir());
+		let skills = loader.skills();
+		assert_eq!(skills.len(), 1);
+		assert_eq!(skills[0].name, "external");
+	}
+
+	#[tokio::test]
+	async fn import_rejects_nonexistent_source() {
+		let base = temp_base();
+		let loader = SkillLoader::new(base.clone());
+		let missing = base.parent().unwrap().join("does_not_exist");
+		let res = loader.import_skill(missing.to_str().unwrap()).await;
+		assert!(res.is_err(), "不存在的来源应被拒绝，实际: {res:?}");
+	}
+
+	#[tokio::test]
+	async fn import_rejects_non_directory_source() {
+		let base = temp_base();
+		// 目标是普通文件而非目录。
+		let file = base.parent().unwrap().join("plain_file");
+		std::fs::write(&file, "x").unwrap();
+		let loader = SkillLoader::new(base);
+		let res = loader.import_skill(file.to_str().unwrap()).await;
+		assert!(res.is_err(), "文件来源应被拒绝，实际: {res:?}");
 	}
 }
 // === AI-WORKSHOP END ===
