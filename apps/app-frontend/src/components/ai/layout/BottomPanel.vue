@@ -1,9 +1,16 @@
 <template>
 	<section class="flex flex-col h-full w-full bg-bg-raised overflow-hidden">
-		<header class="flex items-center gap-2 px-3 h-8 shrink-0 border-b border-divider">
-			<h2 class="text-sm font-semibold text-contrast flex-1 truncate">
-				{{ formatMessage(messages.title) }}
-			</h2>
+		<header class="flex items-center gap-1 px-2 h-8 shrink-0 border-b border-divider">
+			<button
+				v-for="tab in tabs"
+				:key="tab.id"
+				class="h-full px-2 text-sm font-medium cursor-pointer border-none bg-transparent transition-colors"
+				:class="activeTab === tab.id ? 'text-contrast' : 'text-secondary hover:text-contrast'"
+				@click="activeTab = tab.id"
+			>
+				{{ tab.label }}
+			</button>
+			<div class="flex-1" />
 			<button
 				class="text-primary hover:text-contrast cursor-pointer border-none bg-transparent p-1"
 				:title="formatMessage(messages.hide)"
@@ -13,7 +20,9 @@
 			</button>
 		</header>
 		<div class="flex-1 min-h-0 overflow-hidden">
-			<slot />
+			<LogViewer v-if="activeTab === 'logs'" />
+			<ToolOutput v-else-if="activeTab === 'tools'" />
+			<TroubleshootReport v-else />
 		</div>
 	</section>
 </template>
@@ -21,26 +30,48 @@
 <script setup lang="ts">
 import { ChevronDownIcon } from '@modrinth/assets'
 import { defineMessages, useVIntl } from '@modrinth/ui'
+import { computed, ref } from 'vue'
 
+import LogViewer from '@/components/ai/bottom/LogViewer.vue'
+import ToolOutput from '@/components/ai/bottom/ToolOutput.vue'
+import TroubleshootReport from '@/components/ai/bottom/TroubleshootReport.vue'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
 defineOptions({
 	name: 'AiBottomPanel',
 })
 
+type BottomTabId = 'logs' | 'tools' | 'troubleshoot'
+
 const { formatMessage } = useVIntl()
 const store = useAiWorkshopStore()
 
 const messages = defineMessages({
-	title: {
-		id: 'ai.bottom-panel.title',
-		defaultMessage: '底部面板',
-	},
 	hide: {
 		id: 'ai.bottom-panel.hide',
 		defaultMessage: '收起底部面板',
 	},
+	tabLogs: {
+		id: 'ai.logs.title',
+		defaultMessage: '日志',
+	},
+	tabTools: {
+		id: 'ai.tool-output.title',
+		defaultMessage: '工具输出',
+	},
+	tabTroubleshoot: {
+		id: 'ai.troubleshoot.title',
+		defaultMessage: '排障报告',
+	},
 })
+
+const activeTab = ref<BottomTabId>('logs')
+
+const tabs = computed<{ id: BottomTabId; label: string }[]>(() => [
+	{ id: 'logs', label: formatMessage(messages.tabLogs) },
+	{ id: 'tools', label: formatMessage(messages.tabTools) },
+	{ id: 'troubleshoot', label: formatMessage(messages.tabTroubleshoot) },
+])
 
 const toggle = () => {
 	store.layout.bottomVisible = !store.layout.bottomVisible

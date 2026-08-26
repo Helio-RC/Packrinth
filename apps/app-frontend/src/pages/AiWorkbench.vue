@@ -39,12 +39,6 @@
 				</div>
 			</div>
 		</template>
-
-		<template #bottom>
-			<div class="flex items-center justify-center h-full text-sm text-secondary">
-				{{ formatMessage(messages.bottomPlaceholder) }}
-			</div>
-		</template>
 	</WorkbenchLayout>
 </template>
 
@@ -77,10 +71,6 @@ const messages = defineMessages({
 	sidebarPlaceholder: {
 		id: 'ai.workbench.sidebar-placeholder',
 		defaultMessage: '侧边面板内容将在此显示',
-	},
-	bottomPlaceholder: {
-		id: 'ai.workbench.bottom-placeholder',
-		defaultMessage: '底部面板：日志、工具输出与排障报告',
 	},
 })
 

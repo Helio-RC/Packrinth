@@ -71,7 +71,7 @@ const FACTORY_LAYOUT: WorkshopLayout = {
 	bottomPanelHeight: 220,
 	splitRatio: 0.6,
 	sidebarVisible: true,
-	bottomVisible: false,
+	bottomVisible: true,
 }
 
 /** 工具进度事件监听器（模块级单例，避免重复注册）。 */
