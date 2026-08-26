@@ -51,6 +51,7 @@ schemars = "1"
 scraper = "0.24"
 tantivy = "0.26"
 tauri-plugin-store = "2"
+toml = { workspace = true }
 # === AI-WORKSHOP END ===
 tracing = { workspace = true }
 tracing-error = { workspace = true }
