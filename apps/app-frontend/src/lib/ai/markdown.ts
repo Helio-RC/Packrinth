@@ -22,7 +22,7 @@ function stripEventHandlers(html: string): string {
 
 /**
  * 将 Markdown 源文本渲染为安全的 HTML 字符串。
- * @param html 待渲染的 Markdown 源文本
+ * @param source 待渲染的 Markdown 源文本
  */
 export function renderMarkdown(source: string): string {
 	return stripEventHandlers(md.render(source))

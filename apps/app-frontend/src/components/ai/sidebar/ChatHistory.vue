@@ -37,6 +37,7 @@
 					<span
 						v-if="confirmingDeleteId === conversation.id"
 						class="flex items-center gap-1 text-xs text-red-500"
+						@click.stop
 					>
 						{{ formatMessage(messages.confirm) }}
 					</span>

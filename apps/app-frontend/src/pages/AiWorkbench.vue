@@ -93,7 +93,11 @@ const isStreamingMessage = (id: string) => {
 }
 
 watch(
-	() => [store.messages.length, store.streaming],
+	() => [
+		store.messages.length,
+		store.streaming,
+		store.messages[store.messages.length - 1]?.content.length,
+	],
 	async () => {
 		await nextTick()
 		scrollEl.value?.scrollTo({ top: scrollEl.value.scrollHeight })

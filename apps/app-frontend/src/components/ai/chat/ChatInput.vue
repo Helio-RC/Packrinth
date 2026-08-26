@@ -8,14 +8,22 @@
 				{{ formatMessage(messages.commandsHint) }}
 			</p>
 			<button
-				v-for="command in filteredCommands"
+				v-for="(command, index) in filteredCommands"
 				:key="command.name"
-				class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-contrast hover:bg-bg"
+				class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-contrast"
+				:class="index === highlightedIndex ? 'bg-bg' : 'hover:bg-bg'"
 				type="button"
 				@click="runCommand(command)"
+				@mouseenter="highlightedIndex = index"
 			>
 				<span class="font-semibold text-brand">{{ command.name }}</span>
-				<span class="text-secondary">{{ command.description }}</span>
+				<span
+					v-if="confirmingName === command.name"
+					class="text-red-500"
+				>
+					{{ formatMessage(messages.confirmClear) }}
+				</span>
+				<span v-else class="text-secondary">{{ command.description }}</span>
 			</button>
 			<p v-if="filteredCommands.length === 0" class="px-3 py-2 text-sm text-secondary">
 				{{ formatMessage(messages.noCommands) }}
@@ -51,7 +59,7 @@
 <script setup lang="ts">
 import { SendIcon } from '@modrinth/assets'
 import { Button, defineMessages, useVIntl } from '@modrinth/ui'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
@@ -64,6 +72,7 @@ interface ChatCommand {
 	description: string
 	run?: () => void | Promise<void>
 	displayOnly?: boolean
+	needsConfirm?: boolean
 }
 
 const { formatMessage } = useVIntl()
@@ -94,6 +103,10 @@ const messages = defineMessages({
 		id: 'ai.chat.command.clear',
 		defaultMessage: '清空全部会话',
 	},
+	confirmClear: {
+		id: 'ai.chat.command.confirm-clear',
+		defaultMessage: '确认清空全部会话？',
+	},
 	help: {
 		id: 'ai.chat.command.help',
 		defaultMessage: '显示命令说明',
@@ -102,6 +115,8 @@ const messages = defineMessages({
 
 const input = ref('')
 const textarea = ref<HTMLTextAreaElement | null>(null)
+const highlightedIndex = ref(0)
+const confirmingName = ref<string | null>(null)
 
 const commands: ChatCommand[] = [
 	{
@@ -112,6 +127,7 @@ const commands: ChatCommand[] = [
 	{
 		name: '/clear',
 		description: formatMessage(messages.clear),
+		needsConfirm: true,
 		run: () => store.clearAll(),
 	},
 	{
@@ -129,6 +145,13 @@ const filteredCommands = computed(() => {
 	return commands.filter((c) => c.name.slice(1).toLowerCase().includes(query))
 })
 
+watch(commandOpen, (open) => {
+	if (!open) {
+		highlightedIndex.value = 0
+		confirmingName.value = null
+	}
+})
+
 const canSend = computed(() => input.value.trim().length > 0 && !store.streaming)
 
 const autoGrow = () => {
@@ -140,9 +163,31 @@ const autoGrow = () => {
 
 const onInput = () => {
 	autoGrow()
+	if (highlightedIndex.value >= filteredCommands.value.length) {
+		highlightedIndex.value = 0
+	}
+	if (confirmingName.value) confirmingName.value = null
 }
 
 const onKeydown = (event: KeyboardEvent) => {
+	if (commandOpen.value && filteredCommands.value.length > 0) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault()
+			const command = filteredCommands.value[highlightedIndex.value]
+			if (command) void runCommand(command)
+			return
+		}
+		if (event.key === 'ArrowDown') {
+			event.preventDefault()
+			highlightedIndex.value = Math.min(highlightedIndex.value + 1, filteredCommands.value.length - 1)
+			return
+		}
+		if (event.key === 'ArrowUp') {
+			event.preventDefault()
+			highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0)
+			return
+		}
+	}
 	if (event.key === 'Enter' && !event.shiftKey) {
 		event.preventDefault()
 		void send()
@@ -150,6 +195,11 @@ const onKeydown = (event: KeyboardEvent) => {
 }
 
 const runCommand = async (command: ChatCommand) => {
+	if (command.needsConfirm && confirmingName.value !== command.name) {
+		confirmingName.value = command.name
+		return
+	}
+	confirmingName.value = null
 	input.value = ''
 	autoGrow()
 	if (command.run) await command.run()
