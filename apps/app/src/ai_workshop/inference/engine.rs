@@ -223,6 +223,8 @@ impl InferenceEngine {
 				.task_registry
 				.new_token(&task_id)
 				.unwrap_or_default(),
+			// AI 引擎执行时无前端进度 UI，不接线 tool-progress。
+			emit_progress: None,
 			..Default::default()
 		};
 		match tool.execute(call.arguments.clone(), &context).await {

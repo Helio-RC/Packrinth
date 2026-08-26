@@ -300,7 +300,8 @@ pub async fn tool_execute<R: Runtime>(
 ) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
 	let task_id = uuid::Uuid::new_v4().to_string();
-	let mut response = ui_commands::execute_tool(state.inner(), &task_id, &name, params).await?;
+	let mut response =
+		ui_commands::execute_tool(state.inner(), Some(&app), &task_id, &name, params).await?;
 	if let Some(obj) = response.as_object_mut() {
 		obj.insert("task_id".to_string(), serde_json::Value::String(task_id));
 	}

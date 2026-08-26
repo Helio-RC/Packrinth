@@ -26,9 +26,24 @@ impl LogBuffer {
 		inner.push_back(line);
 	}
 
-	/// 将缓冲区内容追加写入 `<dir>/app.log`。
+	/// 将缓冲区内容追加写入 `<dir>/app.log`（不覆盖历史）。
 	pub fn flush_to_disk(&self, dir: &Path) -> Result<(), String> {
-		let _ = dir;
+		let content = self.content().join("\n");
+		if content.is_empty() {
+			return Ok(());
+		}
+		std::fs::create_dir_all(dir).map_err(|e| format!("failed to create logs dir: {e}"))?;
+		let path = dir.join("app.log");
+		let mut file = std::fs::OpenOptions::new()
+			.create(true)
+			.append(true)
+			.open(&path)
+			.map_err(|e| format!("failed to open {}: {e}", path.display()))?;
+		use std::io::Write;
+		file.write_all(content.as_bytes())
+			.map_err(|e| format!("failed to write {}: {e}", path.display()))?;
+		file.write_all(b"\n")
+			.map_err(|e| format!("failed to write {}: {e}", path.display()))?;
 		Ok(())
 	}
 
@@ -49,6 +64,65 @@ impl LogBuffer {
 	/// 仅测试/调试用：注入虚假日志触发排障流程。
 	pub fn inject(&self, log: String) {
 		self.push(log);
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::fs;
+
+	fn temp_dir(tag: &str) -> std::path::PathBuf {
+		let dir = std::env::temp_dir().join(format!(
+			"packrinth-ai-logg-{tag}-{}",
+			std::process::id()
+		));
+		let _ = fs::remove_dir_all(&dir);
+		dir
+	}
+
+	#[test]
+	fn flush_writes_buffered_lines_to_app_log() {
+		let dir = temp_dir("write");
+		let buffer = LogBuffer::new(100);
+		buffer.push("line 1".to_string());
+		buffer.push("line 2".to_string());
+
+		buffer.flush_to_disk(&dir).expect("flush should succeed");
+
+		let raw = fs::read_to_string(dir.join("app.log")).expect("app.log should exist");
+		assert!(raw.contains("line 1"));
+		assert!(raw.contains("line 2"));
+		fs::remove_dir_all(&dir).ok();
+	}
+
+	#[test]
+	fn second_flush_appends_instead_of_overwriting() {
+		let dir = temp_dir("append");
+		let buffer = LogBuffer::new(100);
+		buffer.push("first".to_string());
+		buffer.flush_to_disk(&dir).expect("first flush should succeed");
+
+		buffer.push("second".to_string());
+		buffer.flush_to_disk(&dir).expect("second flush should succeed");
+
+		let raw = fs::read_to_string(dir.join("app.log")).expect("app.log should exist");
+		assert!(raw.contains("second"), "second flush content must be appended");
+		// 追加而非覆盖：第一次 flush 写入的 "first" 应被保留（出现次数 >= 2）。
+		assert!(
+			raw.matches("first").count() >= 2,
+			"first flush history must be preserved (append, not overwrite)"
+		);
+		fs::remove_dir_all(&dir).ok();
+	}
+
+	#[test]
+	fn flush_empty_buffer_creates_no_file() {
+		let dir = temp_dir("empty");
+		let buffer = LogBuffer::new(100);
+		buffer.flush_to_disk(&dir).expect("flush should succeed");
+		assert!(!dir.join("app.log").exists(), "empty buffer must not create file");
+		fs::remove_dir_all(&dir).ok();
 	}
 }
 // === AI-WORKSHOP END ===
