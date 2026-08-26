@@ -249,8 +249,12 @@ fn git_diff_impl(root: &Path, commit: Option<&str>) -> Result<Value, String> {
 			.map(|c| c.tree().map_err(|e| e.to_string()))
 			.transpose()?,
 	};
+	// 无基准（空仓库且未指定 commit）时没有可比对的差异。
+	let Some(base_tree) = base_tree else {
+		return Ok(json!({ "files": [], "count": 0 }));
+	};
 	let diff = repo
-		.diff_tree_to_workdir_with_index(base_tree.as_ref(), None)
+		.diff_tree_to_workdir_with_index(Some(&base_tree), None)
 		.map_err(|e| e.to_string())?;
 	let mut files = Vec::new();
 	for (i, delta) in diff.deltas().enumerate() {
