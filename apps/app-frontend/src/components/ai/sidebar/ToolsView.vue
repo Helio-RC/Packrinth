@@ -83,11 +83,11 @@
 							</p>
 						</div>
 
-						<div v-if="error" class="text-xs text-red-500" role="alert">
-							{{ error }}
+						<div v-if="error[tool.name]" class="text-xs text-red-500" role="alert">
+							{{ error[tool.name] }}
 						</div>
 
-						<Button type="colored" size="sm" :loading="executing === tool.name" native-type="submit">
+						<Button type="colored" size="sm" :loading="executing[tool.name]" native-type="submit">
 							{{ formatMessage(messages.run) }}
 						</Button>
 					</form>
@@ -152,6 +152,10 @@ const messages = defineMessages({
 		id: 'ai.tools.invalid-json',
 		defaultMessage: '无效的 JSON',
 	},
+	requiredField: {
+		id: 'ai.tools.required-field',
+		defaultMessage: '此项为必填',
+	},
 })
 
 const openTool = reactive(new Set<string>())
@@ -183,6 +187,7 @@ const schemaFields = (tool: ToolInfo): ParamField[] => {
 const toggleForm = (tool: ToolInfo) => {
 	const key = tool.name
 	error[key] = ''
+	if (executing[key]) return
 	if (openTool.has(key)) {
 		openTool.delete(key)
 		return
@@ -196,8 +201,11 @@ const toggleForm = (tool: ToolInfo) => {
 
 const parseValue = (field: ParamField, raw: string): unknown => {
 	const trimmed = raw.trim()
-	if (field.type === 'boolean') return raw === 'true'
-	if (field.type === 'number') return trimmed === '' ? undefined : Number(trimmed)
+	if (field.type === 'number') {
+		if (trimmed === '') return undefined
+		const value = Number(trimmed)
+		return Number.isNaN(value) ? undefined : value
+	}
 	if (field.type === 'array' || field.type === 'object') {
 		if (trimmed === '') return undefined
 		try {
@@ -233,7 +241,7 @@ const submit = async (tool: ToolInfo) => {
 			if (value !== undefined) {
 				params[field.key] = value
 			} else if (field.required) {
-				error[tool.name] = formatMessage(messages.invalidJson)
+				error[tool.name] = formatMessage(messages.requiredField)
 				return
 			}
 		} catch {
