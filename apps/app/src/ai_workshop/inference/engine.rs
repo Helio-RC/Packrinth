@@ -341,3 +341,129 @@ fn openai_parameters(params_schema: &serde_json::Value) -> serde_json::Value {
 		.cloned()
 		.unwrap_or_else(|| params_schema.clone())
 }
+
+#[cfg(test)]
+mod tests {
+	use std::sync::Arc;
+
+	use crate::ai_workshop::chat_history::repository::ChatHistoryRepository;
+	use crate::ai_workshop::config::{AiWorkshopConfig, ConfigManager};
+	use crate::ai_workshop::inference::engine::InferenceEngine;
+	use crate::ai_workshop::knowledge::KnowledgeRouter;
+	use crate::ai_workshop::providers::provider_trait::StreamEvent;
+	use crate::ai_workshop::skills::SkillLoader;
+	use crate::ai_workshop::toolchain::ToolchainRegistry;
+	use crate::ai_workshop::tools::context::{InstanceLockManager, TaskRegistry};
+	use crate::ai_workshop::tools::registry::ToolRegistry;
+	use crate::ai_workshop::troubleshooter::LogBuffer;
+	use crate::ai_workshop::AiWorkshopState;
+
+	struct TestHarness {
+		state: Arc<AiWorkshopState>,
+		_dir: std::path::PathBuf,
+	}
+
+	impl TestHarness {
+		fn new() -> Self {
+			let dir = std::env::temp_dir().join(format!("ai_workshop_test_{}", uuid::Uuid::new_v4()));
+			std::fs::create_dir_all(&dir).unwrap();
+
+			let mut config = AiWorkshopConfig::default();
+			config.mock_enabled = true;
+
+			let config_manager = ConfigManager::for_tests(config, dir.join("config"));
+			let chat_history = Arc::new(
+				ChatHistoryRepository::open(&dir.join("chat.db")).expect("open temp db"),
+			);
+			let tool_registry = Arc::new(ToolRegistry::new());
+			let toolchain_registry = Arc::new(ToolchainRegistry::new());
+			let skill_loader = Arc::new(SkillLoader::new(dir.join("skills")));
+			let knowledge_router = Arc::new(KnowledgeRouter::new(dir.join("bm25")));
+			let instance_lock_manager = Arc::new(InstanceLockManager::default());
+			let log_buffer = Arc::new(LogBuffer::new(100));
+			let task_registry = Arc::new(TaskRegistry::default());
+
+			let state = Arc::new(AiWorkshopState {
+				config_manager,
+				chat_history,
+				tool_registry,
+				toolchain_registry,
+				skill_loader,
+				knowledge_router,
+				instance_lock_manager,
+				log_buffer,
+				task_registry,
+			});
+			Self { state, _dir: dir }
+		}
+	}
+
+	impl Drop for TestHarness {
+		fn drop(&mut self) {
+			let _ = std::fs::remove_dir_all(&self._dir);
+		}
+	}
+
+	#[tokio::test]
+	async fn run_single_turn_greeting_returns_reply_and_usage() {
+		let harness = TestHarness::new();
+		let conversation = harness
+			.state
+			.chat_history
+			.create_conversation("test", None)
+			.await
+			.unwrap();
+		let engine = InferenceEngine::new(harness.state.clone());
+		let result = engine
+			.run_single_turn(&conversation.id, "你好")
+			.await
+			.expect("single turn should succeed");
+		assert!(!result.reply.is_empty());
+		assert!(!result.usage.is_null(), "usage should be recorded");
+	}
+
+	#[tokio::test]
+	async fn run_multi_turn_tool_call_does_not_panic() {
+		let harness = TestHarness::new();
+		let conversation = harness
+			.state
+			.chat_history
+			.create_conversation("test", None)
+			.await
+			.unwrap();
+		let engine = InferenceEngine::new(harness.state.clone());
+
+		let events = Arc::new(std::sync::Mutex::new(Vec::new()));
+		let events_capture = events.clone();
+		engine
+			.run_multi_turn(
+				&conversation.id,
+				"安装 JEI",
+				Box::new(move |event: StreamEvent| {
+					events_capture.lock().unwrap().push(event);
+				}),
+			)
+			.await
+			.expect("multi turn should complete without error");
+
+		let events = events.lock().unwrap();
+		assert!(events.iter().any(|e| e.done), "a done event should be emitted");
+		assert!(
+			events.iter().any(|e| e.tool_calls.is_some()),
+			"tool call events should be emitted"
+		);
+		drop(events);
+
+		let (_, messages) = harness
+			.state
+			.chat_history
+			.get_conversation(&conversation.id, 100, 0)
+			.await
+			.unwrap()
+			.unwrap();
+		assert!(
+			messages.iter().any(|m| m.role == "tool"),
+			"tool result should be persisted"
+		);
+	}
+}

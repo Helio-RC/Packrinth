@@ -236,6 +236,16 @@ impl ConfigManager {
 		self.inner.read().unwrap().clone()
 	}
 
+	#[cfg(test)]
+	pub(crate) fn for_tests(config: AiWorkshopConfig, ai_root: PathBuf) -> Arc<Self> {
+		Arc::new(Self {
+			inner: RwLock::new(config),
+			ai_root: ai_root.clone(),
+			config_path: ai_root.join("config.json"),
+			secrets_path: ai_root.join("secrets.json"),
+		})
+	}
+
 	pub async fn save_config(&self, config: AiWorkshopConfig) -> Result<()> {
 		self.persist(&config)?;
 		*self.inner.write().unwrap() = config;

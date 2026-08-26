@@ -251,3 +251,181 @@ impl ChatHistoryRepository {
 		Ok(count)
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	struct TestDb {
+		repo: ChatHistoryRepository,
+		_dir: std::path::PathBuf,
+	}
+
+	impl TestDb {
+		fn new() -> Self {
+			let dir = std::env::temp_dir().join(format!("ai_workshop_test_{}", Uuid::new_v4()));
+			std::fs::create_dir_all(&dir).unwrap();
+			let repo = ChatHistoryRepository::open(&dir.join("chat.db")).expect("open temp db");
+			Self { repo, _dir: dir }
+		}
+	}
+
+	impl Drop for TestDb {
+		fn drop(&mut self) {
+			let _ = std::fs::remove_dir_all(&self._dir);
+		}
+	}
+
+	#[tokio::test]
+	async fn create_add_get_conversation() {
+		let db = TestDb::new();
+		let conversation = db.repo.create_conversation("会话", None).await.unwrap();
+		db.repo
+			.add_message(models::NewMessage {
+				conversation_id: conversation.id.clone(),
+				role: "user".to_string(),
+				content: "你好".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+			})
+			.await
+			.unwrap();
+		db.repo
+			.add_message(models::NewMessage {
+				conversation_id: conversation.id.clone(),
+				role: "assistant".to_string(),
+				content: "你好！".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+			})
+			.await
+			.unwrap();
+
+		let (got, messages) = db
+			.repo
+			.get_conversation(&conversation.id, 50, 0)
+			.await
+			.unwrap()
+			.unwrap();
+		assert_eq!(got.title, "会话");
+		assert_eq!(messages.len(), 2);
+		assert_eq!(messages[0].role, "user");
+		assert_eq!(messages[1].role, "assistant");
+	}
+
+	#[tokio::test]
+	async fn rename_conversation() {
+		let db = TestDb::new();
+		let conversation = db.repo.create_conversation("旧标题", None).await.unwrap();
+		db.repo
+			.rename_conversation(&conversation.id, "新标题")
+			.await
+			.unwrap();
+		let (got, _) = db
+			.repo
+			.get_conversation(&conversation.id, 50, 0)
+			.await
+			.unwrap()
+			.unwrap();
+		assert_eq!(got.title, "新标题");
+	}
+
+	#[tokio::test]
+	async fn delete_conversation_cascades_messages() {
+		let db = TestDb::new();
+		let conversation = db.repo.create_conversation("待删除", None).await.unwrap();
+		db.repo
+			.add_message(models::NewMessage {
+				conversation_id: conversation.id.clone(),
+				role: "user".to_string(),
+				content: "hi".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+			})
+			.await
+			.unwrap();
+
+		db.repo.delete_conversation(&conversation.id).await.unwrap();
+		assert!(db
+			.repo
+			.get_conversation(&conversation.id, 50, 0)
+			.await
+			.unwrap()
+			.is_none());
+	}
+
+	#[tokio::test]
+	async fn export_conversation_json_and_markdown() {
+		let db = TestDb::new();
+		let conversation = db.repo.create_conversation("导出", None).await.unwrap();
+		db.repo
+			.add_message(models::NewMessage {
+				conversation_id: conversation.id.clone(),
+				role: "user".to_string(),
+				content: "hello".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+			})
+			.await
+			.unwrap();
+
+		let json = db.repo.export_conversation(&conversation.id, "json").await.unwrap();
+		let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+		assert!(parsed.get("conversation").is_some());
+		assert!(parsed.get("messages").is_some());
+
+		let md = db.repo.export_conversation(&conversation.id, "markdown").await.unwrap();
+		assert!(md.contains("# 导出"));
+		assert!(md.contains("**user**: hello"));
+
+		let err = db.repo.export_conversation(&conversation.id, "csv").await;
+		assert!(err.is_err());
+	}
+
+	#[tokio::test]
+	async fn clear_all_requires_confirm() {
+		let db = TestDb::new();
+		db.repo.create_conversation("a", None).await.unwrap();
+		db.repo.create_conversation("b", None).await.unwrap();
+
+		assert!(db.repo.clear_all(false).await.is_err());
+
+		let deleted = db.repo.clear_all(true).await.unwrap();
+		assert_eq!(deleted, 2);
+		assert_eq!(db.repo.count_conversations().await.unwrap(), 0);
+	}
+
+	#[tokio::test]
+	async fn count_conversations() {
+		let db = TestDb::new();
+		assert_eq!(db.repo.count_conversations().await.unwrap(), 0);
+		db.repo.create_conversation("a", None).await.unwrap();
+		db.repo.create_conversation("b", None).await.unwrap();
+		assert_eq!(db.repo.count_conversations().await.unwrap(), 2);
+	}
+
+	#[tokio::test]
+	async fn pagination_across_60_messages() {
+		let db = TestDb::new();
+		let conversation = db.repo.create_conversation("分页", None).await.unwrap();
+		for i in 0..60 {
+			db.repo
+				.add_message(models::NewMessage {
+					conversation_id: conversation.id.clone(),
+					role: "user".to_string(),
+					content: format!("消息 {i}"),
+					tool_calls: None,
+					tool_call_id: None,
+				})
+				.await
+				.unwrap();
+		}
+
+		let (_, page1) = db.repo.get_conversation(&conversation.id, 50, 0).await.unwrap().unwrap();
+		let (_, page2) = db.repo.get_conversation(&conversation.id, 50, 50).await.unwrap().unwrap();
+		assert_eq!(page1.len(), 50);
+		assert_eq!(page2.len(), 10);
+		assert_eq!(page1[0].content, "消息 0");
+		assert_eq!(page2[0].content, "消息 50");
+	}
+}

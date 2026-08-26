@@ -276,3 +276,120 @@ impl AiProvider for MockProvider {
 		Ok(())
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::ai_workshop::providers::provider_trait::{AiMessage, AiMessageRole};
+
+	fn user_message(content: &str) -> Vec<AiMessage> {
+		vec![AiMessage {
+			role: AiMessageRole::User,
+			content: content.to_string(),
+			tool_calls: None,
+			tool_call_id: None,
+			name: None,
+		}]
+	}
+
+	#[tokio::test]
+	async fn greeting_returns_content_without_tools() {
+		let provider = MockProvider;
+		let response = provider.chat(&user_message("你好"), &[]).await.unwrap();
+		let content = response.content.expect("greeting should have content");
+		assert!(!content.is_empty());
+		assert!(response.tool_calls.is_empty());
+		let usage = response.usage.expect("usage should be present");
+		assert!(usage.total_tokens > 0);
+		assert_eq!(usage.total_tokens, usage.prompt_tokens + usage.completion_tokens);
+	}
+
+	#[tokio::test]
+	async fn install_triggers_search_mods_tool_call() {
+		let provider = MockProvider;
+		let response = provider
+			.chat(&user_message("帮我安装 JEI"), &[])
+			.await
+			.unwrap();
+		assert_eq!(response.tool_calls.len(), 1);
+		assert_eq!(response.tool_calls[0].name, "search_mods");
+		let query = response.tool_calls[0]
+			.arguments
+			.get("query")
+			.and_then(|v| v.as_str())
+			.unwrap_or_default();
+		assert_eq!(query, "JEI");
+	}
+
+	#[tokio::test]
+	async fn multi_install_triggers_two_tool_calls() {
+		let provider = MockProvider;
+		let response = provider.chat(&user_message("安装多个"), &[]).await.unwrap();
+		assert_eq!(response.tool_calls.len(), 2);
+		assert!(response.tool_calls.iter().all(|c| c.name == "search_mods"));
+	}
+
+	#[tokio::test]
+	async fn error_case_returns_provider_error() {
+		let provider = MockProvider;
+		let err = provider.chat(&user_message("请报错给我看看"), &[]).await.unwrap_err();
+		assert!(err.to_string().contains("模拟的提供商错误"));
+	}
+
+	#[tokio::test]
+	async fn unmatched_input_falls_back() {
+		let provider = MockProvider;
+		let response = provider
+			.chat(&user_message("qwerty12345不存在的输入"), &[])
+			.await
+			.unwrap();
+		let content = response.content.unwrap_or_default();
+		assert!(content.contains("我不太确定具体要做什么"));
+	}
+
+	#[tokio::test]
+	async fn stream_sends_events_and_terminates() {
+		let provider = MockProvider;
+		let (tx, mut rx) = tokio::sync::mpsc::channel::<StreamEvent>(16);
+		provider.stream(&user_message("你好"), &[], tx).await.unwrap();
+		let mut events = Vec::new();
+		while let Some(event) = rx.recv().await {
+			events.push(event);
+		}
+		assert!(!events.is_empty(), "stream should emit at least one event");
+		assert!(events.iter().any(|e| e.delta.is_some()), "stream should emit deltas");
+		assert!(events.last().unwrap().done, "stream should end with done event");
+	}
+
+	#[tokio::test]
+	async fn match_case_uses_last_user_message() {
+		let messages = vec![
+			AiMessage {
+				role: AiMessageRole::User,
+				content: "你好".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+				name: None,
+			},
+			AiMessage {
+				role: AiMessageRole::Assistant,
+				content: "something".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+				name: None,
+			},
+			AiMessage {
+				role: AiMessageRole::User,
+				content: "搜索 sodium".to_string(),
+				tool_calls: None,
+				tool_call_id: None,
+				name: None,
+			},
+		];
+		let value: serde_json::Value =
+			serde_json::from_str(match_case(&messages)).expect("valid json");
+		let calls = value.get("tool_calls").and_then(|c| c.as_array()).unwrap();
+		assert_eq!(calls.len(), 1);
+		assert_eq!(calls[0]["name"], "search_mods");
+	}
+}
