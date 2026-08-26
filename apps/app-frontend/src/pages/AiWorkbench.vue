@@ -1,25 +1,42 @@
 <template>
 	<WorkbenchLayout>
 		<template #sidebar>
-			<ConsoleView v-if="store.activeActivity === 'console'" />
-			<div
-				v-else
-				class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center"
-			>
+			<ChatHistory v-if="store.activeActivity === 'chat'" />
+			<div v-else class="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
 				<SparklesIcon class="text-3xl text-primary" />
 				<p class="text-sm text-secondary">{{ formatMessage(messages.sidebarPlaceholder) }}</p>
 			</div>
 		</template>
 
 		<template #main>
-			<div class="flex flex-col items-center justify-center h-full gap-2 p-8 text-center">
-				<SparklesIcon class="text-4xl text-primary" />
-				<h1 class="text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.title) }}
-				</h1>
-				<p class="text-sm text-secondary max-w-md">
-					{{ formatMessage(messages.description) }}
-				</p>
+			<div class="flex flex-col h-full min-h-0">
+				<div
+					v-if="!store.currentConversationId || store.messages.length === 0"
+					class="flex flex-col items-center justify-center flex-1 gap-2 p-8 text-center"
+				>
+					<SparklesIcon class="text-4xl text-primary" />
+					<h1 class="text-lg font-semibold text-contrast">
+						{{ formatMessage(messages.title) }}
+					</h1>
+					<p class="text-sm text-secondary max-w-md">
+						{{ formatMessage(messages.description) }}
+					</p>
+				</div>
+
+				<div v-else ref="scrollEl" class="flex-1 min-h-0 overflow-y-auto px-4 py-4">
+					<div class="flex flex-col gap-3">
+						<ChatMessage
+							v-for="message in store.messages"
+							:key="message.id"
+							:message="message"
+							:streaming="isStreamingMessage(message.id)"
+						/>
+					</div>
+				</div>
+
+				<div class="border-t border-divider px-4 py-3">
+					<ChatInput />
+				</div>
 			</div>
 		</template>
 
@@ -34,9 +51,11 @@
 <script setup lang="ts">
 import { SparklesIcon } from '@modrinth/assets'
 import { defineMessages, useVIntl } from '@modrinth/ui'
-import { onMounted } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
-import ConsoleView from '@/components/ai/sidebar/ConsoleView.vue'
+import ChatInput from '@/components/ai/chat/ChatInput.vue'
+import ChatMessage from '@/components/ai/chat/ChatMessage.vue'
+import ChatHistory from '@/components/ai/sidebar/ChatHistory.vue'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
 defineOptions({
@@ -64,6 +83,22 @@ const messages = defineMessages({
 		defaultMessage: '底部面板：日志、工具输出与排障报告',
 	},
 })
+
+const scrollEl = ref<HTMLElement | null>(null)
+
+const isStreamingMessage = (id: string) => {
+	if (!store.streaming) return false
+	const last = store.messages[store.messages.length - 1]
+	return last?.role === 'assistant' && last.id === id
+}
+
+watch(
+	() => [store.messages.length, store.streaming],
+	async () => {
+		await nextTick()
+		scrollEl.value?.scrollTo({ top: scrollEl.value.scrollHeight })
+	},
+)
 
 onMounted(() => {
 	void store.init()
