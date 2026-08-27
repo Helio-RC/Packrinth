@@ -77,7 +77,7 @@ pnpm --filter @modrinth/app run tauri build --config tauri-dev.conf.json
 | PR → `main` | theseus-build, turbo-ci, check-rust, check-generic | PR 门禁：构建 dev 配置（不签名、dev productName），lint + test |
 | 手工 dispatch 构建 | theseus-build（分支/tag、tag-type、release-tag-suffix、环境、Windows 签名开关） | dev 或 release 构建；release 会再自动触发 theseus-release |
 | 手工 dispatch 发布 | theseus-release（version + build-run-id） | 消费已成功构建的 artifacts，生成 updates.json、发 GitHub Release |
-| 定时（周一） | i18n-pull（Crowdin 拉取翻译） | 翻译同步，无 push |
+| 定时（周一） | ~~i18n-pull~~（已删除：翻译来自上游 rebase，无需 Crowdin） | 无 |
 
 ### 版本设定（重点）
 
@@ -157,7 +157,7 @@ APP_VERSION="${APP_VERSION#v}"                     # 去掉前导 v 写入 manif
 | `APPLE_CERTIFICATE` / `APPLE_CERTIFICATE_PASSWORD` / `APPLE_SIGNING_IDENTITY` / `APPLE_ID` / `APPLE_TEAM_ID` / `APPLE_PASSWORD` | macOS 签名与公证（任意缺失 → 未签名构建） |
 | `DIGICERT_ONE_SIGNER_*`（API_KEY, CLIENT_CERTIFICATE_BASE64, CLIENT_CERTIFICATE_PASSWORD） | Windows 联署（缺失 → 未签名构建） |
 | `LAUNCHER_FILES_BUCKET_*`（ACCESS_KEY_ID/SECRET_ACCESS_KEY 为 Secret；NAME/REGION/ENDPOINT_URL 为 Variable）+ Variable `LAUNCHER_FILES_BUCKET_BASE_URL` | 更新文件服务器（R2/S3）；详见 [repo-config.md](repo-config.md) |
-| `CROWDIN_PROJECT_ID`（var）/ `CROWDIN_PERSONAL_TOKEN`（secret） | i18n 拉取（i18n-pull） |
+| ~~Crowdin~~ | 无需配置（翻译来自上游 rebase） |
 
 ## 更新 manifest 部署
 

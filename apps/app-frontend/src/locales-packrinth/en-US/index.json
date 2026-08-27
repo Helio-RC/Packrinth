@@ -1,272 +1,272 @@
 {
-  "ai.activitybar.toggle-position": {
-    "message": "Toggle activity bar position"
-  },
-  "ai.bottom-panel.hide": {
-    "message": "Hide bottom panel"
-  },
-  "ai.chat.command.clear": {
-    "message": "Clear all conversations"
-  },
-  "ai.chat.command.confirm-clear": {
-    "message": "Clear all conversations?"
-  },
-  "ai.chat.command.help": {
-    "message": "Show command help"
-  },
-  "ai.chat.command.new": {
-    "message": "New conversation"
-  },
-  "ai.chat.input.commands-hint": {
-    "message": "Commands"
-  },
-  "ai.chat.input.no-commands": {
-    "message": "No matching commands"
-  },
-  "ai.chat.input.placeholder": {
-    "message": "Type a message, / for commands…"
-  },
-  "ai.chat.input.send": {
-    "message": "Send"
-  },
-  "ai.chat.tool.approve": {
-    "message": "Approve"
-  },
-  "ai.chat.tool.approved": {
-    "message": "Approved"
-  },
-  "ai.chat.tool.arguments": {
-    "message": "Arguments"
-  },
-  "ai.chat.tool.reject": {
-    "message": "Reject"
-  },
-  "ai.chat.tool.title": {
-    "message": "Tool call"
-  },
-  "ai.console.advanced-title": {
-    "message": "Advanced"
-  },
-  "ai.console.conversations": {
-    "message": "Conversations"
-  },
-  "ai.console.dashboard-title": {
-    "message": "Dashboard"
-  },
-  "ai.console.disk": {
-    "message": "Disk usage"
-  },
-  "ai.console.enabled": {
-    "message": "AI main switch"
-  },
-  "ai.console.enabled-desc": {
-    "message": "Enable or disable the AI workbench."
-  },
-  "ai.console.flow-c": {
-    "message": "Provided by stream C"
-  },
-  "ai.console.git-branch": {
-    "message": "Git branch"
-  },
-  "ai.console.log-lines": {
-    "message": "Log lines"
-  },
-  "ai.console.log-lines-desc": {
-    "message": "Log buffer lines readable during AI analysis."
-  },
-  "ai.console.mock": {
-    "message": "Mock mode"
-  },
-  "ai.console.mock-desc": {
-    "message": "Run with mock data for offline debugging."
-  },
-  "ai.console.mods": {
-    "message": "Mods"
-  },
-  "ai.console.skills": {
-    "message": "Skills"
-  },
-  "ai.console.toggles-title": {
-    "message": "Toggles"
-  },
-  "ai.console.troubleshoot": {
-    "message": "Auto troubleshooting"
-  },
-  "ai.console.troubleshoot-desc": {
-    "message": "Provided by stream E"
-  },
-  "ai.history.clear-all": {
-    "message": "Clear all conversations"
-  },
-  "ai.history.confirm-clear": {
-    "message": "Clear all?"
-  },
-  "ai.history.confirm-delete": {
-    "message": "Delete?"
-  },
-  "ai.history.empty": {
-    "message": "No conversations yet"
-  },
-  "ai.history.new": {
-    "message": "New"
-  },
-  "ai.history.rename-placeholder": {
-    "message": "Enter a new name…"
-  },
-  "ai.history.title": {
-    "message": "Conversation history"
-  },
-  "ai.history.untitled": {
-    "message": "Untitled conversation"
-  },
-  "ai.knowledge.loading": {
-    "message": "Searching…"
-  },
-  "ai.knowledge.no-results": {
-    "message": "No results found"
-  },
-  "ai.knowledge.placeholder": {
-    "message": "Search the knowledge base…"
-  },
-  "ai.knowledge.prompt": {
-    "message": "Enter a keyword to start searching"
-  },
-  "ai.knowledge.search": {
-    "message": "Search"
-  },
-  "ai.knowledge.title": {
-    "message": "Knowledge search"
-  },
-  "ai.logs.empty": {
-    "message": "No logs yet"
-  },
-  "ai.logs.lines": {
-    "message": "lines"
-  },
-  "ai.logs.pause": {
-    "message": "Pause auto-scroll"
-  },
-  "ai.logs.refresh": {
-    "message": "Refresh logs"
-  },
-  "ai.logs.resume": {
-    "message": "Resume auto-scroll"
-  },
-  "ai.logs.title": {
-    "message": "Logs"
-  },
-  "ai.skills.empty": {
-    "message": "No skills yet"
-  },
-  "ai.skills.refresh": {
-    "message": "Refresh"
-  },
-  "ai.skills.title": {
-    "message": "Skills"
-  },
-  "ai.status.ready": {
-    "message": "AI connected"
-  },
-  "ai.status.skills": {
-    "message": "skills"
-  },
-  "ai.status.tokens": {
-    "message": "{count} tokens"
-  },
-  "ai.status.unconfigured": {
-    "message": "AI not configured"
-  },
-  "ai.tool-output.empty": {
-    "message": "No tool output yet"
-  },
-  "ai.tool-output.error": {
-    "message": "Error"
-  },
-  "ai.tool-output.params": {
-    "message": "Parameters"
-  },
-  "ai.tool-output.result": {
-    "message": "Result"
-  },
-  "ai.tool-output.status-cancelled": {
-    "message": "Cancelled"
-  },
-  "ai.tool-output.status-error": {
-    "message": "Failed"
-  },
-  "ai.tool-output.status-running": {
-    "message": "Running"
-  },
-  "ai.tool-output.status-success": {
-    "message": "Success"
-  },
-  "ai.tool-output.title": {
-    "message": "Tool output"
-  },
-  "ai.tools.cancel": {
-    "message": "Cancel"
-  },
-  "ai.tools.confirm-badge": {
-    "message": "Requires confirmation"
-  },
-  "ai.tools.empty": {
-    "message": "No tools yet"
-  },
-  "ai.tools.execute": {
-    "message": "Execute"
-  },
-  "ai.tools.invalid-json": {
-    "message": "Invalid JSON"
-  },
-  "ai.tools.json-placeholder": {
-    "message": "JSON array/object…"
-  },
-  "ai.tools.required-field": {
-    "message": "This field is required"
-  },
-  "ai.tools.run": {
-    "message": "Run"
-  },
-  "ai.tools.title": {
-    "message": "Tools"
-  },
-  "ai.troubleshoot.analysis": {
-    "message": "Analysis"
-  },
-  "ai.troubleshoot.analysis-empty": {
-    "message": "(backend currently returns null)"
-  },
-  "ai.troubleshoot.analyze": {
-    "message": "Analyze crash"
-  },
-  "ai.troubleshoot.fix": {
-    "message": "Get fix suggestions"
-  },
-  "ai.troubleshoot.log-lines": {
-    "message": "Log lines"
-  },
-  "ai.troubleshoot.placeholder": {
-    "message": "Auto troubleshooting arrives with stream E. For now you can manually analyze crash logs and view the raw backend result."
-  },
-  "ai.troubleshoot.running": {
-    "message": "Analyzing…"
-  },
-  "ai.troubleshoot.title": {
-    "message": "Troubleshoot report"
-  },
-  "ai.workbench.description": {
-    "message": "Use natural language to work with AI on mod installation, configuration changes, and content customization."
-  },
-  "ai.workbench.files-placeholder": {
-    "message": "The instance tree arrives with stream C"
-  },
-  "ai.workbench.settings-placeholder": {
-    "message": "Settings arrive with stream E"
-  },
-  "ai.workbench.title": {
-    "message": "AI Workbench"
-  },
-  "app.nav.ai-workbench": {
-    "message": "AI Workbench"
-  }
+	"ai.activitybar.toggle-position": {
+		"message": "Toggle activity bar position"
+	},
+	"ai.bottom-panel.hide": {
+		"message": "Hide bottom panel"
+	},
+	"ai.chat.command.clear": {
+		"message": "Clear all conversations"
+	},
+	"ai.chat.command.confirm-clear": {
+		"message": "Clear all conversations?"
+	},
+	"ai.chat.command.help": {
+		"message": "Show command help"
+	},
+	"ai.chat.command.new": {
+		"message": "New conversation"
+	},
+	"ai.chat.input.commands-hint": {
+		"message": "Commands"
+	},
+	"ai.chat.input.no-commands": {
+		"message": "No matching commands"
+	},
+	"ai.chat.input.placeholder": {
+		"message": "Type a message, / for commands…"
+	},
+	"ai.chat.input.send": {
+		"message": "Send"
+	},
+	"ai.chat.tool.approve": {
+		"message": "Approve"
+	},
+	"ai.chat.tool.approved": {
+		"message": "Approved"
+	},
+	"ai.chat.tool.arguments": {
+		"message": "Arguments"
+	},
+	"ai.chat.tool.reject": {
+		"message": "Reject"
+	},
+	"ai.chat.tool.title": {
+		"message": "Tool call"
+	},
+	"ai.console.advanced-title": {
+		"message": "Advanced"
+	},
+	"ai.console.conversations": {
+		"message": "Conversations"
+	},
+	"ai.console.dashboard-title": {
+		"message": "Dashboard"
+	},
+	"ai.console.disk": {
+		"message": "Disk usage"
+	},
+	"ai.console.enabled": {
+		"message": "AI main switch"
+	},
+	"ai.console.enabled-desc": {
+		"message": "Enable or disable the AI workbench."
+	},
+	"ai.console.flow-c": {
+		"message": "Provided by stream C"
+	},
+	"ai.console.git-branch": {
+		"message": "Git branch"
+	},
+	"ai.console.log-lines": {
+		"message": "Log lines"
+	},
+	"ai.console.log-lines-desc": {
+		"message": "Log buffer lines readable during AI analysis."
+	},
+	"ai.console.mock": {
+		"message": "Mock mode"
+	},
+	"ai.console.mock-desc": {
+		"message": "Run with mock data for offline debugging."
+	},
+	"ai.console.mods": {
+		"message": "Mods"
+	},
+	"ai.console.skills": {
+		"message": "Skills"
+	},
+	"ai.console.toggles-title": {
+		"message": "Toggles"
+	},
+	"ai.console.troubleshoot": {
+		"message": "Auto troubleshooting"
+	},
+	"ai.console.troubleshoot-desc": {
+		"message": "Provided by stream E"
+	},
+	"ai.history.clear-all": {
+		"message": "Clear all conversations"
+	},
+	"ai.history.confirm-clear": {
+		"message": "Clear all?"
+	},
+	"ai.history.confirm-delete": {
+		"message": "Delete?"
+	},
+	"ai.history.empty": {
+		"message": "No conversations yet"
+	},
+	"ai.history.new": {
+		"message": "New"
+	},
+	"ai.history.rename-placeholder": {
+		"message": "Enter a new name…"
+	},
+	"ai.history.title": {
+		"message": "Conversation history"
+	},
+	"ai.history.untitled": {
+		"message": "Untitled conversation"
+	},
+	"ai.knowledge.loading": {
+		"message": "Searching…"
+	},
+	"ai.knowledge.no-results": {
+		"message": "No results found"
+	},
+	"ai.knowledge.placeholder": {
+		"message": "Search the knowledge base…"
+	},
+	"ai.knowledge.prompt": {
+		"message": "Enter a keyword to start searching"
+	},
+	"ai.knowledge.search": {
+		"message": "Search"
+	},
+	"ai.knowledge.title": {
+		"message": "Knowledge search"
+	},
+	"ai.logs.empty": {
+		"message": "No logs yet"
+	},
+	"ai.logs.lines": {
+		"message": "lines"
+	},
+	"ai.logs.pause": {
+		"message": "Pause auto-scroll"
+	},
+	"ai.logs.refresh": {
+		"message": "Refresh logs"
+	},
+	"ai.logs.resume": {
+		"message": "Resume auto-scroll"
+	},
+	"ai.logs.title": {
+		"message": "Logs"
+	},
+	"ai.skills.empty": {
+		"message": "No skills yet"
+	},
+	"ai.skills.refresh": {
+		"message": "Refresh"
+	},
+	"ai.skills.title": {
+		"message": "Skills"
+	},
+	"ai.status.ready": {
+		"message": "AI connected"
+	},
+	"ai.status.skills": {
+		"message": "skills"
+	},
+	"ai.status.tokens": {
+		"message": "{count} tokens"
+	},
+	"ai.status.unconfigured": {
+		"message": "AI not configured"
+	},
+	"ai.tool-output.empty": {
+		"message": "No tool output yet"
+	},
+	"ai.tool-output.error": {
+		"message": "Error"
+	},
+	"ai.tool-output.params": {
+		"message": "Parameters"
+	},
+	"ai.tool-output.result": {
+		"message": "Result"
+	},
+	"ai.tool-output.status-cancelled": {
+		"message": "Cancelled"
+	},
+	"ai.tool-output.status-error": {
+		"message": "Failed"
+	},
+	"ai.tool-output.status-running": {
+		"message": "Running"
+	},
+	"ai.tool-output.status-success": {
+		"message": "Success"
+	},
+	"ai.tool-output.title": {
+		"message": "Tool output"
+	},
+	"ai.tools.cancel": {
+		"message": "Cancel"
+	},
+	"ai.tools.confirm-badge": {
+		"message": "Requires confirmation"
+	},
+	"ai.tools.empty": {
+		"message": "No tools yet"
+	},
+	"ai.tools.execute": {
+		"message": "Execute"
+	},
+	"ai.tools.invalid-json": {
+		"message": "Invalid JSON"
+	},
+	"ai.tools.json-placeholder": {
+		"message": "JSON array/object…"
+	},
+	"ai.tools.required-field": {
+		"message": "This field is required"
+	},
+	"ai.tools.run": {
+		"message": "Run"
+	},
+	"ai.tools.title": {
+		"message": "Tools"
+	},
+	"ai.troubleshoot.analysis": {
+		"message": "Analysis"
+	},
+	"ai.troubleshoot.analysis-empty": {
+		"message": "(backend currently returns null)"
+	},
+	"ai.troubleshoot.analyze": {
+		"message": "Analyze crash"
+	},
+	"ai.troubleshoot.fix": {
+		"message": "Get fix suggestions"
+	},
+	"ai.troubleshoot.log-lines": {
+		"message": "Log lines"
+	},
+	"ai.troubleshoot.placeholder": {
+		"message": "Auto troubleshooting arrives with stream E. For now you can manually analyze crash logs and view the raw backend result."
+	},
+	"ai.troubleshoot.running": {
+		"message": "Analyzing…"
+	},
+	"ai.troubleshoot.title": {
+		"message": "Troubleshoot report"
+	},
+	"ai.workbench.description": {
+		"message": "Use natural language to work with AI on mod installation, configuration changes, and content customization."
+	},
+	"ai.workbench.files-placeholder": {
+		"message": "The instance tree arrives with stream C"
+	},
+	"ai.workbench.settings-placeholder": {
+		"message": "Settings arrive with stream E"
+	},
+	"ai.workbench.title": {
+		"message": "AI Workbench"
+	},
+	"app.nav.ai-workbench": {
+		"message": "AI Workbench"
+	}
 }

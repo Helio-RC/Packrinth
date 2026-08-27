@@ -99,7 +99,7 @@ pnpm --filter @modrinth/app tauri build --config tauri-release.conf.json
 | `turbo-ci.yml`（CI） | PR → main / 手工 dispatch | `pnpm ci`（全 workspace lint + test）；并验证 `intl:extract` + `intl:extract-packrinth` 已运行（git diff 检查 locales） |
 | `check-rust.yml` | PR → main / 手工 dispatch | `cargo shear`（检查多余依赖） |
 | `check-generic.yml` | PR → main / 手工 dispatch | `typos` 拼写检查 + `tombi lint/fmt`（TOML 校验） |
-| `i18n-pull.yml` | 每周一 7:00 或手工 | 从 Crowdin 下载翻译、prune-local 清理失效 key、自动开 PR（crowdin-pull/<branch>）；**推送已有：已删除 i18n-push.yml** |
+| ~~i18n-pull.yml~~ | 已删除 | 翻译来自上游 rebase（Modrinth 每周合并 Crowdin PR），无需本地 Crowdin 流程 |
 | `cancel-pr-workflow-on-merge.yml` | 合并 | 取消已合并 PR 的剩余 workflow |
 
 ### 升级/发布流程（手动 dispatch 驱动）
@@ -157,11 +157,11 @@ pnpm scripts i18n-icu-contract prune-local
 pnpm --filter @modrinth/app-frontend intl:prune-local
 ```
 
-### 拉取（Crowdin）
+### 拉取（无需 Crowdin）
 
-- 配置：`crowdin.yml`（源目录映射、`CROWDIN_PROJECT_ID`/`CROWDIN_PERSONAL_TOKEN`）。
-- 下载：`i18n-pull.yml` 每周一 7:00 拉取并开 PR，或 workflow_dispatch 手动触发。
-- 不再上传：`i18n-push.yml` 已删除（Crowdin 源文件由上游 Modrinth 维护；Packrinth 自有文案位于 `locales-packrinth/` 不被 Crowdin 管理）。
+- 翻译来自上游：Modrinth 每周合并 Crowdin 翻译 PR 进 `modrinth/code`，`git rebase upstream/main` 即可同步（无需 CROWDIN secrets / token / workflow）。
+- `crowdin.yml` 仅作为 `prune-local` 脚本的源/翻译目录映射（纯本地）；`pnpm scripts i18n-icu-contract` 只保留 `prune-local` 子命令。
+- Packrinth 自有文案（`locales-packrinth/`）手工维护，不走任何平台同步。
 
 ### 代码中的使用约定
 

@@ -2,7 +2,7 @@
 
 本仓库的 GitHub Actions 依赖一组仓库级 **Secrets**（加密）与 **Variables**（明文）。配置位置：GitHub 仓库 → **Settings → Secrets and variables → Actions**。
 
-> 所有值均为**可选**：缺少签名/存储/Crowdin 相关配置时 workflow 不会失败，而是降级（未签名构建、跳过更新 manifest 等）。只有 `i18n-pull.yml` 在缺少 Crowdin 配置时会在 preflight 阶段报错退出。
+> 所有值均为**可选**：缺少签名/存储配置时 workflow 不会失败，而是降级（未签名构建、跳过更新 manifest 等）。
 
 ## 一、Secrets（敏感，加密存储）
 
@@ -20,13 +20,12 @@
 | `DIGICERT_ONE_SIGNER_CLIENT_CERTIFICATE_PASSWORD` | 客户端证书密码 | 同上 | theseus-build |
 | `LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID` | 更新文件存储（R2/S3）访问密钥 | 不上传更新文件，仅 GitHub Release | theseus-release |
 | `LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY` | 更新文件存储访问密钥 | 同上 | theseus-release |
-| `CROWDIN_PERSONAL_TOKEN` | Crowdin 个人访问令牌（拉取翻译） | `i18n-pull.yml` preflight **失败** | i18n-pull |
+| `CROWDIN_PERSONAL_TOKEN` | ~~Crowdin 个人访问令牌~~（已不需要：翻译来自上游 rebase，pull workflow 已删除） | — | — |
 
 ## 二、Variables（非敏感，明文）
 
 | Variable | 用途 | 缺失时的行为 | 用到的工作流 |
 | ------ | ------ | ------ | ------ |
-| `CROWDIN_PROJECT_ID` | Crowdin 项目 ID | `i18n-pull.yml` preflight **失败** | i18n-pull |
 | `LAUNCHER_FILES_BUCKET_NAME` | 更新文件桶名（如 `packrinth-updates`） | 不上传更新文件 | theseus-release |
 | `LAUNCHER_FILES_BUCKET_REGION` | 桶区域 | 同上 | theseus-release |
 | `LAUNCHER_FILES_BUCKET_ENDPOINT_URL` | S3 兼容端点（Cloudflare R2 必填） | 同上 | theseus-release |
@@ -57,10 +56,9 @@
 4. **首次发布前**将 `updates.json` 上传到 `{LAUNCHER_FILES_BUCKET_BASE_URL}/updates.json`（release workflow 会在发布时同时上传）。
 5. `apps/app/tauri-release.conf.json` 的 `plugins.updater.endpoints` 目前为空数组——将 `LAUNCHER_FILES_BUCKET_BASE_URL` 填入（客户端的端点配置，runtimes 中已嵌入 pubkey）。
 
-### Crowdin（翻译拉取）
+### 翻译（无需任何配置）
 
-- `vars.CROWDIN_PROJECT_ID` + `secrets.CROWDIN_PERSONAL_TOKEN` 必填，否则 `i18n-pull.yml`（每周一自动）preflight 退出。
-- 只拉取不推送（push workflow 已移除）；Packrinth 自有文案（`locales-packrinth/`）不走 Crowdin。
+翻译来自上游 Modrinth：上游每周合并 Crowdin 翻译 PR 进 `modrinth/code`，我们 `git rebase upstream/main` 即自动同步。本仓库**不需要** `CROWDIN_PROJECT_ID` / `CROWDIN_PERSONAL_TOKEN`（相应的 push 与 pull workflow、Crowdin API 客户端均已移除）。
 
 ### 其他
 
@@ -75,7 +73,7 @@
 | ------ | ------ |
 | 仅开发/本地 | 无 |
 | CI 正常通过 | 无（turbo-ci/check-* 不用 secrets） |
-| 翻译同步 | `CROWDIN_PROJECT_ID`, `CROWDIN_PERSONAL_TOKEN` |
+| 翻译同步 | 无（上游 rebase 自动同步） |
 | 签名发布（macOS） | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` |
 | 签名发布（Windows） | `DIGICERT_ONE_SIGNER_API_KEY`, `DIGICERT_ONE_SIGNER_CLIENT_CERTIFICATE_BASE64`, `DIGICERT_ONE_SIGNER_CLIENT_CERTIFICATE_PASSWORD` |
 | 更新器（updater） | `TAURI_PRIVATE_KEY`, `TAURI_KEY_PASSWORD`, `LAUNCHER_FILES_BUCKET_*`（4 个 Variables + 2 个 Secrets），且 `endpoints` 已配置 |
