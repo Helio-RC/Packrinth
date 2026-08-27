@@ -5,6 +5,7 @@ members = [
   "apps/app-playground",
   "packages/app-lib",
   "packages/ariadne",
+  "packages/async-minecraft-ping",
   "packages/daedalus",
   "packages/modrinth-content-management",
   "packages/path-util",

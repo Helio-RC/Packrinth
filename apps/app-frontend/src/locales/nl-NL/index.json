@@ -162,7 +162,7 @@
     "message": "Verberg nametag"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimaliseer de Modrinth-app zodra Minecraft opstart."
+    "message": "Minimaliseer de Packrinth-app zodra Minecraft opstart."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "App minimaliseren"
@@ -279,10 +279,10 @@
     "message": "1.0.0"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Opgewonden Modrinth-bot"
+    "message": "Opgewonden Packrinth-bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Update van Modrinth-app vereist"
+    "message": "Update van Packrinth-app vereist"
   },
   "app.install.phase.downloading_content": {
     "message": "Inhoud aan het downloaden"
@@ -801,7 +801,7 @@
     "message": "Opnieuw opstarten..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth-app {version}"
+    "message": "Packrinth-app {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Omgevingsvariabelen die bij het opstarten van een instantie worden ingesteld."
@@ -897,13 +897,13 @@
     "message": "Advertenties maken Modrinth mogelijk en financieren de uitbetalingen aan makers. Onze partners kunnen cookies in de app opslaan of gebruiken om advertenties te personaliseren en de prestaties te meten. Je kunt je hieronder afmelden of je voorkeuren beheren."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Laat Modrinth als jouw activiteit op Discord. Dit verandert niet activiteiten toegevoegd door mods."
+    "message": "Laat Packrinth als jouw activiteit op Discord. Dit verandert niet activiteiten toegevoegd door mods."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth verzamelt geanonimiseerde analyse- en gebruiksgegevens om de gebruikerservaring te verbeteren en uw ervaring te personaliseren. Door deze optie uit te schakelen, meldt u zich af en worden uw gegevens niet langer verzameld."
+    "message": "Packrinth verzamelt geanonimiseerde analyse- en gebruiksgegevens om de gebruikerservaring te verbeteren en uw ervaring te personaliseren. Door deze optie uit te schakelen, meldt u zich af en worden uw gegevens niet langer verzameld."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetrie"
@@ -942,7 +942,7 @@
     "message": "Zoek naar een app-folder"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Hier slaat de Modrinth-app instanties en andere bestanden op. Wijzigingen worden pas van kracht nadat de app opnieuw is opgestart."
+    "message": "Hier slaat de Packrinth-app instanties en andere bestanden op. Wijzigingen worden pas van kracht nadat de app opnieuw is opgestart."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Kies een nieuwe app-folder"
@@ -1134,10 +1134,10 @@
     "message": "Inschakelen"
   },
   "app.survey.body": {
-    "message": "Zou je een paar vragen willen beantwoorden over je ervaringen met de Modrinth-app?"
+    "message": "Zou je een paar vragen willen beantwoorden over je ervaringen met de Packrinth-app?"
   },
   "app.survey.footer": {
-    "message": "Deze feedback wordt rechtstreeks doorgestuurd naar het Modrinth-team en zal als leidraad dienen voor toekomstige updates!"
+    "message": "Deze feedback wordt rechtstreeks doorgestuurd naar het Packrinth-team en zal als leidraad dienen voor toekomstige updates!"
   },
   "app.survey.no-thanks": {
     "message": "Nee, bedankt"
@@ -1146,16 +1146,16 @@
     "message": "Aan enquête meedoen"
   },
   "app.survey.title": {
-    "message": "Hoi, Modrinth-gebruiker!"
+    "message": "Hoi, Packrinth-gebruiker!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} is klaar met downloaden. Herlaad om nu te updaten, of automatisch wanneer je de Modrinth App afsluit."
+    "message": "Packrinth v{version} is klaar met downloaden. Herlaad om nu te updaten, of automatisch wanneer je de Packrinth afsluit."
   },
   "app.update-popup.body.linux": {
-    "message": "De Modrinth-app v{version} is beschikbaar. Gebruik je pakketbeheerder om bij te werken en zo de nieuwste functies en verbeteringen te krijgen!"
+    "message": "De Packrinth-app v{version} is beschikbaar. Gebruik je pakketbeheerder om bij te werken en zo de nieuwste functies en verbeteringen te krijgen!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} is nu beschikbaar! Omdat je nu op een netwerk met datalimiet zit, is de download niet automatisch gestart."
+    "message": "Packrinth v{version} is nu beschikbaar! Omdat je nu op een netwerk met datalimiet zit, is de download niet automatisch gestart."
   },
   "app.update-popup.changelog": {
     "message": "Wijzigingen"

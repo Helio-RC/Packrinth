@@ -1,4 +1,271 @@
 {
+  "ai.activitybar.toggle-position": {
+    "message": "切换活动栏位置"
+  },
+  "ai.bottom-panel.hide": {
+    "message": "收起底部面板"
+  },
+  "ai.chat.command.clear": {
+    "message": "清空全部会话"
+  },
+  "ai.chat.command.confirm-clear": {
+    "message": "确认清空全部会话？"
+  },
+  "ai.chat.command.help": {
+    "message": "显示命令说明"
+  },
+  "ai.chat.command.new": {
+    "message": "新建会话"
+  },
+  "ai.chat.input.commands-hint": {
+    "message": "命令"
+  },
+  "ai.chat.input.no-commands": {
+    "message": "没有匹配的命令"
+  },
+  "ai.chat.input.placeholder": {
+    "message": "输入消息，/ 查看命令…"
+  },
+  "ai.chat.input.send": {
+    "message": "发送"
+  },
+  "ai.chat.tool.approve": {
+    "message": "允许"
+  },
+  "ai.chat.tool.approved": {
+    "message": "已批准"
+  },
+  "ai.chat.tool.arguments": {
+    "message": "参数"
+  },
+  "ai.chat.tool.reject": {
+    "message": "拒绝"
+  },
+  "ai.chat.tool.title": {
+    "message": "工具调用"
+  },
+  "ai.console.advanced-title": {
+    "message": "高级"
+  },
+  "ai.console.conversations": {
+    "message": "会话数"
+  },
+  "ai.console.dashboard-title": {
+    "message": "数据仪表盘"
+  },
+  "ai.console.disk": {
+    "message": "磁盘占用"
+  },
+  "ai.console.enabled": {
+    "message": "AI 主开关"
+  },
+  "ai.console.enabled-desc": {
+    "message": "启用或停用 AI 工作台功能。"
+  },
+  "ai.console.flow-c": {
+    "message": "由流 C 提供"
+  },
+  "ai.console.git-branch": {
+    "message": "Git 分支"
+  },
+  "ai.console.log-lines": {
+    "message": "日志行数"
+  },
+  "ai.console.log-lines-desc": {
+    "message": "AI 分析时可读取的日志缓冲行数。"
+  },
+  "ai.console.mock": {
+    "message": "Mock 模式"
+  },
+  "ai.console.mock-desc": {
+    "message": "使用模拟数据运行，便于离线调试。"
+  },
+  "ai.console.mods": {
+    "message": "Mod 数量"
+  },
+  "ai.console.skills": {
+    "message": "技能数"
+  },
+  "ai.console.toggles-title": {
+    "message": "核心开关"
+  },
+  "ai.console.troubleshoot": {
+    "message": "自动排障"
+  },
+  "ai.console.troubleshoot-desc": {
+    "message": "流 E 提供"
+  },
+  "ai.history.clear-all": {
+    "message": "清空全部会话"
+  },
+  "ai.history.confirm-clear": {
+    "message": "确认清空全部？"
+  },
+  "ai.history.confirm-delete": {
+    "message": "确认删除？"
+  },
+  "ai.history.empty": {
+    "message": "暂无会话"
+  },
+  "ai.history.new": {
+    "message": "新建"
+  },
+  "ai.history.rename-placeholder": {
+    "message": "输入新名称…"
+  },
+  "ai.history.title": {
+    "message": "会话历史"
+  },
+  "ai.history.untitled": {
+    "message": "未命名会话"
+  },
+  "ai.knowledge.loading": {
+    "message": "搜索中…"
+  },
+  "ai.knowledge.no-results": {
+    "message": "未找到相关结果"
+  },
+  "ai.knowledge.placeholder": {
+    "message": "搜索知识库…"
+  },
+  "ai.knowledge.prompt": {
+    "message": "输入关键词开始检索"
+  },
+  "ai.knowledge.search": {
+    "message": "搜索"
+  },
+  "ai.knowledge.title": {
+    "message": "知识检索"
+  },
+  "ai.logs.empty": {
+    "message": "暂无日志"
+  },
+  "ai.logs.lines": {
+    "message": "行"
+  },
+  "ai.logs.pause": {
+    "message": "暂停自动滚动"
+  },
+  "ai.logs.refresh": {
+    "message": "刷新日志"
+  },
+  "ai.logs.resume": {
+    "message": "恢复自动滚动"
+  },
+  "ai.logs.title": {
+    "message": "日志"
+  },
+  "ai.skills.empty": {
+    "message": "暂无技能"
+  },
+  "ai.skills.refresh": {
+    "message": "刷新"
+  },
+  "ai.skills.title": {
+    "message": "技能管理"
+  },
+  "ai.status.ready": {
+    "message": "AI 已连接"
+  },
+  "ai.status.skills": {
+    "message": "个技能"
+  },
+  "ai.status.tokens": {
+    "message": "{count} tokens"
+  },
+  "ai.status.unconfigured": {
+    "message": "AI 未配置"
+  },
+  "ai.tool-output.empty": {
+    "message": "暂无工具输出"
+  },
+  "ai.tool-output.error": {
+    "message": "错误"
+  },
+  "ai.tool-output.params": {
+    "message": "参数"
+  },
+  "ai.tool-output.result": {
+    "message": "结果"
+  },
+  "ai.tool-output.status-cancelled": {
+    "message": "已取消"
+  },
+  "ai.tool-output.status-error": {
+    "message": "失败"
+  },
+  "ai.tool-output.status-running": {
+    "message": "运行中"
+  },
+  "ai.tool-output.status-success": {
+    "message": "成功"
+  },
+  "ai.tool-output.title": {
+    "message": "工具输出"
+  },
+  "ai.tools.cancel": {
+    "message": "取消"
+  },
+  "ai.tools.confirm-badge": {
+    "message": "需确认"
+  },
+  "ai.tools.empty": {
+    "message": "暂无工具"
+  },
+  "ai.tools.execute": {
+    "message": "执行"
+  },
+  "ai.tools.invalid-json": {
+    "message": "无效的 JSON"
+  },
+  "ai.tools.json-placeholder": {
+    "message": "JSON 数组/对象…"
+  },
+  "ai.tools.required-field": {
+    "message": "此项为必填"
+  },
+  "ai.tools.run": {
+    "message": "运行"
+  },
+  "ai.tools.title": {
+    "message": "工具面板"
+  },
+  "ai.troubleshoot.analysis": {
+    "message": "分析"
+  },
+  "ai.troubleshoot.analysis-empty": {
+    "message": "（后端当前返回 null）"
+  },
+  "ai.troubleshoot.analyze": {
+    "message": "分析崩溃"
+  },
+  "ai.troubleshoot.fix": {
+    "message": "获取修复建议"
+  },
+  "ai.troubleshoot.log-lines": {
+    "message": "日志行数"
+  },
+  "ai.troubleshoot.placeholder": {
+    "message": "自动排障将在流 E 提供。当前可手动分析崩溃日志并查看后端返回的原始结果。"
+  },
+  "ai.troubleshoot.running": {
+    "message": "分析中…"
+  },
+  "ai.troubleshoot.title": {
+    "message": "排障报告"
+  },
+  "ai.workbench.description": {
+    "message": "使用自然语言与 AI 协作，完成模组安装、配置修改与内容定制。"
+  },
+  "ai.workbench.files-placeholder": {
+    "message": "实例树将在流 C 提供"
+  },
+  "ai.workbench.settings-placeholder": {
+    "message": "设置将在流 E 提供"
+  },
+  "ai.workbench.title": {
+    "message": "AI 工作台"
+  },
   "app.action-bar.downloading-java": {
     "message": "Downloading Java {version}"
   },
@@ -174,7 +441,7 @@
     "message": "Jump into worlds or instances"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimize Modrinth App when Minecraft starts."
+    "message": "Minimize Packrinth when Minecraft starts."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimize app"
@@ -348,16 +615,16 @@
     "message": "View instance"
   },
   "app.hosting.update-required.description": {
-    "message": "You need to update to use Modrinth Hosting through the Modrinth App"
+    "message": "You need to update to use Modrinth Hosting through Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Download to update"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Excited Modrinth Bot"
+    "message": "Excited Packrinth Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App update required"
+    "message": "Packrinth update required"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Failed to apply random icons to instances."
@@ -372,7 +639,7 @@
     "message": "Close"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Create custom icons for your instances right in the Modrinth App. Mix and match backgrounds with symbols from Minecraft and popular mods!"
+    "message": "Create custom icons for your instances right in Packrinth. Mix and match backgrounds with symbols from Minecraft and popular mods!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# instance doesn’t} other {# instances don’t}} have icons yet. Want us to give {count, plural, one {it} other {them}} random ones to get started?"
@@ -1247,6 +1514,9 @@
   "app.nav.add-account": {
     "message": "Add account"
   },
+  "app.nav.ai-workbench": {
+    "message": "AI Workbench"
+  },
   "app.nav.create-new-instance": {
     "message": "Create new instance"
   },
@@ -1518,7 +1788,7 @@
     "message": "Oldest"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Environment variables set when launching an instance."
@@ -1623,13 +1893,13 @@
     "message": "Ads make Modrinth possible and fund creator payouts. Our partners may store or access cookies in the app to personalize ads and measure performance. You can opt out or manage your preferences below."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Show Modrinth App as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart."
+    "message": "Show Packrinth as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected."
+    "message": "Packrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetry"
@@ -1668,7 +1938,7 @@
     "message": "Browse for an app directory"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Where Modrinth App stores instances and other files. Changes take effect after restarting the app."
+    "message": "Where Packrinth stores instances and other files. Changes take effect after restarting the app."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Select a new app directory"
@@ -1920,10 +2190,10 @@
     "message": "Toggle on"
   },
   "app.survey.body": {
-    "message": "Would you mind answering a few questions about your experience with Modrinth App?"
+    "message": "Would you mind answering a few questions about your experience with Packrinth?"
   },
   "app.survey.footer": {
-    "message": "This feedback will go directly to the Modrinth team and help guide future updates!"
+    "message": "This feedback will go directly to the Packrinth team and help guide future updates!"
   },
   "app.survey.no-thanks": {
     "message": "No thanks"
@@ -1932,16 +2202,16 @@
     "message": "Take survey"
   },
   "app.survey.title": {
-    "message": "Hey there Modrinth user!"
+    "message": "Hey there Packrinth user!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} has finished downloading. Reload to update now, or automatically when you close Modrinth App."
+    "message": "Packrinth v{version} has finished downloading. Reload to update now, or automatically when you close Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} is available. Use your package manager to update for the latest features and fixes!"
+    "message": "Packrinth v{version} is available. Use your package manager to update for the latest features and fixes!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} is available now! Since you're on a metered network, we didn't automatically download it."
+    "message": "Packrinth v{version} is available now! Since you're on a metered network, we didn't automatically download it."
   },
   "app.update-popup.changelog": {
     "message": "Changelog"
@@ -1986,7 +2256,7 @@
     "message": "Press <shortcut>N</shortcut> to quick create an instance"
   },
   "app.welcome-screen.title": {
-    "message": "Welcome to Modrinth"
+    "message": "Welcome to Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -2139,7 +2409,7 @@
     "message": "Unlink shared instance"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "This deletes the shared instance from Modrinth's servers. People using it in the Modrinth App will stop receiving updates, but your local instance and its content will stay on this device."
+    "message": "This deletes the shared instance from Modrinth's servers. People using it in Packrinth will stop receiving updates, but your local instance and its content will stay on this device."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Unpublishing shared instance"

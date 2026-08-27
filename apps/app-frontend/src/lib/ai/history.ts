@@ -44,7 +44,10 @@ export async function getConversation(
 }
 
 /** 新建会话。 */
-export async function createConversation(title: string, instanceId?: string): Promise<Conversation> {
+export async function createConversation(
+	title: string,
+	instanceId?: string,
+): Promise<Conversation> {
 	try {
 		return await invoke<Conversation>('plugin:ai_workshop|create_conversation', {
 			title,

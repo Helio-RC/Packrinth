@@ -141,7 +141,7 @@
     "message": "Sakrij ime"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Smanji Modrinth App kada se Minecraft pokrene."
+    "message": "Smanji Packrinth kada se Minecraft pokrene."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Smanji aplikaciju"
@@ -606,13 +606,13 @@
     "message": "Selektor skina"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Preuzimanje Modrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Modrinth aplikaciju."
+    "message": "Preuzimanje Packrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Packrinth aplikaciju."
   },
   "app.update-popup.body.linux": {
-    "message": "Dostupna je Modrinth aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
+    "message": "Dostupna je Packrinth aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
+    "message": "Packrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
   },
   "app.update-popup.changelog": {
     "message": "Spisak promena"

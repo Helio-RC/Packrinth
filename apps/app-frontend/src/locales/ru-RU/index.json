@@ -174,7 +174,7 @@
     "message": "Недавние миры или сборки"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Сворачивать Modrinth App при запуске Minecraft."
+    "message": "Сворачивать Packrinth App при запуске Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Свернуть приложение"
@@ -339,16 +339,16 @@
     "message": "Посмотреть сборку"
   },
   "app.hosting.update-required.description": {
-    "message": "Обновитесь, чтобы использовать Modrinth Hosting через Modrinth App"
+    "message": "Обновитесь, чтобы использовать Packrinth Hosting через Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Скачать и обновить"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Восторженный Modrinth Bot"
+    "message": "Восторженный Packrinth Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Обновите Modrinth App"
+    "message": "Обновите Packrinth"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Не удалось применить случайные иконки к сборкам."
@@ -363,7 +363,7 @@
     "message": "Закрыть"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Создавайте собственные иконки прямо в Modrinth App. Сочетайте фоны с символами из Minecraft и популярных модов!"
+    "message": "Создавайте собственные иконки прямо в Packrinth. Сочетайте фоны с символами из Minecraft и популярных модов!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "У {count, plural, one {# сборки} other {# сборок}} нет {count, plural, one {иконки} other {иконок}}. Хотите создать {count, plural, one {случайную} other {случайные}}?"
@@ -1287,7 +1287,7 @@
     "message": "Перезапуск..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Переменные среды при запуске игры."
@@ -1383,13 +1383,13 @@
     "message": "Реклама обеспечивает работу Modrinth и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки. Отказаться и настроить куки можно ниже."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показывать Modrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
+    "message": "Показывать Packrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
+    "message": "Packrinth собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Телеметрия"
@@ -1428,7 +1428,7 @@
     "message": "Выбрать каталог приложения"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Здесь Modrinth App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
+    "message": "Здесь Packrinth App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Выбор нового каталога приложения"
@@ -1635,10 +1635,10 @@
     "message": "Показать"
   },
   "app.survey.body": {
-    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Modrinth App?"
+    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Packrinth?"
   },
   "app.survey.footer": {
-    "message": "Этот отзыв будет доставлен напрямую команде Modrinth и поможет разрабатывать будущие обновления!"
+    "message": "Этот отзыв будет доставлен напрямую команде Packrinth и поможет разрабатывать будущие обновления!"
   },
   "app.survey.no-thanks": {
     "message": "Нет, спасибо"
@@ -1647,16 +1647,16 @@
     "message": "Пройти опрос"
   },
   "app.survey.title": {
-    "message": "Привет, пользователь Modrinth!"
+    "message": "Привет, пользователь Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Скачивание версии Modrinth App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
+    "message": "Скачивание версии Packrinth App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
   },
   "app.update-popup.body.linux": {
-    "message": "Доступна версия Modrinth App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
+    "message": "Доступна версия Packrinth App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
   },
   "app.update-popup.body.metered": {
-    "message": "Версия Modrinth App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
+    "message": "Версия Packrinth App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
   },
   "app.update-popup.changelog": {
     "message": "Список изменений"
@@ -1701,7 +1701,7 @@
     "message": "Нажмите <shortcut>Т</shortcut> быстрого создания сборки"
   },
   "app.welcome-screen.title": {
-    "message": "Добро пожаловать в Modrinth"
+    "message": "Добро пожаловать в Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

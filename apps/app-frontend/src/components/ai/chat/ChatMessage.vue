@@ -30,6 +30,7 @@ import { computed } from 'vue'
 
 import { renderMarkdown } from '@/lib/ai/markdown'
 import type { Message } from '@/lib/ai/types'
+
 import ToolCard from './ToolCard.vue'
 
 defineOptions({

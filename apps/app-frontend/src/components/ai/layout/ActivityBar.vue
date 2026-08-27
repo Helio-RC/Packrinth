@@ -36,6 +36,7 @@ import { defineMessages, useVIntl } from '@modrinth/ui'
 import { computed } from 'vue'
 
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
+
 import ActivityBarItem from './ActivityBarItem.vue'
 
 const store = useAiWorkshopStore()
@@ -49,8 +50,7 @@ const messages = defineMessages({
 })
 
 const togglePosition = () => {
-	store.layout.activitybarPosition =
-		store.layout.activitybarPosition === 'left' ? 'right' : 'left'
+	store.layout.activitybarPosition = store.layout.activitybarPosition === 'left' ? 'right' : 'left'
 	store.saveLayout()
 }
 

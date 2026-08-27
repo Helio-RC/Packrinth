@@ -17,10 +17,7 @@
 				@mouseenter="highlightedIndex = index"
 			>
 				<span class="font-semibold text-brand">{{ command.name }}</span>
-				<span
-					v-if="confirmingName === command.name"
-					class="text-red-500"
-				>
+				<span v-if="confirmingName === command.name" class="text-red-500">
 					{{ formatMessage(messages.confirmClear) }}
 				</span>
 				<span v-else class="text-secondary">{{ command.description }}</span>
@@ -179,7 +176,10 @@ const onKeydown = (event: KeyboardEvent) => {
 		}
 		if (event.key === 'ArrowDown') {
 			event.preventDefault()
-			highlightedIndex.value = Math.min(highlightedIndex.value + 1, filteredCommands.value.length - 1)
+			highlightedIndex.value = Math.min(
+				highlightedIndex.value + 1,
+				filteredCommands.value.length - 1,
+			)
 			return
 		}
 		if (event.key === 'ArrowUp') {

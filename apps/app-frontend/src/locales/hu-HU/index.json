@@ -174,7 +174,7 @@
     "message": "„Folytasd itt” a világokat és a játékprofilokat is"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "A Modrinth App bezáródik a Minecraft indításakor"
+    "message": "A Packrinth bezáródik a Minecraft indításakor"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Alkalmazás bezárása"
@@ -327,16 +327,16 @@
     "message": "Játékprofil megtekintése"
   },
   "app.hosting.update-required.description": {
-    "message": "Frissítened kell, hogy használhasd a Modrinth Hostingot a Modrinth Appon keresztül"
+    "message": "Frissítened kell, hogy használhasd a Packrinth Hostingot a Packrinthon keresztül"
   },
   "app.hosting.update-required.download": {
     "message": "Letöltés a frissítéshez"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Izgatott Modrinth bot"
+    "message": "Izgatott Packrinth bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Frissítés szükséges a Modrinth Apphoz"
+    "message": "Frissítés szükséges a Packrinthhoz"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Nem sikerült véletlenszerű ikonokat rendelni a játékprofilokhoz."
@@ -1044,7 +1044,7 @@
     "message": "Újraindítás..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "A példány indításakor beállított környezeti változók."
@@ -1140,13 +1140,13 @@
     "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából. Alább leiratkozhatsz erről, illetve beállíthatod a preferenciáidat."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "A Modrinth App megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
+    "message": "A Packrinth megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "A Modrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
+    "message": "A Packrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
@@ -1185,7 +1185,7 @@
     "message": "Alkalmazáskönyvtár tallózása"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "A Modrinth App ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
+    "message": "A Packrinth ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Új alkalmazáskönyvtár kiválasztása"
@@ -1377,10 +1377,10 @@
     "message": "Bekapcsolás"
   },
   "app.survey.body": {
-    "message": "Megosztanád velünk a tapasztalataidat a Modrinth App használatáról néhány kérdés megválaszolásával?"
+    "message": "Megosztanád velünk a tapasztalataidat a Packrinth használatáról néhány kérdés megválaszolásával?"
   },
   "app.survey.footer": {
-    "message": "A visszajelzésed közvetlenül a Modrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
+    "message": "A visszajelzésed közvetlenül a Packrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
   },
   "app.survey.no-thanks": {
     "message": "Nem, köszönöm"
@@ -1389,16 +1389,16 @@
     "message": "Kérdőív kitöltése"
   },
   "app.survey.title": {
-    "message": "Hali, Modrinth-felhasználó!"
+    "message": "Hali, Packrinth-felhasználó!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "A Modrinth App v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
+    "message": "A Packrinth v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
   },
   "app.update-popup.body.linux": {
-    "message": "A Modrinth App v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
+    "message": "A Packrinth v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
   },
   "app.update-popup.body.metered": {
-    "message": "A Modrinth App v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
+    "message": "A Packrinth v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
   },
   "app.update-popup.changelog": {
     "message": "Változásnapló"
@@ -1425,7 +1425,7 @@
     "message": "Telepítés a példányba"
   },
   "app.welcome-screen.title": {
-    "message": "Üdvözlünk a Modrinthon"
+    "message": "Üdvözlünk a Packrinthon"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "pelda.modrinth.gg"
@@ -1572,7 +1572,7 @@
     "message": "Megosztott példány leválasztása"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Modrinth Appban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
+    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Packrinthban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Visszavonod a megosztott példány megosztását"

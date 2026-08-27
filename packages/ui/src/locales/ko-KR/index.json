@@ -2733,16 +2733,16 @@
     "defaultMessage": "서버 변경 시 파일 자동 업데이트"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Modrinth App 받기"
+    "defaultMessage": "Packrinth 받기"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App이 자동으로 열립니다..."
+    "defaultMessage": "Packrinth이 자동으로 열립니다..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Modrinth App 여는 중"
+    "defaultMessage": "Packrinth 여는 중"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Modrinth App을 사용하는 이유"
+    "defaultMessage": "Packrinth을 사용하는 이유"
   },
   "notification.error.title": {
     "defaultMessage": "오류가 발생했습니다"
@@ -4794,7 +4794,7 @@
     "defaultMessage": "새로운 서버"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Modrinth 앱에서 모드를 설치하고, 친구를 초대해 함께 플레이하세요."
+    "defaultMessage": "Packrinth 앱에서 모드를 설치하고, 친구를 초대해 함께 플레이하세요."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "즐겨찾는 모드들을 선택하시고 나머지는 저희에게 맡겨주세요."

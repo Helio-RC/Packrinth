@@ -1572,16 +1572,16 @@
     "defaultMessage": "Mențineți fișierele actualizate atunci când serverul se modifică"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Descărcați aplicația Modrinth"
+    "defaultMessage": "Descărcați aplicația Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Aplicația Modrinth se va deschide automat..."
+    "defaultMessage": "Aplicația Packrinth se va deschide automat..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Deschiderea aplicației Modrinth"
+    "defaultMessage": "Deschiderea aplicației Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "De ce să folosiți aplicația Modrinth"
+    "defaultMessage": "De ce să folosiți aplicația Packrinth"
   },
   "notification.error.title": {
     "defaultMessage": "A avut loc o eroare"

@@ -327,16 +327,16 @@
     "message": "عرض النسخة"
   },
   "app.hosting.update-required.description": {
-    "message": "يجب عليك التحديث لاستخدام Modrinth Hosting بواسطة تطبيق Modrinth"
+    "message": "يجب عليك التحديث لاستخدام Packrinth Hosting بواسطة تطبيق Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "نزّل للتحديث"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "بوت Modrinth المتحمّس"
+    "message": "بوت Packrinth المتحمّس"
   },
   "app.hosting.update-required.title": {
-    "message": "يلزم تحديث تطبيق Modrinth"
+    "message": "يلزم تحديث تطبيق Packrinth"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "تعذّر تطبيق أيقونات عشوائية على النسخ."
@@ -351,7 +351,7 @@
     "message": "إغلاق"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "أنشئ أيقونات مخصصة لنسخك مباشرةً في Modrinth App. امزج بين الخلفيات والرموز من Minecraft والمودات الشائعة!"
+    "message": "أنشئ أيقونات مخصصة لنسخك مباشرةً في Packrinth. امزج بين الخلفيات والرموز من Minecraft والمودات الشائعة!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# نسخة لا تحتوي} two {# نسختان لا تحتويان} few {# نسخ لا تحتوي} many {# نسخة لا تحتوي} other {# نسخة لا تحتوي}} على أيقونات بعد. هل تريد منا تعيين أيقونات عشوائية لـ{count, plural, one {نسخة واحدة} two {نسختين} few {# نسخ} many {# نسخة} other {# نسخة}} للبدء؟"
@@ -1230,7 +1230,7 @@
     "message": "إعادة التشغيل..."
   },
   "app.settings.app-version": {
-    "message": "تطبيق Modrinth {version}"
+    "message": "تطبيق Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "متغيرات البيئة المحددة عند تشغيل النسخة."
@@ -1326,13 +1326,13 @@
     "message": "الإعلانات تجعل Modrinth ممكناً وتمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء. يمكنك إلغاء الاشتراك أو إدارة تفضيلاتك أدناه."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "إظهار تطبيق Modrinth كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
+    "message": "إظهار تطبيق Packrinth كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "يجمع Modrinth بيانات تحليلات واستخدام مجهولة الهوية لتحسين تجربة المستخدم وتخصيص تجربتك. عند تعطيل هذا الخيار، فإنك تلغي الاشتراك ولن يتم جمع بياناتك بعد الآن."
+    "message": "يجمع Packrinth بيانات تحليلات واستخدام مجهولة الهوية لتحسين تجربة المستخدم وتخصيص تجربتك. عند تعطيل هذا الخيار، فإنك تلغي الاشتراك ولن يتم جمع بياناتك بعد الآن."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "بيانات قياس الاستخدام"
@@ -1371,7 +1371,7 @@
     "message": "تصفح لاختيار مجلد التطبيق"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "المكان الذي يخزن فيه تطبيق Modrinth النسخ والملفات الأخرى. تسري التغييرات بعد إعادة تشغيل التطبيق."
+    "message": "المكان الذي يخزن فيه تطبيق Packrinth النسخ والملفات الأخرى. تسري التغييرات بعد إعادة تشغيل التطبيق."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "حدد مجلد تطبيق جديد"
@@ -1578,10 +1578,10 @@
     "message": "تشغيل"
   },
   "app.survey.body": {
-    "message": "هل تمانع في الإجابة على بضعة أسئلة حول تجربتك مع تطبيق Modrinth؟"
+    "message": "هل تمانع في الإجابة على بضعة أسئلة حول تجربتك مع تطبيق Packrinth؟"
   },
   "app.survey.footer": {
-    "message": "ستنتقل هذه الملاحظات مباشرة إلى فريق Modrinth وتساعد في توجيه التحديثات القادمة!أهلاً بك يا مستخدم Modrinth!"
+    "message": "ستنتقل هذه الملاحظات مباشرة إلى فريق Packrinth وتساعد في توجيه التحديثات القادمة!أهلاً بك يا مستخدم Packrinth!"
   },
   "app.survey.no-thanks": {
     "message": "لا شكراً"
@@ -1590,16 +1590,16 @@
     "message": "شارك في الاستطلاع"
   },
   "app.survey.title": {
-    "message": "أهلاً بك يا مستخدم Modrinth!"
+    "message": "أهلاً بك يا مستخدم Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "انتهى تنزيل تطبيق Modrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Modrinth."
+    "message": "انتهى تنزيل تطبيق Packrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "يتوفر الآن Modrinth App v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
+    "message": "يتوفر الآن Packrinth v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
   },
   "app.update-popup.body.metered": {
-    "message": "تطبيق Modrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
+    "message": "تطبيق Packrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
   },
   "app.update-popup.changelog": {
     "message": "سجل التغيير"

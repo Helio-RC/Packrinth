@@ -1962,7 +1962,7 @@
     "defaultMessage": "Ny server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Installer mods, inviter venner og spil alle sammen fra Modrinth Appen."
+    "defaultMessage": "Installer mods, inviter venner og spil alle sammen fra Packrinth."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Vælg dine favorit mods og vi håndtere resten."
@@ -2217,4 +2217,3 @@
     "defaultMessage": "Vanilla Shader"
   }
 }
-

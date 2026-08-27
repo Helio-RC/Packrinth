@@ -103,9 +103,7 @@ const analyze = async () => {
 		report.value = {
 			logLines: Array.isArray(record.log_lines) ? record.log_lines.length : 0,
 			analysis:
-				record.analysis === null || record.analysis === undefined
-					? null
-					: String(record.analysis),
+				record.analysis === null || record.analysis === undefined ? null : String(record.analysis),
 		}
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : String(err)

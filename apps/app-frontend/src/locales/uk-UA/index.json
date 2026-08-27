@@ -165,7 +165,7 @@
     "message": "Приховати ім'я"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Згортати Modrinth App під час запуску Minecraft."
+    "message": "Згортати Packrinth під час запуску Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Згортати застосунок"
@@ -315,16 +315,16 @@
     "message": "Переглянути примірник"
   },
   "app.hosting.update-required.description": {
-    "message": "Вам потрібно оновитися, щоб використовувати Modrinth Hosting через застосунок Modrinth"
+    "message": "Вам потрібно оновитися, щоб використовувати Packrinth Hosting через застосунок Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Завантажити для оновлення"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Схвильований бот Modrinth"
+    "message": "Схвильований бот Packrinth"
   },
   "app.hosting.update-required.title": {
-    "message": "Потрібне оновлення Modrinth App"
+    "message": "Потрібне оновлення Packrinth"
   },
   "app.icon-editor.apply-icons-modal.badge": {
     "message": "Нове оновлення"
@@ -1083,7 +1083,7 @@
     "message": "Перезапуск..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Змінні середовища встановлюються, коли примірник запускається."
@@ -1179,13 +1179,13 @@
     "message": "Реклама підтримує існування Modrinth і фінансує виплати творцям. Наші партнери можуть зберігати й отримувати доступ до cookie в застосунку, щоб персоналізувати рекламу та збирати метрики. Ви можете відмовитися від них або керувати налаштуваннями нижче."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показувати Modrinth App як вашу поточну активність у Discord. Це не впливає на Rich Presence, доданий до збірок модами. Потребує перезапуску застосунку."
+    "message": "Показувати Packrinth як вашу поточну активність у Discord. Це не впливає на Rich Presence, доданий до збірок модами. Потребує перезапуску застосунку."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth збирає анонімізовану аналітику та дані про використання для покращення зручності та адаптації сервісу. Вимкнувши цю опцію, ви відмовляєтеся від збору, і ваші дані більше не збиратимуться."
+    "message": "Packrinth збирає анонімізовану аналітику та дані про використання для покращення зручності та адаптації сервісу. Вимкнувши цю опцію, ви відмовляєтеся від збору, і ваші дані більше не збиратимуться."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Телеметрія"
@@ -1224,7 +1224,7 @@
     "message": "Оглянути каталог застосунку"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Де Modrinth App зберігає збірки та інші файли. Зміни набудуть чинності після перезапуску застосунку."
+    "message": "Де Packrinth зберігає збірки та інші файли. Зміни набудуть чинності після перезапуску застосунку."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Вибрати новий каталог застосунку"
@@ -1416,10 +1416,10 @@
     "message": "Увімкнути"
   },
   "app.survey.body": {
-    "message": "Не бажаєте відповісти на кілька запитань про ваш досвід користування Modrinth App?"
+    "message": "Не бажаєте відповісти на кілька запитань про ваш досвід користування Packrinth?"
   },
   "app.survey.footer": {
-    "message": "Цей відгук надійде безпосередньо команді Modrinth і допоможе у створенні майбутніх оновлень!"
+    "message": "Цей відгук надійде безпосередньо команді Packrinth і допоможе у створенні майбутніх оновлень!"
   },
   "app.survey.no-thanks": {
     "message": "Ні, дякую"
@@ -1428,16 +1428,16 @@
     "message": "Пройти опитування"
   },
   "app.survey.title": {
-    "message": "Привіт, користувачу Modrinth!"
+    "message": "Привіт, користувачу Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} завантажено. Перезапустіть, щоб оновити зараз, або це відбудеться автоматично після закриття застосунку."
+    "message": "Packrinth v{version} завантажено. Перезапустіть, щоб оновити зараз, або це відбудеться автоматично після закриття застосунку."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} вже доступно. Скористайтеся менеджером пакетів, щоб отримати найновіші функції та виправлення!"
+    "message": "Packrinth v{version} вже доступно. Скористайтеся менеджером пакетів, щоб отримати найновіші функції та виправлення!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} вже доступно! Оскільки ви використовуєте лімітне підключення, ми не завантажили його автоматично."
+    "message": "Packrinth v{version} вже доступно! Оскільки ви використовуєте лімітне підключення, ми не завантажили його автоматично."
   },
   "app.update-popup.changelog": {
     "message": "Список змін"
@@ -1470,7 +1470,7 @@
     "message": "Готові до гри?"
   },
   "app.welcome-screen.title": {
-    "message": "Вітаємо в Modrinth"
+    "message": "Вітаємо в Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -1617,7 +1617,7 @@
     "message": "Відв'язати спільну збірку"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Це видалить спільну збірку з серверів Modrinth. Користувачі Modrinth App припинять отримувати оновлення, але ваша локальна збірка та її вміст залишаться на цьому пристрої."
+    "message": "Це видалить спільну збірку з серверів Modrinth. Користувачі Packrinth припинять отримувати оновлення, але ваша локальна збірка та її вміст залишаться на цьому пристрої."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Скасування публікації спільної збірки"

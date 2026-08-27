@@ -10,7 +10,16 @@ on:
       - 'apps/app/**'
       - 'apps/app-frontend/**'
       - 'packages/app-lib/**'
+      - 'packages/api-client/**'
+      - 'packages/ariadne/**'
       - 'packages/assets/**'
+      - 'packages/async-minecraft-ping/**'
+      - 'packages/blog/**'
+      - 'packages/daedalus/**'
+      - 'packages/modrinth-content-management/**'
+      - 'packages/path-util/**'
+      - 'packages/serde-binhum/**'
+      - 'packages/tooling-config/**'
       - 'packages/ui/**'
       - 'packages/utils/**'
   workflow_dispatch:
@@ -36,7 +45,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/prod' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   PRODUCT_NAME: Packrinth

@@ -162,7 +162,7 @@
     "message": "Ocultar nametag"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimiza o Modrinth App ao iniciar o Minecraft."
+    "message": "Minimiza o Packrinth ao iniciar o Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimizar aplicativo"
@@ -315,16 +315,16 @@
     "message": "Ver instância"
   },
   "app.hosting.update-required.description": {
-    "message": "Você precisa atualizar para usar o Modrinth Hosting através do Modrinth App"
+    "message": "Você precisa atualizar para usar o Packrinth Hosting através do Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Baixar para atualizar"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Modrinth Bot animado"
+    "message": "Packrinth Bot animado"
   },
   "app.hosting.update-required.title": {
-    "message": "Atualização do Modrinth App necessária"
+    "message": "Atualização do Packrinth necessária"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Falha ao aplicar ícones aleatórios nas instâncias."
@@ -339,7 +339,7 @@
     "message": "Fechar"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Crie ícones personalizados para as suas instâncias diretamente no Modrinth App. Misture e combine os fundos com símbolos do Minecraft e mods populares!"
+    "message": "Crie ícones personalizados para as suas instâncias diretamente no Packrinth. Misture e combine os fundos com símbolos do Minecraft e mods populares!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# instância} other {# instâncias}} ainda não têm ícones. Quer dar {count, plural, one {ícone aleatório} other {ícones aleatórios}} para começar?"
@@ -894,7 +894,7 @@
     "message": "Reiniciando..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "As variáveis do ambiente definidas ao iniciar uma instância."
@@ -990,13 +990,13 @@
     "message": "Anúncios tornam o Modrinth possível e financiam os pagamentos dos criadores. Nossos parceiros talvez armazenem ou acessem os cookies no aplicativo para personalizar anúncios e medir o desempenho. Você pode recusar ou gerenciar suas preferências abaixo."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Exibe o Modrinth App como sua atividade atual no Discord. Isso não afeta a Presença Rica adicionada às instâncias por mods. Exige a reinicialização do aplicativo."
+    "message": "Exibe o Packrinth como sua atividade atual no Discord. Isso não afeta a Presença Rica adicionada às instâncias por mods. Exige a reinicialização do aplicativo."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Presença Rica do Discord"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "O Modrinth coleta analíticas anonimizadas e uso de dados para aprimorar nossa experiência de usuário e personalizar sua experiência. Ao desativar esta opção, você negará e seus dados não serão mais coletados."
+    "message": "O Packrinth coleta analíticas anonimizadas e uso de dados para aprimorar nossa experiência de usuário e personalizar sua experiência. Ao desativar esta opção, você negará e seus dados não serão mais coletados."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
@@ -1035,7 +1035,7 @@
     "message": "Buscar por um diretório de aplicativo"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Onde o Modrinth App armazena as instâncias e outros arquivos. As mudanças serão aplicadas após reiniciar o aplicativo."
+    "message": "Onde o Packrinth armazena as instâncias e outros arquivos. As mudanças serão aplicadas após reiniciar o aplicativo."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Selecione um novo diretório de aplicativo"
@@ -1227,10 +1227,10 @@
     "message": "Ativar"
   },
   "app.survey.body": {
-    "message": "Você se importaria de responder algumas perguntas sobre sua experiência com o Modrinth App?"
+    "message": "Você se importaria de responder algumas perguntas sobre sua experiência com o Packrinth?"
   },
   "app.survey.footer": {
-    "message": "Este comentário vai diretamente para a equipe Modrinth e ajudará a guiar futuras atualizações!"
+    "message": "Este comentário vai diretamente para a equipe Packrinth e ajudará a guiar futuras atualizações!"
   },
   "app.survey.no-thanks": {
     "message": "Não, obrigado"
@@ -1239,16 +1239,16 @@
     "message": "Responder"
   },
   "app.survey.title": {
-    "message": "Ei, usuário do Modrinth!"
+    "message": "Ei, usuário do Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "O Modrinth App v{version} já foi instalado. Recarregue para atualizar agora ou ela será feita automaticamente ao fechar o Modrinth App."
+    "message": "O Packrinth v{version} já foi instalado. Recarregue para atualizar agora ou ela será feita automaticamente ao fechar o Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "O Modrinth App v{version} está disponível. Use o gerenciador de pacotes para atualizar para obter novos recursos e correções!"
+    "message": "O Packrinth v{version} está disponível. Use o gerenciador de pacotes para atualizar para obter novos recursos e correções!"
   },
   "app.update-popup.body.metered": {
-    "message": "O Modrinth App v{version} já está disponível! Já que sua rede é limitada, não a instalamos automaticamente."
+    "message": "O Packrinth v{version} já está disponível! Já que sua rede é limitada, não a instalamos automaticamente."
   },
   "app.update-popup.changelog": {
     "message": "Mudanças"
@@ -1419,7 +1419,7 @@
     "message": "Desvincular instância compartilhada"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Isso excluirá a instância compartilhada dos servidores do Modrinth. As pessoas usando-o no Modrinth App não receberá mais atualizações, mas sua instância local e seu conteúdo ainda permanecerá no dispositivo."
+    "message": "Isso excluirá a instância compartilhada dos servidores do Modrinth. As pessoas usando-o no Packrinth não receberá mais atualizações, mas sua instância local e seu conteúdo ainda permanecerá no dispositivo."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Removendo instância compartilhada"

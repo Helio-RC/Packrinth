@@ -159,7 +159,7 @@
     "message": "Bước vào các thế giới hoặc các khu vực riêng biệt"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Thu nhỏ ứng dụng Modrinth khi Minecraft khởi động."
+    "message": "Thu nhỏ ứng dụng Packrinth khi Minecraft khởi động."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Thu nhỏ ứng dụng"
@@ -285,13 +285,13 @@
     "message": "Tham gia ngay"
   },
   "app.hosting.update-required.description": {
-    "message": "Bạn cần cập nhật để sử dụng Modrinth Hosting thông qua ứng dụng Modrinth"
+    "message": "Bạn cần cập nhật để sử dụng Packrinth Hosting thông qua ứng dụng Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Tải xuống để cập nhật"
   },
   "app.hosting.update-required.title": {
-    "message": "Yêu cầu cập nhật ứng dụng Modrinth"
+    "message": "Yêu cầu cập nhật ứng dụng Packrinth"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Không thể áp dụng các biểu tượng ngẫu nhiên cho các thực thể."
@@ -300,7 +300,7 @@
     "message": "Điểm mới trong bản cập nhật này"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Tạo biểu tượng tùy chỉnh cho các instance của bạn ngay trong ứng dụng Modrinth. Hãy kết hợp các hình nền với những biểu tượng từ Minecraft và các bản mod phổ biến!"
+    "message": "Tạo biểu tượng tùy chỉnh cho các instance của bạn ngay trong ứng dụng Packrinth. Hãy kết hợp các hình nền với những biểu tượng từ Minecraft và các bản mod phổ biến!"
   },
   "app.icon-editor.apply-icons-modal.title": {
     "message": "Trình chỉnh sửa biểu tượng tùy chỉnh"
@@ -696,13 +696,13 @@
     "message": "Đổi skin"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Phiên bản v{version} của Modrinth đã sẵn sàng để có thể cài đặt. Khởi động lại ứng dụng để cập nhật ngay bây giờ, hoặc tự động cập nhật sau khi bạn tắt Modrinth."
+    "message": "Phiên bản v{version} của Packrinth đã sẵn sàng để có thể cài đặt. Khởi động lại ứng dụng để cập nhật ngay bây giờ, hoặc tự động cập nhật sau khi bạn tắt Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Phiên bản v{version} của Modrinth hiện đang khả dụng. Hãy sử dụng trình quản lý gói của bạn để cập nhật các tính năng và bản vá lỗi mới nhất!"
+    "message": "Phiên bản v{version} của Packrinth hiện đang khả dụng. Hãy sử dụng trình quản lý gói của bạn để cập nhật các tính năng và bản vá lỗi mới nhất!"
   },
   "app.update-popup.body.metered": {
-    "message": "Phiên bản v{version} của Modrinth hiện đang khả dụng ngay bây giờ! Vì bạn đang sử dụng mạng có tính phí theo dung lượng nên chúng tôi không tự động tải xuống."
+    "message": "Phiên bản v{version} của Packrinth hiện đang khả dụng ngay bây giờ! Vì bạn đang sử dụng mạng có tính phí theo dung lượng nên chúng tôi không tự động tải xuống."
   },
   "app.update-popup.changelog": {
     "message": "Nhật ký thay đổi"

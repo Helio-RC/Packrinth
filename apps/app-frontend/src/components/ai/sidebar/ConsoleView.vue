@@ -63,16 +63,18 @@
 			</div>
 
 			<label class="mt-4 flex flex-col gap-1">
-				<span class="text-sm font-medium text-contrast">{{ formatMessage(messages.logLines) }}</span>
+				<span class="text-sm font-medium text-contrast">{{
+					formatMessage(messages.logLines)
+				}}</span>
 				<span class="text-xs text-secondary">{{ formatMessage(messages.logLinesDesc) }}</span>
-<input
-				v-model.number="logLines"
-				type="number"
-				min="100"
-				class="mt-1 w-28 rounded-lg border border-divider bg-bg px-3 py-1.5 text-sm text-contrast outline-none focus:border-brand"
-				@input="clampLogLines"
-				@change="saveLogLines"
-			/>
+				<input
+					v-model.number="logLines"
+					type="number"
+					min="100"
+					class="mt-1 w-28 rounded-lg border border-divider bg-bg px-3 py-1.5 text-sm text-contrast outline-none focus:border-brand"
+					@input="clampLogLines"
+					@change="saveLogLines"
+				/>
 			</label>
 		</section>
 
@@ -92,8 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { SettingsToggleCard } from '@modrinth/ui'
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { defineMessages, SettingsToggleCard, useVIntl } from '@modrinth/ui'
 import { ref, watch } from 'vue'
 
 import type { AiWorkshopConfig } from '@/lib/ai/types'

@@ -16,7 +16,7 @@ const messages = defineMessages({
 	telemetryDescription: {
 		id: 'app.settings.privacy.telemetry.description',
 		defaultMessage:
-			'Modrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected.',
+			'Packrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected.',
 	},
 	discordRichPresenceTitle: {
 		id: 'app.settings.privacy.discord-rich-presence.title',
@@ -25,7 +25,7 @@ const messages = defineMessages({
 	discordRichPresenceDescription: {
 		id: 'app.settings.privacy.discord-rich-presence.description',
 		defaultMessage:
-			'Show Modrinth App as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart.',
+			'Show Packrinth as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart.',
 	},
 })
 

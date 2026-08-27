@@ -1,7 +1,7 @@
 /**
  * AI 工作台 Pinia store：对话、工具、技能、知识、日志与布局状态管理。
  */
-import { type UnlistenFn } from '@tauri-apps/api/event'
+import type { UnlistenFn } from '@tauri-apps/api/event'
 import { defineStore } from 'pinia'
 
 import {
@@ -31,8 +31,8 @@ import {
 import {
 	cancelTask,
 	executeTool as executeToolRequest,
-	listTools,
 	listenToolProgress,
+	listTools,
 } from '@/lib/ai/tools'
 import type {
 	AiStatus,
@@ -46,7 +46,14 @@ import type {
 } from '@/lib/ai/types'
 
 /** 活动栏可切换的面板标识。 */
-export type ActivityId = 'chat' | 'files' | 'knowledge' | 'skills' | 'tools' | 'console' | 'settings'
+export type ActivityId =
+	| 'chat'
+	| 'files'
+	| 'knowledge'
+	| 'skills'
+	| 'tools'
+	| 'console'
+	| 'settings'
 
 /** AI 工作台布局状态（前四项与后端 `LayoutConfig` 对应，可见性标志仅存前端）。 */
 export interface WorkshopLayout {

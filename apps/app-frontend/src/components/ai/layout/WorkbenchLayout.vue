@@ -42,12 +42,14 @@
 </template>
 
 <script setup lang="ts">
-import { useVIntl } from '@modrinth/ui'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
+import { useVIntl } from '@modrinth/ui'
+import { Pane, Splitpanes } from 'splitpanes'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
+
 import ActivityBar from './ActivityBar.vue'
 import BottomPanel from './BottomPanel.vue'
 import MainArea from './MainArea.vue'

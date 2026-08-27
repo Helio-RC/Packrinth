@@ -174,7 +174,7 @@
     "message": "Jugar en mundos o instancias"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimiza la app de Modrinth al iniciar Minecraft."
+    "message": "Minimiza la app de Packrinth al iniciar Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimizar app"
@@ -339,16 +339,16 @@
     "message": "Ver instancia"
   },
   "app.hosting.update-required.description": {
-    "message": "Necesitas actualizar para usar Modrinth Hosting a través de la aplicación de Modrinth"
+    "message": "Necesitas actualizar para usar Packrinth Hosting a través de la aplicación de Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Descarga para actualizar"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Modrinth Both emocionado"
+    "message": "Packrinth Bot emocionado"
   },
   "app.hosting.update-required.title": {
-    "message": "Se requiere actualizar la aplicación de Modrinth"
+    "message": "Se requiere actualizar la aplicación de Packrinth"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Error al aplicar iconos aleatorios a las instancias."
@@ -363,7 +363,7 @@
     "message": "Cerrar"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Crea íconos personalizados para tus instancias directamente en la aplicación de Modrinth. ¡Mezcla y empareja fondos con símbolos de Minecraft y mods populares!"
+    "message": "Crea íconos personalizados para tus instancias directamente en la aplicación de Packrinth. ¡Mezcla y empareja fondos con símbolos de Minecraft y mods populares!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# instancia no tiene ícono} other {# instancias no tienen íconos}} todavía. ¿Quieres que le demos a {count, plural, one {este} other {ellos}} un estilo aleatorio para empezar?"
@@ -1308,7 +1308,7 @@
     "message": "Reiniciando..."
   },
   "app.settings.app-version": {
-    "message": "App de Modrinth {version}"
+    "message": "App de Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Variables de entorno puestas al iniciar una instancia."
@@ -1404,13 +1404,13 @@
     "message": "Los anuncios hacen posible a Modrinth y financian los pagos a los creadores. Nuestros socios pueden guardar o acceder a cookies en la aplicación para personalizar anuncios y medir su rendimiento. Puedes rechazar esto o administrar tus preferencias abajo."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Mostrar la aplicación de Modrinth como tu actividad actual en Discord. Esto no afecta a cualquier Rich Presence añadida a instancias con mods. Necesita reiniciar la app."
+    "message": "Mostrar la aplicación de Packrinth como tu actividad actual en Discord. Esto no afecta a cualquier Rich Presence añadida a instancias con mods. Necesita reiniciar la app."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth recolecta datos analíticos anónimos y datos de uso para mejorar la experiencia de nuestros usuarios y para personalizar tu experiencia. Al desactivar esta opción, tus datos dejarán de ser recolectados."
+    "message": "Packrinth recolecta datos analíticos anónimos y datos de uso para mejorar la experiencia de nuestros usuarios y para personalizar tu experiencia. Al desactivar esta opción, tus datos dejarán de ser recolectados."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetría"
@@ -1656,10 +1656,10 @@
     "message": "Activar"
   },
   "app.survey.body": {
-    "message": "¿Te importaría responder unas cuantas preguntas sobre tu experiencia con la aplicación de Modrinth?"
+    "message": "¿Te importaría responder unas cuantas preguntas sobre tu experiencia con la aplicación de Packrinth?"
   },
   "app.survey.footer": {
-    "message": "¡Tus comentarios llegarán directamente al equipo de Modrinth, y los ayudará a hacer mejores actualizaciones!"
+    "message": "¡Tus comentarios llegarán directamente al equipo de Packrinth, y los ayudará a hacer mejores actualizaciones!"
   },
   "app.survey.no-thanks": {
     "message": "No, gracias"
@@ -1668,16 +1668,16 @@
     "message": "Aceptar encuesta"
   },
   "app.survey.title": {
-    "message": "¡Hola, usuario de Modrinth!"
+    "message": "¡Hola, usuario de Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "La descarga de la Modrinth App v{version} ha finalizado. Actualiza ahora o automáticamente al cerrar la Modrinth App."
+    "message": "La descarga de la Packrinth v{version} ha finalizado. Actualiza ahora o automáticamente al cerrar la Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "La Modrinth App v{version} está disponible. ¡Usa tu gestor de paquetes para actualizarla y tener las últimas funciones y corrección de errores!"
+    "message": "La Packrinth v{version} está disponible. ¡Usa tu gestor de paquetes para actualizarla y tener las últimas funciones y corrección de errores!"
   },
   "app.update-popup.body.metered": {
-    "message": "¡La Modrinth App v{version} ya está disponible! Al estar usando una red de datos límitada, no la hemos descargado automáticamente."
+    "message": "¡La Packrinth v{version} ya está disponible! Al estar usando una red de datos límitada, no la hemos descargado automáticamente."
   },
   "app.update-popup.changelog": {
     "message": "Registro de cambios"
@@ -1722,7 +1722,7 @@
     "message": "Presiona <shortcut>N</shortcut> para crear rápidamente una instancia"
   },
   "app.welcome-screen.title": {
-    "message": "Bienvenido a Modrinth"
+    "message": "Bienvenido a Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "ejemplo.modrinth.gg"

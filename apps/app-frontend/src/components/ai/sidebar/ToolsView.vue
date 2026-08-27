@@ -37,16 +37,8 @@
 
 					<p v-if="tool.description" class="mt-2 text-sm text-primary">{{ tool.description }}</p>
 
-					<form
-						v-if="isOpen(tool)"
-						class="mt-3 flex flex-col gap-3"
-						@submit.prevent="submit(tool)"
-					>
-						<div
-							v-for="field in schemaFields(tool)"
-							:key="field.key"
-							class="flex flex-col gap-1"
-						>
+					<form v-if="isOpen(tool)" class="mt-3 flex flex-col gap-3" @submit.prevent="submit(tool)">
+						<div v-for="field in schemaFields(tool)" :key="field.key" class="flex flex-col gap-1">
 							<label class="flex items-center gap-1 text-sm text-contrast">
 								<span>{{ field.label }}</span>
 								<span v-if="field.required" class="text-red-500">*</span>
@@ -57,11 +49,18 @@
 								type="checkbox"
 								:checked="booleanValues[formKey(tool, field.key)] ?? false"
 								class="h-4 w-4 accent-brand"
-								@change="(e) => (booleanValues[formKey(tool, field.key)] = (e.target as HTMLInputElement).checked)"
+								@change="
+									(e) =>
+										(booleanValues[formKey(tool, field.key)] = (
+											e.target as HTMLInputElement
+										).checked)
+								"
 							/>
 
 							<textarea
-								v-else-if="field.type === 'array' || field.type === 'object' || isUnknown(field.type)"
+								v-else-if="
+									field.type === 'array' || field.type === 'object' || isUnknown(field.type)
+								"
 								v-model="formValues[formKey(tool, field.key)]"
 								:placeholder="formatMessage(messages.jsonPlaceholder)"
 								rows="3"
@@ -75,10 +74,7 @@
 								class="rounded-lg border border-divider bg-bg px-3 py-1.5 text-sm text-contrast outline-none focus:border-brand"
 							/>
 
-							<p
-								v-if="field.description"
-								class="text-xs text-secondary"
-							>
+							<p v-if="field.description" class="text-xs text-secondary">
 								{{ field.description }}
 							</p>
 						</div>
@@ -168,12 +164,23 @@ const isOpen = (tool: ToolInfo) => openTool.has(tool.name)
 
 const formKey = (tool: ToolInfo, key: string) => `${tool.name}.${key}`
 
-const isUnknown = (type: string) => type !== 'string' && type !== 'number' && type !== 'boolean' && type !== 'array' && type !== 'object'
+const isUnknown = (type: string) =>
+	type !== 'string' &&
+	type !== 'number' &&
+	type !== 'boolean' &&
+	type !== 'array' &&
+	type !== 'object'
 
 const schemaFields = (tool: ToolInfo): ParamField[] => {
-	const schema = tool.paramsSchema as { properties?: Record<string, unknown>; required?: string[] } | null | undefined
+	const schema = tool.paramsSchema as
+		| { properties?: Record<string, unknown>; required?: string[] }
+		| null
+		| undefined
 	if (!schema || typeof schema !== 'object') return []
-	const properties = (schema.properties ?? {}) as Record<string, { type?: string; title?: string; description?: string }>
+	const properties = (schema.properties ?? {}) as Record<
+		string,
+		{ type?: string; title?: string; description?: string }
+	>
 	const required = Array.isArray(schema.required) ? schema.required : []
 	return Object.entries(properties).map(([key, prop]) => ({
 		key,

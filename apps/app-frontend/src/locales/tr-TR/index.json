@@ -174,7 +174,7 @@
     "message": "Dünyalara veya kurulumlara atlayın"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minecraft başladığında Modrinth uygulamasını küçült."
+    "message": "Minecraft başladığında Packrinth uygulamasını küçült."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Uygulamayı küçült"
@@ -339,16 +339,16 @@
     "message": "Kurulumu göster"
   },
   "app.hosting.update-required.description": {
-    "message": "Modrinth Hosting'i Modrinth App'ten kullanmak için güncelleyin"
+    "message": "Packrinth Hosting'i Packrinth'ten kullanmak için güncelleyin"
   },
   "app.hosting.update-required.download": {
     "message": "Güncellemeyi indir"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Heyecanlı Modrinth Botu"
+    "message": "Heyecanlı Packrinth Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App güncellemesi gerekli"
+    "message": "Packrinth güncellemesi gerekli"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Kurulumlara rastgele ikonlar uygulanamadı."
@@ -363,7 +363,7 @@
     "message": "Kapat"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Modrinth App'de kurulumlarınız için özel ikonlar oluşturun. Arka planları Minecraft ve popüler modlardan sembollerle karıştırıp eşleştirin!"
+    "message": "Packrinth'de kurulumlarınız için özel ikonlar oluşturun. Arka planları Minecraft ve popüler modlardan sembollerle karıştırıp eşleştirin!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# kurulumun} other {# kurulumun}} henüz ikonu yok. Başlangıç için {count, plural, one {ona} other {onlara}} rastgele simgeler vermemizi ister misiniz?"
@@ -1308,7 +1308,7 @@
     "message": "Yeniden Başlatılıyor..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth Uygulaması {version}"
+    "message": "Packrinth Uygulaması {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Ortam değişkenleri örnekler açılırken ayarlanır."
@@ -1404,13 +1404,13 @@
     "message": "Reklamlar, Modrinth'i mümkün kılıyor ve içerik üreticilerine yapılan ödemeleri finanse ediyor. Partnerlerimiz, reklamları kişiselleştirmek ve performansı ölçmek amacıyla uygulama içinde çerez depolayabilir veya bunlara erişebilir. Aşağıdan tercihinizi yönetebilir veya vazgeçebilirsiniz."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Şu anki Discord aktiviteniz olarak, Modrinth App'i gösterin. Bu, örneğe modlar tarafından eklenen Rich Presence'ı etkilemez. Uygulamayı yeniden başlatmayı gerektirir."
+    "message": "Şu anki Discord aktiviteniz olarak, Packrinth'i gösterin. Bu, örneğe modlar tarafından eklenen Rich Presence'ı etkilemez. Uygulamayı yeniden başlatmayı gerektirir."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth kullanıcı deneyimimizi geliştirmek için ve deneyiminizi kişiselleştirmek için anonimleştirilmiş analiz ve kullanım verilerini toplar. Bu seçeneği devre dışı bırakarak, bundan vazgeçmiş olursunuz ve verileriniz artık toplanmayacaktır."
+    "message": "Packrinth kullanıcı deneyimimizi geliştirmek için ve deneyiminizi kişiselleştirmek için anonimleştirilmiş analiz ve kullanım verilerini toplar. Bu seçeneği devre dışı bırakarak, bundan vazgeçmiş olursunuz ve verileriniz artık toplanmayacaktır."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetri"
@@ -1449,7 +1449,7 @@
     "message": "Bir uygulama dizinine göz atın"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App'in örnekleri ve diğer dosyaları depoladığı yer. Değişiklikler uygulamayı yeniden başlattıktan sonra etki eder."
+    "message": "Packrinth'in örnekleri ve diğer dosyaları depoladığı yer. Değişiklikler uygulamayı yeniden başlattıktan sonra etki eder."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Yeni bir uygulama dizini seçin"
@@ -1656,10 +1656,10 @@
     "message": "Aç"
   },
   "app.survey.body": {
-    "message": "Modrinth App deneyiminiz hakkında birkaç soruyu cevaplamak ister misiniz?"
+    "message": "Packrinth deneyiminiz hakkında birkaç soruyu cevaplamak ister misiniz?"
   },
   "app.survey.footer": {
-    "message": "Bu geri bildirim doğrudan Modrinth ekibine gidecek ve gelecek güncellemeleri şekillendirecek!"
+    "message": "Bu geri bildirim doğrudan Packrinth ekibine gidecek ve gelecek güncellemeleri şekillendirecek!"
   },
   "app.survey.no-thanks": {
     "message": "Hayır teşekkürler"
@@ -1668,16 +1668,16 @@
     "message": "Ankete katıl"
   },
   "app.survey.title": {
-    "message": "Merhaba Modrinth kullanıcısı!"
+    "message": "Merhaba Packrinth kullanıcısı!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} indirildi. Güncellemek için yeniden başlatın veya Modrinth App’i kapattığınızda otomatik olarak güncellenecektir."
+    "message": "Packrinth v{version} indirildi. Güncellemek için yeniden başlatın veya Packrinth’i kapattığınızda otomatik olarak güncellenecektir."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} yayımlandı. En yeni özellikler ve hata düzeltmeleri için paket yöneticin üzerinden güncelle!"
+    "message": "Packrinth v{version} yayımlandı. En yeni özellikler ve hata düzeltmeleri için paket yöneticin üzerinden güncelle!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} mevcut! Kısıtlı bağlantıda olduğunuzdan otomatik olarak indirmedik."
+    "message": "Packrinth v{version} mevcut! Kısıtlı bağlantıda olduğunuzdan otomatik olarak indirmedik."
   },
   "app.update-popup.changelog": {
     "message": "Yama Notları"
@@ -1722,7 +1722,7 @@
     "message": "Hızlıca bir kurulum oluşturmak için <shortcut>N</shortcut> tuşuna basın"
   },
   "app.welcome-screen.title": {
-    "message": "Modrinth'e Hoş Geldiniz"
+    "message": "Packrinth'e Hoş Geldiniz"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -1872,7 +1872,7 @@
     "message": "Paylaşımlı örneğin bağlantısını kaldır"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Bu paylaşımlı örneği Modrinth'in sunucularından kaldırır. Modrinth App'i kullanan kişiler güncelleme almayı bırakır fakat yerel örneğiniz ve içeriği bu cihazda kalacak."
+    "message": "Bu paylaşımlı örneği Modrinth'in sunucularından kaldırır. Packrinth'i kullanan kişiler güncelleme almayı bırakır fakat yerel örneğiniz ve içeriği bu cihazda kalacak."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Paylaşımlı örnek yayından kaldırılıyor"

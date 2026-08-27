@@ -7,16 +7,17 @@
 				class="w-2 h-2 rounded-full"
 				:class="store.providerConfigured ? 'bg-green-500' : 'bg-yellow-500'"
 			/>
-			{{ store.providerConfigured ? formatMessage(messages.aiReady) : formatMessage(messages.aiUnconfigured) }}
+			{{
+				store.providerConfigured
+					? formatMessage(messages.aiReady)
+					: formatMessage(messages.aiUnconfigured)
+			}}
 		</span>
 		<span class="flex-1" />
 		<span v-if="store.totalTokens > 0" class="tabular-nums">
 			{{ formatMessage(messages.tokens, { count: store.totalTokens }) }}
 		</span>
-		<span
-			v-if="store.aiStatus"
-			class="flex items-center gap-1"
-		>
+		<span v-if="store.aiStatus" class="flex items-center gap-1">
 			<SparklesIcon class="text-sm" />
 			{{ store.aiStatus.skillCount }} {{ formatMessage(messages.skills) }}
 		</span>

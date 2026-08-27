@@ -82,7 +82,10 @@ app-version-override: string     # Purpose: for updater testing; overrides git-d
 
 # Repository Triggers
 paths: [.github/workflows/theseus-build.yml, apps/app/**, apps/app-frontend/**,
-        packages/app-lib/**, packages/assets/**,
+        packages/app-lib/**, packages/api-client/**, packages/ariadne/**,
+        packages/assets/**, packages/async-minecraft-ping/**, packages/blog/**,
+        packages/daedalus/**, packages/modrinth-content-management/**,
+        packages/path-util/**, packages/serde-binhum/**, packages/tooling-config/**,
         packages/ui/**, packages/utils/**]
 branches: [main]
 tags: ['v*']
