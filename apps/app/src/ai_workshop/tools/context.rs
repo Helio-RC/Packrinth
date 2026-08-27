@@ -119,6 +119,13 @@ impl TaskRegistry {
 		}
 	}
 
+	/// 移除已完成任务的取消令牌，返回被移除的令牌（若存在）。
+	/// 工具正常完成（Ok/Err）后调用，避免长期会话中 HashMap 无限增长。
+	/// 与 cancel 不同：只移除令牌，不触发取消。
+	pub fn remove(&self, task_id: &str) -> Option<CancellationToken> {
+		self.tasks.lock().unwrap().remove(task_id)
+	}
+
 	pub fn cancel_all(&self) {
 		for token in self.tasks.lock().unwrap().drain() {
 			token.1.cancel();
@@ -235,6 +242,22 @@ mod tests {
 		drop(guard);
 		worker.await.unwrap();
 		assert!(*acquired.lock().await, "worker should have finished");
+	}
+
+	#[test]
+	fn task_registry_remove_cleans_token_without_cancelling() {
+		let registry = TaskRegistry::default();
+		let token = registry.new_token("t1").unwrap();
+		assert!(!token.is_cancelled());
+
+		let removed = registry.remove("t1");
+		assert!(removed.is_some(), "remove should return the existing token");
+		assert!(!removed.unwrap().is_cancelled(), "remove must not cancel the token");
+
+		// 再次 remove 返回 None（已清理）。
+		assert!(registry.remove("t1").is_none());
+		// cancel 对已清理任务返回 false。
+		assert!(!registry.cancel("t1"));
 	}
 }
 // === AI-WORKSHOP END ===

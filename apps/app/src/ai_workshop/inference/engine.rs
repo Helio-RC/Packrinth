@@ -250,11 +250,19 @@ impl InferenceEngine {
 		match tokio::time::timeout(TOOL_TIMEOUT, tool.execute(call.arguments.clone(), &context))
 			.await
 		{
-			Ok(Ok(value)) => serde_json::to_string(&value).unwrap_or_else(|_| value.to_string()),
-			Ok(Err(e)) => format!("错误：{e}"),
+			Ok(Ok(value)) => {
+				// 工具正常完成，清理任务令牌避免注册表无限增长。
+				self.state.task_registry.remove(&task_id);
+				serde_json::to_string(&value).unwrap_or_else(|_| value.to_string())
+			}
+			Ok(Err(e)) => {
+				self.state.task_registry.remove(&task_id);
+				format!("错误：{e}")
+			}
 			Err(_) => {
-				// 超时兜底：尽力取消对应任务令牌，让仍在运行的循环尽快退出。
+				// 超时兜底：先尽力取消对应任务令牌，让仍在运行的循环尽快退出，再清理注册表。
 				context.cancellation_token.cancel();
+				self.state.task_registry.remove(&task_id);
 				"工具执行超时".to_string()
 			}
 		}

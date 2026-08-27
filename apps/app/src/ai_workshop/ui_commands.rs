@@ -55,11 +55,21 @@ async fn execute_tool_with_timeout<R: Runtime>(
 	};
 
 	match tokio::time::timeout(timeout, tool.execute(params, &context)).await {
-		Ok(Ok(value)) => Ok(serde_json::json!({ "success": true, "data": value })),
-		Ok(Err(e)) => Ok(serde_json::json!({ "success": false, "error": { "code": "TOOL_ERROR", "message": e } })),
+		Ok(Ok(value)) => {
+			// 工具正常完成，移除任务令牌避免注册表无限增长。
+			state.task_registry.remove(task_id);
+			Ok(serde_json::json!({ "success": true, "data": value }))
+		}
+		Ok(Err(e)) => {
+			// 工具返回错误也视为完成，清理令牌。
+			state.task_registry.remove(task_id);
+			Ok(serde_json::json!({ "success": false, "error": { "code": "TOOL_ERROR", "message": e } }))
+		}
 		Err(_) => {
-			// 超时兜底：尽力取消对应任务令牌，让仍在运行的循环尽快退出。
+			// 超时兜底：先尽力取消对应任务令牌，让仍在运行的循环尽快退出，
+			// 再清理注册表条目。
 			context.cancellation_token.cancel();
+			state.task_registry.remove(task_id);
 			Ok(serde_json::json!({ "success": false, "error": { "code": "TOOL_TIMEOUT", "message": "工具执行超时" } }))
 		}
 	}
@@ -129,7 +139,14 @@ mod tests {
 	}
 
 	fn test_state() -> AiWorkshopState {
-		let dir = std::env::temp_dir().join(format!("packrinth-ai-uicmd-{}", std::process::id()));
+		static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+		let nanos = std::time::SystemTime::now()
+			.duration_since(std::time::UNIX_EPOCH)
+			.unwrap()
+			.as_nanos();
+		let seq = COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+		// 唯一临时目录（nanos + 原子计数），避免并行测试共享 pid-keyed 目录导致 SQLite 竞争。
+		let dir = std::env::temp_dir().join(format!("packrinth-ai-uicmd-{nanos}-{seq}"));
 		let _ = std::fs::remove_dir_all(&dir);
 		let config_manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
 		let tool_registry = Arc::new(ToolRegistry::new());
@@ -175,10 +192,11 @@ mod tests {
 		assert_eq!(obj["success"], Value::Bool(false));
 		assert_eq!(obj["error"]["code"], Value::String("TOOL_TIMEOUT".to_string()));
 
-		// 超时兜底应尽力取消任务令牌：注册表中该任务对应令牌仍可被取消。
+		// 超时兜底：先取消令牌，随后从注册表清理该任务，避免长期会话中 HashMap 无限增长。
+		// 故执行完成后 token 应已被移除（cancel 返回 false）。
 		assert!(
-			state.task_registry.cancel("timeout-task"),
-			"timeout-task token should still be registered"
+			!state.task_registry.cancel("timeout-task"),
+			"timeout-task token should have been removed after completion"
 		);
 	}
 
@@ -202,6 +220,12 @@ mod tests {
 		assert_eq!(obj["success"], Value::Bool(false));
 		assert_eq!(obj["error"]["code"], Value::String("TOOL_ERROR".to_string()));
 		assert_eq!(obj["error"]["message"], Value::String("boom".to_string()));
+
+		// 工具返回错误也视为完成：任务令牌应被清理。
+		assert!(
+			!state.task_registry.cancel("fail-task"),
+			"fail-task token should be removed after error completion"
+		);
 	}
 
 	#[tokio::test]
