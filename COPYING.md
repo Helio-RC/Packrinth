@@ -1,6 +1,6 @@
 # Copying Guidelines
 
-All packages in this repository are licensed under their respective licenses. For more information, refer to the LICENSE file in each package.
+Root of the repository does not carry a LICENSE file; each package/app carries its own (see `LICENSE`/`COPYING.md` in each package or app directory; the desktop app under `apps/app/` is GPL-3.0-only).
 
 For detailed information, consult each package's COPYING.md, LICENSE.txt, or LICENSE file, if available.
 
@@ -8,7 +8,7 @@ For detailed information, consult each package's COPYING.md, LICENSE.txt, or LIC
 
 Packrinth is an independent fork of the Modrinth App. The upstream source is [modrinth/code](https://github.com/modrinth/code), © 2020-2025 Rinth, Inc., licensed under the GNU General Public License, version 3. Upstream code retains its upstream copyright and GPL-3.0 licensing.
 
-This fork does not include the Modrinth branding or logo assets in its releases. Where upstream code or assets are retained, they remain subject to their respective upstream licenses and copyright.
+No Modrinth trademark or logo is distributed in Packrinth's released builds; the icon assets under `apps/app/icons/` (and `.idea/icon.svg`, `.github/assets/app_cover.png`) are still upstream Modrinth assets pending replacement before the first public release. Where upstream code or assets are retained, they remain subject to their respective upstream licenses and copyright.
 
 > All rights reserved. © 2020-2025 Rinth, Inc. (upstream)
 

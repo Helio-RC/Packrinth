@@ -8,6 +8,6 @@ Packrinth is an independent fork of the Modrinth App. The upstream source is [mo
 
 ## Modrinth logo
 
-Packrinth uses no Modrinth trademark or logo in its releases. The icons directory currently ships upstream Modrinth icon assets and must be replaced before public release. The replacement is pending a final decision on Packrinth's own branding.
+No Modrinth trademark or logo is distributed in Packrinth's released builds; the icon assets under `apps/app/icons/` are still upstream Modrinth assets pending replacement before the first public release. The replacement is pending a final decision on Packrinth's own branding.
 
 > All rights reserved. © 2020-2025 Rinth, Inc. (upstream)
