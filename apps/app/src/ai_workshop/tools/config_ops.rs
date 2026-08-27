@@ -181,6 +181,21 @@ async fn make_backup(root: &Path, rel: &str) -> Result<Option<PathBuf>, String> 
 	Ok(Some(backup))
 }
 
+/// 修剪某配置文件的备份：保留最近的 `keep` 个（按时间戳降序，最旧的在最后），
+/// 删除超出的最旧备份。仅匹配 `{path}.backup.bak-*` 前缀，不误删其他文件。
+async fn prune_backups(root: &Path, rel: &str, keep: usize) -> Result<(), String> {
+	let backups = list_backups(root, rel).await?;
+	if backups.len() <= keep {
+		return Ok(());
+	}
+	for backup in backups.into_iter().skip(keep) {
+		tokio::fs::remove_file(&backup)
+			.await
+			.map_err(|e| format!("清理旧备份失败 {}: {e}", backup.display()))?;
+	}
+	Ok(())
+}
+
 /// 简单逐行 diff（LCS 简化版），返回带 + / - / 前缀的行与是否发生变更。
 fn diff_lines(a: &[String], b: &[String]) -> (Vec<String>, bool) {
 	let n = a.len();
@@ -321,7 +336,12 @@ impl Tool for WriteConfigTool {
 			.await
 			.map_err(|e| e.to_string())?;
 		let backup_path = if backup {
-			make_backup(&root, &path).await?
+			let bp = make_backup(&root, &path).await?;
+			// 备份成功后修剪：仅保留最近 10 个备份，防止无限累积。
+			if bp.is_some() {
+				prune_backups(&root, &path, 10).await?;
+			}
+			bp
 		} else {
 			None
 		};
@@ -717,6 +737,63 @@ mod tests {
 		let root = temp_instance_root().await;
 		// 逃逸路径在 resolve_write_path 前被 safe_join 拒绝
 		assert!(safe_join(&root, "config/../../escape").is_err());
+	}
+
+	#[tokio::test]
+	async fn prune_backups_trims_to_keep() {
+		let root = temp_instance_root().await;
+		let rel = "config/jei.toml";
+		let target = root.join(rel);
+		tokio::fs::write(&target, "content\n").await.unwrap();
+
+		// 直接构造 15 个不同时间戳的备份（避免 make_backup 的毫秒级时间戳在同一毫秒内
+		// 生成同名文件覆盖，导致不足 15 个）。
+		let parent = root.join("config");
+		let prefix = backup_prefix("jei.toml");
+		for i in 0..15 {
+			let name = format!("{prefix}{}", 1000 + i);
+			tokio::fs::write(parent.join(&name), "content\n").await.unwrap();
+		}
+		let before = list_backups(&root, rel).await.unwrap();
+		assert_eq!(before.len(), 15, "15 backups should exist before pruning");
+
+		prune_backups(&root, rel, 10).await.unwrap();
+		let after = list_backups(&root, rel).await.unwrap();
+		assert_eq!(after.len(), 10, "pruning should keep only 10 backups");
+
+		// 不应误删其他文件（非该配置备份前缀）。
+		let unrelated = root.join("config").join("other.toml.backup.bak-123");
+		tokio::fs::write(&unrelated, "x").await.unwrap();
+		prune_backups(&root, rel, 10).await.unwrap();
+		assert!(unrelated.exists(), "unrelated files must not be pruned");
+	}
+
+	#[tokio::test]
+	async fn prune_backups_keeps_latest_by_timestamp() {
+		let root = temp_instance_root().await;
+		let rel = "config/jei.toml";
+		let target = root.join(rel);
+		tokio::fs::write(&target, "content\n").await.unwrap();
+
+		// 构造 12 个时间戳递增的备份：1000..1011，1000 最旧、1011 最新。
+		let parent = root.join("config");
+		let prefix = backup_prefix("jei.toml");
+		for i in 0..12 {
+			let name = format!("{prefix}{}", 1000 + i);
+			tokio::fs::write(parent.join(&name), "content\n").await.unwrap();
+		}
+		prune_backups(&root, rel, 10).await.unwrap();
+		let after = list_backups(&root, rel).await.unwrap();
+		assert_eq!(after.len(), 10);
+
+		// 被删除的是最旧的 2 个（1000、1001），最新 10 个（1002..1011）被保留。
+		assert!(!parent.join(format!("{prefix}1000")).exists());
+		assert!(!parent.join(format!("{prefix}1001")).exists());
+		assert!(parent.join(format!("{prefix}1011")).exists());
+		for backup in &after {
+			let content = read_text(backup).await.unwrap();
+			assert_eq!(content, "content\n");
+		}
 	}
 
 	#[test]
