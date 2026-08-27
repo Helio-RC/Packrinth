@@ -323,9 +323,14 @@ impl Tool for GitInitTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
+		// git_init 是写操作（初始化 .git），与其余写工具一致获取实例写锁。
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;
