@@ -27,6 +27,7 @@ impl LogBuffer {
 	}
 
 	/// 将缓冲区内容追加写入 `<dir>/app.log`（不覆盖历史）。
+	/// 写入成功后清空缓冲区（drain），避免周期性落盘重复累积已写过的日志。
 	pub fn flush_to_disk(&self, dir: &Path) -> Result<(), String> {
 		let content = self.content().join("\n");
 		if content.is_empty() {
@@ -44,6 +45,8 @@ impl LogBuffer {
 			.map_err(|e| format!("failed to write {}: {e}", path.display()))?;
 		file.write_all(b"\n")
 			.map_err(|e| format!("failed to write {}: {e}", path.display()))?;
+		// 落盘成功后清空缓冲区。
+		self.inner.lock().unwrap().clear();
 		Ok(())
 	}
 
@@ -97,21 +100,23 @@ mod tests {
 	}
 
 	#[test]
-	fn second_flush_appends_instead_of_overwriting() {
+	fn second_flush_appends_new_lines_only() {
 		let dir = temp_dir("append");
 		let buffer = LogBuffer::new(100);
 		buffer.push("first".to_string());
 		buffer.flush_to_disk(&dir).expect("first flush should succeed");
 
+		// flush 成功后缓冲区已清空：再次 flush 不应重复追加旧的 "first"。
 		buffer.push("second".to_string());
 		buffer.flush_to_disk(&dir).expect("second flush should succeed");
 
 		let raw = fs::read_to_string(dir.join("app.log")).expect("app.log should exist");
 		assert!(raw.contains("second"), "second flush content must be appended");
-		// 追加而非覆盖：第一次 flush 写入的 "first" 应被保留（出现次数 >= 2）。
-		assert!(
-			raw.matches("first").count() >= 2,
-			"first flush history must be preserved (append, not overwrite)"
+		// 缓冲区在首次 flush 后被 drain，故 "first" 只出现一次（追加，不覆盖，也不重复累积）。
+		assert_eq!(
+			raw.matches("first").count(),
+			1,
+			"flushed buffer must be drained so old lines are not re-appended"
 		);
 		fs::remove_dir_all(&dir).ok();
 	}
