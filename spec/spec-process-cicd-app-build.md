@@ -82,7 +82,7 @@ app-version-override: string     # Purpose: for updater testing; overrides git-d
 
 # Repository Triggers
 paths: [.github/workflows/theseus-build.yml, apps/app/**, apps/app-frontend/**,
-        packages/app-lib/**, packages/app-macros/**, packages/assets/**,
+        packages/app-lib/**, packages/assets/**,
         packages/ui/**, packages/utils/**]
 branches: [main]
 tags: ['v*']

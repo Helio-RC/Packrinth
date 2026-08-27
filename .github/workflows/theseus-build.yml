@@ -122,7 +122,7 @@ jobs:
           {
             "productName": "${{ env.PRODUCT_NAME }} (dev-${GIT_HASH})",
             "mainBinaryName": "${{ env.PRODUCT_NAME }} (dev-${GIT_HASH})",
-            "identifier": "PackrinthApp-dev-${GIT_HASH}",
+            "identifier": "${{ env.PRODUCT_NAME }}App-dev-${GIT_HASH}",
             "bundle": {
               "fileAssociations": []
             }
