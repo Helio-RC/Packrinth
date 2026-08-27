@@ -11,7 +11,7 @@ tags: [process, cicd, github-actions, automation, tauri, release, s3, updater]
 
 **Purpose**: Based on a completed App Build run for a `v*` tag, download the build artifacts, generate a Tauri updater `updates.json` manifest, upload artifacts to an S3-compatible object store, and create a GitHub Release.
 
-**Trigger Events**: `workflow_run` — when the `Modrinth App build` workflow completes successfully for a `push` event whose `head_branch` starts with `v`.
+**Trigger Events**: `workflow_run` — when the `Packrinth App build` workflow completes successfully for a `push` event whose `head_branch` starts with `v`.
 
 **Target Environments**: Production (`prod`); no environment input exposed to workflow_dispatch.
 
@@ -51,7 +51,7 @@ graph TD
 | REQ-003 | Download the 3 platform artifacts | High | `action-download-artifact` pulls all `App bundle (*)` |
 | REQ-004 | Generate valid Tauri `updates.json` | High | Manifest matches Tauri updater server schema |
 | REQ-005 | Upload to S3 with correct layout | High | Artifacts land under `versions/<version>/<platform>` |
-| REQ-006 | Create a GitHub Release | High | Release with title `Modrinth App <VERSION>` and 5 installer assets |
+| REQ-006 | Create a GitHub Release | High | Release with title `Packrinth App <VERSION>` and 5 installer assets |
 
 ### Security Requirements
 
@@ -77,7 +77,7 @@ LINUX_X64_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (x86_64-unknown-l
 WINDOWS_X64_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (x86_64-pc-windows-msvc)'
 MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (universal-apple-darwin)'
 LAUNCHER_FILES_BUCKET_BASE_URL: string
-  # Purpose: base URL for updater URLs. HARDCODED to https://launcher-files.modrinth.com (recorded as CURRENT behavior)
+  # Purpose: base URL for updater URLs. Currently '' (no update server configured yet); set to a URL like https://updates.example.com before the first v*-tag release
 
 # Secrets
 GH_TOKEN: github.token  # Purpose: tag verification, release notes, gh release
@@ -88,29 +88,29 @@ GH_TOKEN: github.token  # Purpose: tag verification, release notes, gh release
 ```yaml
 # Outputs
 updates.json: file  # Description: Tauri updater manifest (version, notes, pub_date, platforms with signatures/urls)
-github_release: release  # Description: named Modrinth App <VERSION>, 5 installer assets
+github_release: release  # Description: named Packrinth App <VERSION>, 5 installer assets
 s3_objects: bucket  # Description: versions/<ver>/{macos,linux,windows}/* + updates.json at bucket root
 ```
 
 ### Artifact Naming & Globs
 
-The workflow depends on an exact set of "Modrinth App..." artifact filename patterns. `VERSION` is the tag with the leading `v` stripped (e.g. `1.2.3`). These are the precise strings the release relies on across the signature files, `updates.json` platform entries, and `gh release` asset args.
+The workflow depends on an exact set of "Packrinth..." artifact filename patterns. `VERSION` is the tag with the leading `v` stripped (e.g. `1.2.3`). These are the precise strings the release relies on across the signature files, `updates.json` platform entries, and `gh release` asset args.
 
 | File Pattern | Role | Platforms / Usage |
 |--------------|------|-------------------|
-| `Modrinth App.app.tar.gz.sig` | Updates signature (macOS) | `darwin-aarch64` + `darwin-x86_64` `signature` |
-| `Modrinth App_${VERSION}_amd64.AppImage.tar.gz.sig` | Updates signature (Linux) | `linux-x86_64` `signature` |
-| `Modrinth App_${VERSION}_x64-setup.nsis.zip.sig` | Updates signature (Windows) | `windows-x86_64` `signature` |
-| `Modrinth App.app.tar.gz` | Updates URL (macOS) | `darwin-aarch64` + `darwin-x86_64` `url` |
-| `Modrinth App_${VERSION}_amd64.AppImage.tar.gz` | Updates URL (Linux) | `linux-x86_64` `url` |
-| `Modrinth App_${VERSION}_x64-setup.nsis.zip` | Updates URL (Windows) | `windows-x86_64` `url` |
-| `Modrinth App_${VERSION}_universal.dmg` | Install URL (macOS) + release asset | `darwin-*` `install_urls`; `gh release` asset |
-| `Modrinth App_${VERSION}_amd64.deb` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
-| `Modrinth App_${VERSION}_amd64.AppImage` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
-| `Modrinth App-${VERSION}-1.x86_64.rpm` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
-| `Modrinth App_${VERSION}_x64-setup.exe` | Install URL (Windows) + release asset | `windows-x86_64` `install_urls`; `gh release` asset |
+| `Packrinth App.app.tar.gz.sig` | Updates signature (macOS) | `darwin-aarch64` + `darwin-x86_64` `signature` |
+| `Packrinth_${VERSION}_amd64.AppImage.tar.gz.sig` | Updates signature (Linux) | `linux-x86_64` `signature` |
+| `Packrinth_${VERSION}_x64-setup.nsis.zip.sig` | Updates signature (Windows) | `windows-x86_64` `signature` |
+| `Packrinth App.app.tar.gz` | Updates URL (macOS) | `darwin-aarch64` + `darwin-x86_64` `url` |
+| `Packrinth_${VERSION}_amd64.AppImage.tar.gz` | Updates URL (Linux) | `linux-x86_64` `url` |
+| `Packrinth_${VERSION}_x64-setup.nsis.zip` | Updates URL (Windows) | `windows-x86_64` `url` |
+| `Packrinth_${VERSION}_universal.dmg` | Install URL (macOS) + release asset | `darwin-*` `install_urls`; `gh release` asset |
+| `Packrinth_${VERSION}_amd64.deb` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Packrinth_${VERSION}_amd64.AppImage` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Packrinth-${VERSION}-1.x86_64.rpm` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Packrinth_${VERSION}_x64-setup.exe` | Install URL (Windows) + release asset | `windows-x86_64` `install_urls`; `gh release` asset |
 
-Counts by role: 3 signature files, 3 `updates.json` `url` values, 6 `install_urls` (macOS 1, Linux 3, Windows 1), 5 `gh release` assets. The 5 release assets are a subset of the install_urls set.
+Counts by role: 3 signature files, 3 `updates.json` `url` values, 5 `install_urls` (macOS 1, Linux 3, Windows 1), 5 `gh release` assets. The 5 release assets are a subset of the install_urls set.
 
 ### Secrets & Variables
 
@@ -184,7 +184,7 @@ Counts by role: 3 signature files, 3 `updates.json` `url` values, 6 `install_url
 
 | Workflow | Relationship | Trigger Mechanism |
 |----------|--------------|-------------------|
-| Modrinth App build | Upstream producer | Triggered via `workflow_run` chain |
+| Packrinth App build | Upstream producer | Triggered via `workflow_run` chain |
 | App Build artifacts | Input | `dawidd6/action-download-artifact` keyed to branch `VERSION_TAG` |
 
 ## Compliance & Governance
@@ -218,9 +218,9 @@ Counts by role: 3 signature files, 3 `updates.json` `url` values, 6 `install_url
 ### Workflow Validation
 
 - **VLD-001**: Release only created when guardian `if` passes (success + push + v* head_branch)
-- **VLD-002**: All 11 `Modrinth App...` artifact file patterns enumerated in [Artifact Naming & Globs](#artifact-naming--globs) download cleanly under their 3 `App bundle (*)` dirs (3 `.sig`, 3 `.tar.gz` updates URLs, 5 installer assets)
+- **VLD-002**: All 11 `Packrinth...` artifact file patterns enumerated in [Artifact Naming & Globs](#artifact-naming--globs) download cleanly under their 3 `App bundle (*)` dirs (3 `.sig`, 3 `.tar.gz` updates URLs, 5 installer assets)
 - **VLD-003**: `updates.json` contains version (no `v` prefix), notes, iso8601 pub_date, and 4 platform blocks
-- **VLD-004**: `gh release create` uses `v`-prefixed tag and `Modrinth App <VERSION>` title with 5 assets
+- **VLD-004**: `gh release create` uses `v`-prefixed tag and `Packrinth App <VERSION>` title with 5 assets
 
 ### Performance Benchmarks
 
