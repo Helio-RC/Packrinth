@@ -315,11 +315,23 @@ impl ConfigManager {
 	fn write_secrets(&self, secrets: &HashMap<String, String>) -> Result<()> {
 		let raw =
 			serde_json::to_string_pretty(secrets).map_err(|e| other_err(e.to_string()))?;
-		std::fs::write(&self.secrets_path, raw)?;
 		#[cfg(unix)]
 		{
-			use std::os::unix::fs::PermissionsExt;
-			let _ = std::fs::set_permissions(&self.secrets_path, std::fs::Permissions::from_mode(0o600));
+			// unix 下用 OpenOptions + mode(0o600) 原子创建，避免 std::fs::write 之后
+			// 才 set_permissions 造成的"创建瞬间默认权限"窗口。
+			use std::io::Write;
+			use std::os::unix::fs::OpenOptionsExt;
+			let mut file = std::fs::OpenOptions::new()
+				.write(true)
+				.create(true)
+				.truncate(true)
+				.mode(0o600)
+				.open(&self.secrets_path)?;
+			file.write_all(raw.as_bytes())?;
+		}
+		#[cfg(not(unix))]
+		{
+			std::fs::write(&self.secrets_path, raw)?;
 		}
 		Ok(())
 	}
@@ -394,6 +406,23 @@ mod tests {
 		// 新实例重新加载 secrets 后仍能读到最新 key（已持久化）
 		let reloaded = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
 		assert_eq!(reloaded.get_decrypted_api_key("deepseek").unwrap(), "new-key");
+
+		std::fs::remove_dir_all(&dir).unwrap();
+	}
+
+	#[cfg(unix)]
+	#[test]
+	fn write_secrets_creates_with_0600_mode() {
+		use std::os::unix::fs::PermissionsExt;
+
+		let dir = temp_ai_root();
+		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
+
+		manager.set_api_key("openai", "sk-secret-1").unwrap();
+
+		let meta = std::fs::metadata(&manager.secrets_path).unwrap();
+		let mode = meta.permissions().mode() & 0o777;
+		assert_eq!(mode, 0o600, "secrets file must be created with 0600 permissions, got {mode:o}");
 
 		std::fs::remove_dir_all(&dir).unwrap();
 	}
