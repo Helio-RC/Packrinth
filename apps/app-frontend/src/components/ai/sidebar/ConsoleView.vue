@@ -65,13 +65,14 @@
 			<label class="mt-4 flex flex-col gap-1">
 				<span class="text-sm font-medium text-contrast">{{ formatMessage(messages.logLines) }}</span>
 				<span class="text-xs text-secondary">{{ formatMessage(messages.logLinesDesc) }}</span>
-				<input
-					v-model.number="logLines"
-					type="number"
-					min="0"
-					class="mt-1 w-28 rounded-lg border border-divider bg-bg px-3 py-1.5 text-sm text-contrast outline-none focus:border-brand"
-					@change="saveLogLines"
-				/>
+<input
+				v-model.number="logLines"
+				type="number"
+				min="100"
+				class="mt-1 w-28 rounded-lg border border-divider bg-bg px-3 py-1.5 text-sm text-contrast outline-none focus:border-brand"
+				@input="clampLogLines"
+				@change="saveLogLines"
+			/>
 			</label>
 		</section>
 
@@ -197,6 +198,13 @@ const save = async (patch: Partial<AiWorkshopConfig>) => {
 }
 
 const saveLogLines = () => {
+	clampLogLines()
 	void save({ logLines: logLines.value })
+}
+
+const clampLogLines = () => {
+	if (typeof logLines.value !== 'number' || Number.isNaN(logLines.value) || logLines.value < 100) {
+		logLines.value = 100
+	}
 }
 </script>

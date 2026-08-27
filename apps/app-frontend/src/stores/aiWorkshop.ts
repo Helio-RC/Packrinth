@@ -127,7 +127,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 			this.tools = tools
 			this.conversations = conversations
 
-			await this.loadLayout()
+			await this.loadLayout(this.aiConfig)
 
 			if (!progressUnlisten) {
 				progressUnlisten = await listenToolProgress((payload) => {
@@ -398,8 +398,8 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 			}
 		},
 
-		/** 从 localStorage 恢复布局；无缓存时回退到后端配置。 */
-		async loadLayout() {
+		/** 从 localStorage 恢复布局；无缓存时回退到传入的后端配置（未传入则拉取）。 */
+		async loadLayout(config?: AiWorkshopConfig) {
 			const saved = localStorage.getItem(LAYOUT_STORAGE_KEY)
 			if (saved) {
 				try {
@@ -409,8 +409,8 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 					// 缓存损坏时回退到后端配置
 				}
 			}
-			const config = await getAiConfig()
-			this.layout = { ...this.layout, ...config.layout }
+			const cfg = config ?? (await getAiConfig())
+			this.layout = { ...this.layout, ...cfg.layout }
 		},
 
 		/** 将当前布局写入 localStorage。 */

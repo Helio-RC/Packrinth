@@ -42,7 +42,7 @@
 						{{ formatMessage(messages.confirm) }}
 					</span>
 					<PencilIcon
-						v-else-if="isActive(conversation.id)"
+						v-else
 						class="h-4 w-4 shrink-0 text-secondary opacity-0 group-hover:opacity-100"
 						@click.stop="startRename(conversation)"
 					/>

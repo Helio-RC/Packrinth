@@ -125,8 +125,11 @@ export async function applyFix(fixId: string): Promise<void> {
 	}
 }
 
-/** 仅测试用：向日志缓冲区注入崩溃日志。 */
+/** 仅测试用：向日志缓冲区注入崩溃日志。后端命令带 `#[cfg(debug_assertions)]`，仅开发构建可用。 */
 export async function injectCrashLog(logContent: string): Promise<void> {
+	if (!import.meta.env.DEV) {
+		throw new Error('仅开发构建可用')
+	}
 	try {
 		await invoke<void>('plugin:ai_workshop|inject_crash_log', { logContent })
 	} catch (err) {

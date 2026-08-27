@@ -137,7 +137,7 @@ const commands: ChatCommand[] = [
 	},
 ]
 
-const commandOpen = computed(() => input.value.startsWith('/') && input.value.length > 1)
+const commandOpen = computed(() => input.value.startsWith('/'))
 
 const filteredCommands = computed(() => {
 	const query = input.value.slice(1).toLowerCase()

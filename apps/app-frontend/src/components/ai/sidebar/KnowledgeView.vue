@@ -38,8 +38,8 @@
 
 			<div v-else class="flex flex-col gap-2 p-3">
 				<div
-					v-for="hit in store.knowledgeResults"
-					:key="`${hit.source}-${hit.title}`"
+					v-for="(hit, index) in store.knowledgeResults"
+					:key="`${index}-${hit.title}`"
 					class="rounded-lg border border-divider bg-bg p-3"
 				>
 					<div class="flex items-start justify-between gap-2">
