@@ -37,7 +37,6 @@ clap = "4.5.48"
 clickhouse = "0.14.0"
 color-eyre = "0.6.5"
 color-thief = "0.2.2"
-component-derive = { path = "packages/component-derive" }
 const_format = "0.2.34"
 =======
 cidre = { version = "0.15.0", default-features = false, features = [

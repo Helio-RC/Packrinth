@@ -21,13 +21,13 @@ export const PUBLIC_SRC = repoPath('packages/blog/public')
 /**
  * An array of git-repository-root-relative paths where public assets should be copied to.
  */
-export const PUBLIC_LOCATIONS = [repoPath('apps/frontend/src/public/news/article')]
+export const PUBLIC_LOCATIONS = []
 
 /**
  * The git-repository-root-relative path to the frontend RSS feed file.
  */
-export const RSS_PATH = repoPath('apps/frontend/src/public/news/feed/rss.xml')
-export const JSON_PATH = repoPath('apps/frontend/src/public/news/feed/articles.json')
+export const RSS_PATH = repoPath('packages/blog/public/feed/rss.xml')
+export const JSON_PATH = repoPath('packages/blog/public/feed/articles.json')
 
 /**
  * The base URL of the Modrinth site, used for the RSS feed.
