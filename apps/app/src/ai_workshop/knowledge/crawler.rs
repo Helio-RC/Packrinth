@@ -57,6 +57,16 @@ pub async fn fetch_and_extract(url: &str) -> Result<FetchedPage> {
 		.map_err(err)?;
 
 	let response = client.get(url).send().await.map_err(err)?;
+	if !response.status().is_success() {
+		return Err(err(format!("HTTP {}: {url}", response.status())));
+	}
+	if let Some(ct) = response.headers().get(reqwest::header::CONTENT_TYPE) {
+		let ct = ct.to_str().unwrap_or("").to_lowercase();
+		let is_html = ct.contains("text/html") || ct.contains("+html") || ct.contains("application/xhtml");
+		if !is_html {
+			return Err(err(format!("非 HTML 内容类型: {ct}")));
+		}
+	}
 	if let Some(len) = response.content_length() {
 		if len > MAX_BODY_BYTES as u64 {
 			return Err(err(format!("响应体超过 {MAX_BODY_BYTES} 字节限制")));
@@ -247,6 +257,54 @@ mod tests {
 		let url = spawn_oversized_server();
 		let res = fetch_and_extract(&url).await;
 		assert!(res.is_err(), "oversized response must be rejected");
+	}
+
+	fn spawn_custom_server(status: &'static str, content_type: &'static str, body: &'static str) -> String {
+		let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+		let addr = listener.local_addr().unwrap();
+		std::thread::spawn(move || {
+			for stream in listener.incoming().flatten() {
+				let mut stream = stream;
+				let mut buf = [0u8; 4096];
+				let _ = std::io::Read::read(&mut stream, &mut buf);
+				let response = format!(
+					"HTTP/1.1 {status}\r\nContent-Length: {}\r\nContent-Type: {content_type}\r\nConnection: close\r\n\r\n{body}",
+					body.len()
+				);
+				let _ = stream.write_all(response.as_bytes());
+				break;
+			}
+		});
+		format!("http://{addr}/")
+	}
+
+	#[tokio::test]
+	async fn non_success_status_is_rejected() {
+		let url = spawn_custom_server(
+			"404 Not Found",
+			"text/html",
+			"<html><body><p>Not found</p></body></html>",
+		);
+		let res = fetch_and_extract(&url).await;
+		assert!(res.is_err(), "4xx/5xx must be rejected");
+	}
+
+	#[tokio::test]
+	async fn non_html_content_type_is_rejected() {
+		let url = spawn_custom_server("200 OK", "application/json", r#"{"key":"value"}"#);
+		let res = fetch_and_extract(&url).await;
+		assert!(res.is_err(), "non-HTML content type must be rejected");
+	}
+
+	#[tokio::test]
+	async fn xhtml_content_type_is_accepted() {
+		let url = spawn_custom_server(
+			"200 OK",
+			"application/xhtml+xml",
+			"<html><head><title>Xhtml</title></head><body><p>ok</p></body></html>",
+		);
+		let page = fetch_and_extract(&url).await.unwrap();
+		assert!(page.content.contains("ok"));
 	}
 
 	#[tokio::test]

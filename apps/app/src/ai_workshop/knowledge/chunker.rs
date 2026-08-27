@@ -109,7 +109,11 @@ fn split_words(text: &str, max_chars: usize) -> Vec<String> {
 	let mut buf = String::new();
 	for w in text.split_whitespace() {
 		if buf.is_empty() {
-			buf.push_str(w);
+			if w.len() <= max_chars {
+				buf.push_str(w);
+			} else {
+				chunks.extend(split_chars(w, max_chars));
+			}
 		} else if buf.len() + 1 + w.len() <= max_chars {
 			buf.push(' ');
 			buf.push_str(w);
@@ -182,6 +186,16 @@ mod tests {
 		assert!(chunks.len() >= 2);
 		for c in &chunks {
 			assert!(c.len() <= 100);
+		}
+	}
+
+	#[test]
+	fn spaceless_long_token_split_within_max_chars() {
+		let token = "漢".repeat(3000);
+		let chunks = chunk_content("t", &token, 2000);
+		assert!(chunks.len() > 1, "oversized token must yield multiple chunks");
+		for c in &chunks {
+			assert!(c.len() <= 2000, "chunk exceeds max_chars: {}", c.len());
 		}
 	}
 
