@@ -92,6 +92,26 @@ github_release: release  # Description: named Modrinth App <VERSION>, 5 installe
 s3_objects: bucket  # Description: versions/<ver>/{macos,linux,windows}/* + updates.json at bucket root
 ```
 
+### Artifact Naming & Globs
+
+The workflow depends on an exact set of "Modrinth App..." artifact filename patterns. `VERSION` is the tag with the leading `v` stripped (e.g. `1.2.3`). These are the precise strings the release relies on across the signature files, `updates.json` platform entries, and `gh release` asset args.
+
+| File Pattern | Role | Platforms / Usage |
+|--------------|------|-------------------|
+| `Modrinth App.app.tar.gz.sig` | Updates signature (macOS) | `darwin-aarch64` + `darwin-x86_64` `signature` |
+| `Modrinth App_${VERSION}_amd64.AppImage.tar.gz.sig` | Updates signature (Linux) | `linux-x86_64` `signature` |
+| `Modrinth App_${VERSION}_x64-setup.nsis.zip.sig` | Updates signature (Windows) | `windows-x86_64` `signature` |
+| `Modrinth App.app.tar.gz` | Updates URL (macOS) | `darwin-aarch64` + `darwin-x86_64` `url` |
+| `Modrinth App_${VERSION}_amd64.AppImage.tar.gz` | Updates URL (Linux) | `linux-x86_64` `url` |
+| `Modrinth App_${VERSION}_x64-setup.nsis.zip` | Updates URL (Windows) | `windows-x86_64` `url` |
+| `Modrinth App_${VERSION}_universal.dmg` | Install URL (macOS) + release asset | `darwin-*` `install_urls`; `gh release` asset |
+| `Modrinth App_${VERSION}_amd64.deb` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Modrinth App_${VERSION}_amd64.AppImage` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Modrinth App-${VERSION}-1.x86_64.rpm` | Install URL (Linux) + release asset | `linux-x86_64` `install_urls`; `gh release` asset |
+| `Modrinth App_${VERSION}_x64-setup.exe` | Install URL (Windows) + release asset | `windows-x86_64` `install_urls`; `gh release` asset |
+
+Counts by role: 3 signature files, 3 `updates.json` `url` values, 6 `install_urls` (macOS 1, Linux 3, Windows 1), 5 `gh release` assets. The 5 release assets are a subset of the install_urls set.
+
 ### Secrets & Variables
 
 | Type | Name | Purpose | Scope |
@@ -198,7 +218,7 @@ s3_objects: bucket  # Description: versions/<ver>/{macos,linux,windows}/* + upda
 ### Workflow Validation
 
 - **VLD-001**: Release only created when guardian `if` passes (success + push + v* head_branch)
-- **VLD-002**: 9 artifact globs download cleanly under the 3 `App bundle (*)` dirs
+- **VLD-002**: All 11 `Modrinth App...` artifact file patterns enumerated in [Artifact Naming & Globs](#artifact-naming--globs) download cleanly under their 3 `App bundle (*)` dirs (3 `.sig`, 3 `.tar.gz` updates URLs, 5 installer assets)
 - **VLD-003**: `updates.json` contains version (no `v` prefix), notes, iso8601 pub_date, and 4 platform blocks
 - **VLD-004**: `gh release create` uses `v`-prefixed tag and `Modrinth App <VERSION>` title with 5 assets
 
