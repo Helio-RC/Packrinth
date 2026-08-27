@@ -26,13 +26,16 @@ pub struct ProgressPayload {
 	pub message: Option<String>,
 }
 
-/// 工具执行上下文：承载实例标识、取消令牌与进度上报等运行时信息。
+/// 工具执行上下文：承载实例标识、取消令牌、进度上报与实例写锁管理器等运行时信息。
 #[derive(Default)]
 pub struct ExecutionContext {
 	pub instance_id: Option<String>,
 	pub cancellation_token: CancellationToken,
 	/// 进度回调（由前端 `tool-progress` 事件接线；AI 引擎执行时为空）。
 	pub emit_progress: Option<Box<dyn Fn(&ProgressPayload) + Send + Sync>>,
+	/// 实例写锁管理器：写工具进入前获取锁，串行化对同一实例的写操作。
+	/// 由引擎 / 手动工具面板共享同一实例，保证跨入口互斥。
+	pub instance_lock_manager: Arc<InstanceLockManager>,
 }
 
 impl ExecutionContext {
@@ -54,8 +57,42 @@ impl ExecutionContext {
 }
 
 /// 按实例串行化写操作的锁管理器（写工具进入前获取）。
-#[derive(Default)]
-pub struct InstanceLockManager;
+pub struct InstanceLockManager {
+	inner: Mutex<HashMap<String, Arc<tokio::sync::Mutex<()>>>>,
+}
+
+impl Default for InstanceLockManager {
+	fn default() -> Self {
+		Self {
+			inner: Mutex::new(HashMap::new()),
+		}
+	}
+}
+
+impl InstanceLockManager {
+	/// 获取指定实例的写锁。同一实例上的并发写操作会等待；`timeout` 内未获锁
+	/// 返回明确错误。使用 `OwnedMutexGuard`：guard 持有底层 Arc，锁的所有权
+	/// 独立于本管理器存活，调用方持 guard 期间保持互斥。
+	/// 注意：禁止嵌套获取——同一工具内不得再次调用本方法（工具间无嵌套调用，
+	/// 天然满足）。实例写锁为同一实例跨工具/跨入口的串行化互斥。
+	pub async fn acquire_write_lock(
+		&self,
+		instance_id: &str,
+		timeout: std::time::Duration,
+	) -> Result<tokio::sync::OwnedMutexGuard<()>, String> {
+		let lock = self
+			.inner
+			.lock()
+			.unwrap()
+			.entry(instance_id.to_string())
+			.or_insert_with(|| Arc::new(tokio::sync::Mutex::new(())))
+			.clone();
+		match tokio::time::timeout(timeout, lock.lock_owned()).await {
+			Ok(guard) => Ok(guard),
+			Err(_) => Err("另一个操作正在修改此实例，请稍后重试".to_string()),
+		}
+	}
+}
 
 /// 进行中任务注册表：`task_id` → 取消令牌，供前端取消操作使用。
 #[derive(Default)]
@@ -101,6 +138,7 @@ mod tests {
 		let ctx = ExecutionContext {
 			instance_id: None,
 			cancellation_token: CancellationToken::default(),
+			instance_lock_manager: Arc::new(InstanceLockManager::default()),
 			emit_progress: Some(Box::new(move |p: &ProgressPayload| {
 				recorded_clone
 					.lock()
@@ -125,6 +163,78 @@ mod tests {
 	fn report_progress_is_noop_without_callback() {
 		let ctx = ExecutionContext::default();
 		ctx.report_progress("step", Some(1.0), None);
+	}
+
+	#[tokio::test]
+	async fn write_lock_times_out_when_held() {
+		let manager = InstanceLockManager::default();
+		let _guard = manager
+			.acquire_write_lock("inst-1", std::time::Duration::from_secs(5))
+			.await
+			.unwrap();
+
+		let err = manager
+			.acquire_write_lock("inst-1", std::time::Duration::from_millis(50))
+			.await
+			.unwrap_err();
+		assert!(err.contains("另一个操作正在修改此实例"), "got: {err}");
+	}
+
+	#[tokio::test]
+	async fn write_lock_released_after_guard_dropped() {
+		let manager = InstanceLockManager::default();
+		{
+			let _guard = manager
+				.acquire_write_lock("inst-1", std::time::Duration::from_secs(5))
+				.await
+				.unwrap();
+		}
+		// guard 已释放，应立即重新获得锁。
+		let _guard = manager
+			.acquire_write_lock("inst-1", std::time::Duration::from_millis(50))
+			.await
+			.expect("lock should be re-acquirable after release");
+	}
+
+	#[tokio::test]
+	async fn write_lock_serializes_same_instance_only() {
+		let manager = InstanceLockManager::default();
+		// 不同实例互不阻塞。
+		let _a = manager
+			.acquire_write_lock("inst-a", std::time::Duration::from_secs(5))
+			.await
+			.unwrap();
+		let _b = manager
+			.acquire_write_lock("inst-b", std::time::Duration::from_millis(50))
+			.await
+			.expect("different instances must not block each other");
+	}
+
+	#[tokio::test]
+	async fn write_lock_blocks_concurrent_task_until_released() {
+		let manager = Arc::new(InstanceLockManager::default());
+		let guard = manager
+			.acquire_write_lock("inst-1", std::time::Duration::from_secs(5))
+			.await
+			.unwrap();
+
+		let manager2 = manager.clone();
+		let acquired = Arc::new(tokio::sync::Mutex::new(false));
+		let acquired2 = acquired.clone();
+		let worker = tokio::spawn(async move {
+			// 在持有者释放前，短超时应失败；改为先等待释放信号。
+			let err = manager2
+				.acquire_write_lock("inst-1", std::time::Duration::from_millis(50))
+				.await;
+			assert!(err.is_err(), "concurrent acquire should time out while held");
+			*acquired2.lock().await = true;
+		});
+
+		// 稍作等待让 worker 尝试获取并超时，再释放锁。
+		tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+		drop(guard);
+		worker.await.unwrap();
+		assert!(*acquired.lock().await, "worker should have finished");
 	}
 }
 // === AI-WORKSHOP END ===

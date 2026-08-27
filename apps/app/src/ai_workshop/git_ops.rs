@@ -435,10 +435,14 @@ impl Tool for GitCommitTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let message = string_arg(&arguments, "message")?;
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;
@@ -472,10 +476,14 @@ impl Tool for GitCheckoutTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let target = string_arg(&arguments, "commit_hash")?;
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;
@@ -510,11 +518,15 @@ impl Tool for GitBranchTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let action = string_arg(&arguments, "action")?;
 		let branch_name = arguments.get("branch_name").and_then(Value::as_str);
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;

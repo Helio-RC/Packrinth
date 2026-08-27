@@ -306,13 +306,17 @@ impl Tool for WriteConfigTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let path = string_arg(&arguments, "path")?;
 		let content = string_arg(&arguments, "content")?;
 		let backup = arguments.get("backup").and_then(Value::as_bool).unwrap_or(true);
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;
@@ -363,12 +367,16 @@ impl Tool for RollbackConfigTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let path = string_arg(&arguments, "path")?;
 		let backup_id = arguments.get("backup_id").and_then(Value::as_str);
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;

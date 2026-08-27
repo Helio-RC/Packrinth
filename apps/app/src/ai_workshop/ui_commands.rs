@@ -49,6 +49,8 @@ async fn execute_tool_with_timeout<R: Runtime>(
 			.task_registry
 			.new_token(task_id)
 			.unwrap_or_default(),
+		// 与 AI 引擎共享同一实例写锁管理器，保证写操作跨入口串行化。
+		instance_lock_manager: state.instance_lock_manager.clone(),
 		emit_progress,
 	};
 
@@ -66,7 +68,9 @@ async fn execute_tool_with_timeout<R: Runtime>(
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use std::collections::HashMap;
 	use std::sync::Arc;
+	use std::sync::Mutex;
 
 	use async_trait::async_trait;
 
@@ -146,6 +150,7 @@ mod tests {
 			instance_lock_manager: Arc::new(InstanceLockManager::default()),
 			log_buffer: Arc::new(LogBuffer::new(100)),
 			task_registry: Arc::new(TaskRegistry::default()),
+			pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
 		}
 	}
 

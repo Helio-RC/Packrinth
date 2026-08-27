@@ -62,13 +62,17 @@ impl Tool for GenerateKubejsScriptTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let script_type = string_arg(&arguments, "script_type")?;
 		let content = string_arg(&arguments, "content")?;
 		let filename = arguments.get("filename").and_then(Value::as_str);
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let dir = kubejs_dir(&script_type)?;
 		let filename = filename
 			.map(str::to_string)
@@ -121,7 +125,7 @@ impl Tool for GenerateCrafttweakerScriptTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let instance_id = string_arg(&arguments, "instance_id")?;
 		let content = string_arg(&arguments, "content")?;
@@ -132,6 +136,10 @@ impl Tool for GenerateCrafttweakerScriptTool {
 			.unwrap_or_else(|| format!("crafttweaker_script_{}", ts()));
 		let filename = format!("{filename}.zs");
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let root = theseus::instance::get_full_path(&instance_id)
 			.await
 			.map_err(|e| e.to_string())?;

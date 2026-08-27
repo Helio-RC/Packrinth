@@ -165,10 +165,15 @@ impl Tool for InstallModTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let mod_id = string_arg(&arguments, "mod_id")?;
 		let instance_id = string_arg(&arguments, "instance_id")?;
+		// 获取实例写锁：串行化同一实例上的写操作（禁止嵌套获取——工具间无嵌套调用）。
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let version_id = arguments.get("version_id").and_then(Value::as_str);
 
 		let request = InstallProjectWithDependenciesRequest {
@@ -240,7 +245,7 @@ impl Tool for RemoveModTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let mod_id = string_arg(&arguments, "mod_id")?;
 		let instance_id = string_arg(&arguments, "instance_id")?;
@@ -249,6 +254,10 @@ impl Tool for RemoveModTool {
 			.and_then(Value::as_bool)
 			.unwrap_or(true);
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let path = find_project_path(&instance_id, &mod_id).await?;
 		theseus::instance::remove_project(&instance_id, &path)
 			.await
@@ -283,11 +292,15 @@ impl Tool for UpdateModTool {
 	async fn execute(
 		&self,
 		arguments: Value,
-		_ctx: &ExecutionContext,
+		ctx: &ExecutionContext,
 	) -> Result<Value, String> {
 		let mod_id = string_arg(&arguments, "mod_id")?;
 		let instance_id = string_arg(&arguments, "instance_id")?;
 
+		let _lock = ctx
+			.instance_lock_manager
+			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
+			.await?;
 		let path = find_project_path(&instance_id, &mod_id).await?;
 		let new_path = theseus::instance::update_project(&instance_id, &path, None)
 			.await
