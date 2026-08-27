@@ -201,7 +201,7 @@ fn load_skill_from_dir(dir: &Path) -> std::result::Result<Skill, String> {
 		priority: parsed.priority,
 		version: parsed.version,
 		author: parsed.author,
-		enabled: true,
+		enabled: false,
 		guide_md,
 	})
 }
@@ -288,7 +288,7 @@ priority = 80
 		assert_eq!(skills[0].priority, 80);
 		assert_eq!(skills[0].version, "1.0");
 		assert_eq!(skills[0].author, "user");
-		assert!(skills[0].enabled);
+		assert!(!skills[0].enabled, "newly loaded skills must default to disabled");
 		assert!(!skills[0].guide_md.is_empty());
 	}
 
@@ -411,6 +411,47 @@ keywords = ["a"]
 		let failed = loader.refresh().await;
 		assert!(failed.is_empty());
 		assert!(!loader.get_skill("a").unwrap().enabled);
+	}
+
+	#[tokio::test]
+	async fn new_skill_added_on_refresh_defaults_to_disabled() {
+		let base = temp_base();
+		write_skill(
+			&base,
+			"existing",
+			r#"
+name = "existing"
+description = "x"
+keywords = ["a"]
+"#,
+			None,
+		);
+		let loader = SkillLoader::new(base);
+		assert!(loader.load_all().await.is_empty());
+		// 用户手动启用已有技能。
+		loader.set_enabled("existing", true).unwrap();
+
+		// 热加载时新增一个技能：应默认禁用，且不重置已有技能的手动状态。
+		write_skill(
+			&loader.base_path,
+			"new-skill",
+			r#"
+name = "new-skill"
+description = "y"
+keywords = ["b"]
+"#,
+			None,
+		);
+		let failed = loader.refresh().await;
+		assert!(failed.is_empty());
+		assert!(
+			!loader.get_skill("new-skill").unwrap().enabled,
+			"new skill on refresh must default to disabled"
+		);
+		assert!(
+			loader.get_skill("existing").unwrap().enabled,
+			"existing skill must preserve manual enabled state"
+		);
 	}
 
 	#[tokio::test]
