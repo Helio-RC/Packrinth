@@ -28,8 +28,9 @@ jobs:
       LINUX_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-unknown-linux-gnu)
       WINDOWS_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-pc-windows-msvc)
       MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME: App bundle (universal-apple-darwin)
-      # Set to your bucket base URL, e.g. https://updates.example.com, before the first v*-tag release (user: no update server configured yet)
-      LAUNCHER_FILES_BUCKET_BASE_URL: ''
+      # Repo variable: base URL of the update file server, e.g. https://updates.example.com
+      # (see docs/repo-config.md; leave unset until the update server is configured)
+      LAUNCHER_FILES_BUCKET_BASE_URL: ${{ vars.LAUNCHER_FILES_BUCKET_BASE_URL || '' }}
 
     steps:
       - name: Check out code
@@ -137,9 +138,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY }}
-          AWS_BUCKET: ${{ secrets.LAUNCHER_FILES_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.LAUNCHER_FILES_BUCKET_REGION }}
-          AWS_ENDPOINT_URL: ${{ secrets.LAUNCHER_FILES_BUCKET_ENDPOINT_URL }}
+          AWS_BUCKET: ${{ vars.LAUNCHER_FILES_BUCKET_NAME }}
+          AWS_REGION: ${{ vars.LAUNCHER_FILES_BUCKET_REGION }}
+          AWS_ENDPOINT_URL: ${{ vars.LAUNCHER_FILES_BUCKET_ENDPOINT_URL }}
           AWS_PAGER: ''
           # Work around incompatible checksum behavior with some S3-like object storage providers,
           # such as Cloudflare R2. See:

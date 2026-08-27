@@ -22,6 +22,7 @@ Copy the `.env` template in `packages/app-lib/` before the first run.
 - [pnpm commands](docs/pnpm-commands.md) — every pnpm script and what it does
 - [Build & CI](docs/build-ci.md) — manual build steps and GitHub Actions pipeline
 - [i18n](docs/i18n.md) — locale storage, extraction, and Crowdin sync
+- [Repo config](docs/repo-config.md) — required secrets and variables for Actions
 
 ## Branch Strategy
 

@@ -35,11 +35,11 @@ jobs:
           }
 
           if [ "$CROWDIN_PROJECT_ID_DEFINED" != true ]; then
-            flight_failure "CROWDIN_PROJECT_ID variable is not defined (required to push)"
+            flight_failure "CROWDIN_PROJECT_ID variable is not defined (required to pull)"
           fi
 
           if [ "$CROWDIN_PERSONAL_TOKEN_DEFINED" != true ]; then
-            flight_failure "CROWDIN_PERSONAL_TOKEN secret is not defined (required to push)"
+            flight_failure "CROWDIN_PERSONAL_TOKEN secret is not defined (required to pull)"
           fi
 
           if [ "$PREFLIGHT_CHECK_RESULT" = false ]; then
