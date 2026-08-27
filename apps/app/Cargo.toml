@@ -4,7 +4,7 @@ name = "theseus_gui"
 version = "1.0.0-local"
 edition.workspace = true
 description = "The Modrinth App is a desktop application for managing your Minecraft mods"
-repository = "https://github.com/modrinth/code/apps/app/"
+repository = "https://github.com/Helio-RC/Packrinth"
 license = "GPL-3.0-only"
 
 [dependencies]
@@ -37,8 +37,6 @@ thiserror = { workspace = true }
 # tokio 行重写于此：追加 "full" features（features 是叠加的，不影响其他 crate 依赖的 "time"）
 tokio = { workspace = true, features = ["time", "full"] }
 ammonia = "4"
-anthropic-sdk-rust = "0.1"
-async-openai = { version = "0.41", features = ["chat-completion"] }
 async-trait = { workspace = true }
 bytes = { workspace = true }
 futures-util = { workspace = true }
@@ -47,7 +45,6 @@ notify = { workspace = true }
 pulldown-cmark = "0.13"
 reqwest = { workspace = true, features = ["json", "stream"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
-schemars = "1"
 scraper = "0.24"
 tantivy = "0.26"
 tauri-plugin-store = "2"

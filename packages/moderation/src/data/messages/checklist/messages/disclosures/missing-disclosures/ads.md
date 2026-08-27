@@ -1,1 +1,0 @@
-- Advertisements or sponsored promotions of outside content.

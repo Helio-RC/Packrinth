@@ -3,6 +3,7 @@ name = "theseus"
 # The actual version is set by the theseus-build workflow on tagging
 version = "1.0.0-local"
 edition.workspace = true
+repository = "https://github.com/Helio-RC/Packrinth"
 
 [dependencies]
 ariadne = { workspace = true }

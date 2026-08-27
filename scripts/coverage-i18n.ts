@@ -44,7 +44,7 @@ interface CoverageReport {
 
 type MessageEntry = string | { message?: string; defaultMessage?: string }
 type MessageFile = Record<string, MessageEntry>
-type LanguageProduct = 'app' | 'website'
+type LanguageProduct = 'app'
 
 interface LanguageCoverageStats {
 	percentage: number
@@ -67,10 +67,6 @@ const PRODUCT_SCOPES: Record<
 	app: {
 		sourceDirectories: ['apps/app-frontend/src', 'packages/ui/src'],
 		catalogScopes: ['apps/app-frontend', 'packages/ui'],
-	},
-	website: {
-		sourceDirectories: ['apps/frontend/src', 'packages/moderation/src', 'packages/ui/src'],
-		catalogScopes: ['packages/ui', 'packages/moderation', 'apps/frontend'],
 	},
 }
 
@@ -553,7 +549,7 @@ function generateLanguageCoverage(
 	rootDir: string,
 ): LanguageCoverageByProduct {
 	const localeCodes = getLocaleCodes(rootDir)
-	const coverage: LanguageCoverageByProduct = { app: {}, website: {} }
+	const coverage: LanguageCoverageByProduct = { app: {} }
 
 	for (const [product, definition] of Object.entries(PRODUCT_SCOPES) as [
 		LanguageProduct,
@@ -763,10 +759,8 @@ function main() {
 
 	// Directories to scan for Vue files
 	const scanDirs = [
-		'apps/frontend/src',
 		'apps/app-frontend/src',
 		'packages/ui/src',
-		'packages/moderation/src',
 	]
 
 	if (!jsonOutput && !quiet) {
