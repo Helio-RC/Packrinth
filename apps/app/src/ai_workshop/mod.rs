@@ -72,8 +72,10 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 				if !failed_skills.is_empty() {
 					tracing::warn!("ai_workshop: failed to load skills: {failed_skills:?}");
 				}
-				let knowledge_router =
-					Arc::new(KnowledgeRouter::new(config_manager.bm25_index_dir()));
+				let knowledge_router = Arc::new(KnowledgeRouter::new(config_manager.bm25_index_dir()));
+				knowledge_router.register_source(Arc::new(
+					knowledge::source::SkillsSource::new(config_manager.skills_dir()),
+				));
 				let log_buffer = Arc::new(LogBuffer::new(config_manager.config().log_lines));
 				let instance_lock_manager = Arc::new(InstanceLockManager::default());
 				let task_registry = Arc::new(TaskRegistry::default());
