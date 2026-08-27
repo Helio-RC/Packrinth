@@ -15,7 +15,8 @@ pub mod tools;
 pub mod troubleshooter;
 pub mod ui_commands;
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use tauri::{Listener, Manager, Runtime};
 use notify::Watcher;
@@ -53,6 +54,27 @@ pub struct AiWorkshopState {
 	pub instance_lock_manager: Arc<InstanceLockManager>,
 	pub log_buffer: Arc<LogBuffer>,
 	pub task_registry: Arc<TaskRegistry>,
+	/// 工具确认的 out-of-band 存储：tool_call_id → 用户是否批准。
+	/// 不持久化，重启后待确认的工具调用自动失效（符合"挂起/恢复"简化裁决）。
+	pub pending_confirmations: Arc<Mutex<HashMap<String, bool>>>,
+}
+
+impl AiWorkshopState {
+	/// 记录一次工具确认结果（key = tool_call_id）。
+	pub fn store_confirmation(&self, tool_call_id: &str, approved: bool) {
+		self.pending_confirmations
+			.lock()
+			.unwrap()
+			.insert(tool_call_id.to_string(), approved);
+	}
+
+	/// 读取并移除一次确认结果；不存在则返回 None。
+	pub fn take_confirmation(&self, tool_call_id: &str) -> Option<bool> {
+		self.pending_confirmations
+			.lock()
+			.unwrap()
+			.remove(tool_call_id)
+	}
 }
 
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
@@ -90,6 +112,7 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 					instance_lock_manager: instance_lock_manager.clone(),
 					log_buffer: log_buffer.clone(),
 					task_registry: task_registry.clone(),
+					pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
 				});
 
 				spawn_log_persist_loop(&config_manager, &log_buffer);
@@ -104,7 +127,7 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 			})
 		})
 		.invoke_handler(tauri::generate_handler![
-			ai_chat, ai_stream, ai_confirm_tool,
+			ai_chat, ai_stream, ai_confirm_tool, set_provider_api_key,
 			tool_execute, cancel_task, list_tools, get_tool_schema,
 			list_conversations, get_conversation, create_conversation,
 			rename_conversation, delete_conversation, export_conversation,
@@ -266,7 +289,8 @@ pub async fn ai_stream<R: Runtime>(
 	Ok(())
 }
 
-/// 记录用户对某次工具调用的确认结果（role="tool"），供推理引擎下一轮读取。
+/// 记录用户对某次工具调用的确认结果（out-of-band，不写入 chat_history），
+/// 推理引擎轮询 `pending_confirmations` 读取，避免污染工具消息历史。
 #[tauri::command]
 pub async fn ai_confirm_tool<R: Runtime>(
 	app: tauri::AppHandle<R>,
@@ -275,20 +299,22 @@ pub async fn ai_confirm_tool<R: Runtime>(
 	approved: bool,
 ) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
-	let confirmation = serde_json::json!({ "approved": approved });
-	// TODO: 完整实现需要挂起/恢复机制——推理引擎在等待确认时应挂起，
-	// 收到本消息后恢复对应 tool_call 的执行；当前仅持久化确认结果。
-	state
-		.chat_history
-		.add_message(NewMessage {
-			conversation_id,
-			role: "tool".to_string(),
-			content: confirmation.to_string(),
-			tool_calls: Some(confirmation.to_string()),
-			tool_call_id: Some(tool_call_id),
-		})
-		.await?;
+	// 确认以 tool_call_id 为 key 暂存于内存 map，不落库；引擎消费后即移除。
+	// 重启后待确认的工具调用失效（符合"挂起/恢复"简化裁决）。
+	let _ = conversation_id;
+	state.store_confirmation(&tool_call_id, approved);
 	Ok(())
+}
+
+/// 为指定提供商保存真实 API Key：写入 secrets.json 并同步掩码提示到 config.json。
+#[tauri::command]
+pub async fn set_provider_api_key<R: Runtime>(
+	app: tauri::AppHandle<R>,
+	provider: String,
+	api_key: String,
+) -> Result<()> {
+	let state = app.state::<AiWorkshopState>();
+	state.config_manager.set_api_key(&provider, &api_key)
 }
 
 // 工具

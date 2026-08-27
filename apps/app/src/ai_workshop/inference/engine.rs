@@ -23,6 +23,9 @@ pub struct ChatResult {
 	pub usage: serde_json::Value,
 }
 
+/// 工具执行默认超时（300 秒），与 ui_commands 保持一致。
+const TOOL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(300);
+
 /// 推理引擎：负责消息构建、提供商调用与工具执行循环。
 pub struct InferenceEngine {
 	state: Arc<AiWorkshopState>,
@@ -45,7 +48,7 @@ impl InferenceEngine {
 		if let Some(provider) = &self.provider {
 			return Ok(provider.clone());
 		}
-		create_provider(&self.state.config_manager.config()).map_err(other_err)
+		create_provider(&self.state.config_manager, None).map_err(other_err)
 	}
 
 	/// 单轮：构建消息 → provider.chat → 若有 tool_calls 则逐条执行（写入 tool 消息）→ 返回最终回复。
@@ -225,7 +228,7 @@ impl InferenceEngine {
 		Ok((reply, tool_calls, usage))
 	}
 
-	/// 执行单个工具，返回工具结果 JSON 字符串。
+	/// 执行单个工具，返回工具结果 JSON 字符串。带超时兜底（TOOL_TIMEOUT）。
 	async fn execute_tool(&self, call: &ToolCall) -> String {
 		let Some(tool) = self.state.tool_registry.get(&call.name) else {
 			return format!("错误：未知工具 {}", call.name);
@@ -238,13 +241,22 @@ impl InferenceEngine {
 				.task_registry
 				.new_token(&task_id)
 				.unwrap_or_default(),
+			// 与手动工具面板共享同一实例写锁管理器，保证写操作跨入口串行化。
+			instance_lock_manager: self.state.instance_lock_manager.clone(),
 			// AI 引擎执行时无前端进度 UI，不接线 tool-progress。
 			emit_progress: None,
 			..Default::default()
 		};
-		match tool.execute(call.arguments.clone(), &context).await {
-			Ok(value) => serde_json::to_string(&value).unwrap_or_else(|_| value.to_string()),
-			Err(e) => format!("错误：{e}"),
+		match tokio::time::timeout(TOOL_TIMEOUT, tool.execute(call.arguments.clone(), &context))
+			.await
+		{
+			Ok(Ok(value)) => serde_json::to_string(&value).unwrap_or_else(|_| value.to_string()),
+			Ok(Err(e)) => format!("错误：{e}"),
+			Err(_) => {
+				// 超时兜底：尽力取消对应任务令牌，让仍在运行的循环尽快退出。
+				context.cancellation_token.cancel();
+				"工具执行超时".to_string()
+			}
 		}
 	}
 
@@ -257,24 +269,14 @@ impl InferenceEngine {
 			.unwrap_or(false)
 	}
 
-	/// 轮询 chat_history 等待用户确认，超时视为拒绝。
-	async fn wait_for_confirmation(&self, conversation_id: &str, tool_call_id: &str) -> bool {
+	/// 轮询 out-of-band 确认存储等待用户确认，超时视为拒绝。
+	/// 确认由 `ai_confirm_tool` 写入 `pending_confirmations`（tool_call_id → bool），
+	/// 查询后立即移除，不写入 chat_history，避免污染工具消息历史。
+	async fn wait_for_confirmation(&self, _conversation_id: &str, tool_call_id: &str) -> bool {
 		let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
 		while std::time::Instant::now() < deadline {
-			if let Ok(Some((_, messages))) = self
-				.state
-				.chat_history
-				.get_conversation(conversation_id, 100, 0)
-				.await
-			{
-				for message in messages.iter().rev() {
-					if message.role == "tool" && message.tool_call_id.as_deref() == Some(tool_call_id)
-					{
-						if let Some(approved) = parse_confirmation(&message.content) {
-							return approved;
-						}
-					}
-				}
+			if let Some(approved) = self.state.take_confirmation(tool_call_id) {
+				return approved;
 			}
 			tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 		}
@@ -334,23 +336,6 @@ impl InferenceEngine {
 	}
 }
 
-/// 解析确认消息内容（"approved"/"rejected" 或 {"approved": bool}）。
-fn parse_confirmation(content: &str) -> Option<bool> {
-	if let Ok(value) = serde_json::from_str::<serde_json::Value>(content) {
-		if let Some(approved) = value.get("approved").and_then(|a| a.as_bool()) {
-			return Some(approved);
-		}
-	}
-	let lower = content.to_lowercase();
-	if lower.contains("approved") || lower.contains("true") {
-		Some(true)
-	} else if lower.contains("rejected") || lower.contains("false") {
-		Some(false)
-	} else {
-		None
-	}
-}
-
 /// 从 ToolInfo.params_schema 提取 OpenAI 兼容的 parameters（RootSchema 取 .schema 字段）。
 fn openai_parameters(params_schema: &serde_json::Value) -> serde_json::Value {
 	params_schema
@@ -361,7 +346,9 @@ fn openai_parameters(params_schema: &serde_json::Value) -> serde_json::Value {
 
 #[cfg(test)]
 mod tests {
+	use std::collections::HashMap;
 	use std::sync::Arc;
+	use std::sync::Mutex;
 
 	use crate::ai_workshop::chat_history::repository::ChatHistoryRepository;
 	use crate::ai_workshop::config::{AiWorkshopConfig, ConfigManager};
@@ -416,6 +403,7 @@ mod tests {
 				instance_lock_manager,
 				log_buffer,
 				task_registry,
+				pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
 			});
 			Self { state, _dir: dir }
 		}
