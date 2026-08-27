@@ -71,8 +71,8 @@ jobs:
           jq -nc \
             --arg versionTag "${VERSION_TAG#v}" \
             --rawfile releaseNotes release-notes.md \
-            --rawfile macOsAarch64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }} App.app.tar.gz.sig" \
-            --rawfile macOsX64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }} App.app.tar.gz.sig" \
+            --rawfile macOsAarch64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz.sig" \
+            --rawfile macOsX64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz.sig" \
             --rawfile linuxX64UpdateArtifactSignature "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/${{ env.PRODUCT_NAME }}_${VERSION_TAG#v}_amd64.AppImage.tar.gz.sig" \
             --rawfile windowsX64UpdateArtifactSignature "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/${{ env.PRODUCT_NAME }}_${VERSION_TAG#v}_x64-setup.nsis.zip.sig" \
           '{
@@ -82,12 +82,12 @@ jobs:
             "platforms": {
               "darwin-aarch64": {
                 "signature": $macOsAarch64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }} App.app.tar.gz")",
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}.app.tar.gz")",
                 "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_universal.dmg")"]
               },
               "darwin-x86_64": {
                 "signature": $macOsX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }} App.app.tar.gz")",
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}.app.tar.gz")",
                 "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_universal.dmg")"]
               },
               "linux-x86_64": {

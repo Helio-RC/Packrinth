@@ -4,19 +4,19 @@ version: 1.0
 date_created: 2026-08-27
 last_updated: 2026-08-27
 owner: DevOps Team
-tags: [process, cicd, github-actions, automation, lint, test, turbo, labrinth]
+tags: [process, cicd, github-actions, automation, lint, test, turbo]
 ---
 
 ## Workflow Overview
 
-**Purpose**: Run monorepo lint, test, and i18n checks on push/PR/merge_group. Supports the live theses (main) and PR-driven CI with a merge-queue diff-skip optimization.
+**Purpose**: Run monorepo lint, test, and i18n checks on push/PR/merge_group. Supports the live branches (main) and PR-driven CI with a merge-queue diff-skip optimization.
 
 **Trigger Events**:
 - Push to `main`
 - `pull_request` (opened, synchronize)
 - `merge_group` (checks_requested)
 
-**Target Environments**: CI (namespace self-hosted for internal branches; `ubuntu-latest` fallback for forks/external).
+**Target Environments**: CI (`ubuntu-latest` on GitHub-hosted runners).
 
 ## Execution Flow Diagram
 
@@ -27,28 +27,24 @@ graph TD
     B -->|skip=false| D[build: Lint and Test]
     D --> E[Check out code]
     E --> F[Setup Node/Corepack]
-    F --> G[Set up caches (internal only)]
+    F --> G[Configure pnpm store + cache]
     G --> H[Install apt deps]
     H --> I[Setup Rust + mold + binstall + nextest]
-    I --> J[Setup cargo-sqlx]
-    J --> K[Install deps + set app env]
-    K --> L{check-labrinth cache}
-    L -->|miss| M[Start services + setup db]
-    M --> N[Lint and test]
-    N --> O[Verify intl:extract]
-    L -->|hit| N
-    O --> P[End]
+    I --> J[Install deps + set app env]
+    J --> K[Lint and test]
+    K --> L[Verify intl:extract]
+    L --> M[End]
 
     style A fill:#e1f5fe
-    style P fill:#e8f5e8
+    style M fill:#e8f5e8
 ```
 
 ## Jobs & Dependencies
 
 | Job Name | Purpose | Dependencies | Execution Context |
 |----------|---------|--------------|-------------------|
-| skip-if-clean | Compute whether to skip (merge_queue no-diff / internal branch) | None | `ubuntu-latest` |
-| build | Lint + test + i18n checks | `skip-if-clean` (outputs `skip`, `internal`) | `namespace-profile-modrinth-turbo` if internal, else `ubuntu-latest` |
+| skip-if-clean | Compute whether to skip (merge_queue no-diff) and whether run is internal | None | `ubuntu-latest` |
+| build | Lint + test + i18n checks | `skip-if-clean` (outputs `skip`) | `ubuntu-latest` |
 
 ## Requirements Matrix
 
@@ -57,23 +53,22 @@ graph TD
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|-------------------|
 | REQ-001 | Skip CI on no-diff merge queue synthetic commits | High | `skip` output true → build job skipped |
-| REQ-002 | Run on internal runner when possible | Medium | `internal` output selects namespace runner |
+| REQ-002 | Run on `ubuntu-latest` for all triggers | High | `build` job `runs-on: ubuntu-latest` |
 | REQ-003 | Lint + test whole monorepo | High | `pnpm run ci` passes |
-| REQ-004 | Run labrinth test harness with Redis cluster + sqlx | Medium | Cluster services up, DB setup, tests pass (**to be removed in rewrite — see Edge Cases**) |
-| REQ-005 | Verify `intl:extract` committed | High | `git diff --exit-code` on locale files |
+| REQ-004 | Verify `intl:extract` committed | High | `git diff --exit-code` on locale files |
 
 ### Security Requirements
 
 | ID | Requirement | Implementation Constraint |
 |----|-------------|---------------------------|
 | SEC-001 | No secrets required for CI | Only optional `secrets.GH_ACCESS_TOKEN` for merge-queue skipper |
-| SEC-002 | Fork PRs run on public `ubuntu-latest` | Guarded by `internal` output |
+| SEC-002 | All runs on public `ubuntu-latest` | No self-hosted runner; fork PRs share the same runner |
 
 ### Performance Requirements
 
 | ID | Metric | Target | Measurement Method |
 |----|-------|--------|-------------------|
-| PERF-001 | Cache reuse | rust / pnpm / apt caches (internal only) | nscloud cache action logs |
+| PERF-001 | Cache reuse | rust / pnpm caches via `actions/cache` | cache action logs |
 | PERF-002 | Avoid full re-lint on no-diff merge queue | skip on cache hit | merge-queue-ci-skipper output |
 
 ## Input/Output Contracts
@@ -85,9 +80,6 @@ graph TD
 FORCE_COLOR: 3  # Purpose: colorized pnpm output
 NEXTEST_NO_TESTS: pass  # Purpose: nextest ignores projects without tests
 RUSTFLAGS: '-Dwarnings'  # Purpose: fail on warnings in CI (explicit RUSTFLAGS override; root Cargo.toml exempt during dev)
-REDIS_TOPOLOGY: cluster  # Purpose: labrinth test Redis topology
-REDIS_CONNECTION_TYPE: multiplexed  # Purpose: labrinth test Redis connection
-REDIS_URL: 'redis://127.0.0.1:7000,...:7005'  # Purpose: 6-node cluster endpoint list (labrinth tests)
 RUST_MIN_STACK: 134217728  # Purpose: avoid stack overflow in tests
 
 # Secrets
@@ -104,7 +96,6 @@ merge_group types: [checks_requested]
 ```yaml
 # Job Outputs
 skip: string  # Description: skip-if-clean -> whether build job should be skipped
-internal: string  # Description: skip-if-clean -> whether run is on an internal branch
 # Side effects
 locales_ok: check  # Description: intl:extract diff must be clean
 ```
@@ -125,8 +116,8 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 ### Environmental Constraints
 
-- **Runner Requirements**: Internal runner `namespace-profile-modrinth-turbo`; apt deps (cmake, libcurl4-openssl-dev, libwebkit2gtk-4.1-dev, libayatana-appindicator3-dev, librsvg2-dev) required for Rust/webkit build
-- **Network Access**: GitHub, namespace cache, crates.io, npm registry, apt repos, `docker compose` (Redis cluster)
+- **Runner Requirements**: `ubuntu-latest`; apt deps (cmake, libcurl4-openssl-dev, libwebkit2gtk-4.1-dev, libayatana-appindicator3-dev, librsvg2-dev) required for Rust/webkit build
+- **Network Access**: GitHub, crates.io, npm registry, apt repos
 - **Permissions**: Default GITHUB_TOKEN; GH_ACCESS_TOKEN for merge queue ops
 
 ## Error Handling Strategy
@@ -134,9 +125,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 | Error Type | Response | Recovery Action |
 |------------|----------|-----------------|
 | Lint/test fail | Build job fails | Fix source, rerun |
-| Test failure on cache-HIT labrinth | Labrinth cached → no services start | Force cache miss to re-verify |
 | intl:extract not run | `git diff` exits nonzero | Run `pnpm turbo run intl:extract`, commit locales |
-| docker compose / sqlx fail on labrinth test | Build job fails | Check Redis cluster image and `.env.local` |
 
 ## Quality Gates
 
@@ -168,9 +157,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 | System | Integration Type | Data Exchange | SLA Requirements |
 |--------|------------------|---------------|------------------|
-| namespace cache | Cache | rust/pnpm/apt caches | internal only |
-| Turborepo cache | Cache | `setup-turbocache` | internal only |
-| labrinth test harness | Test infrastructure | docker compose `clustered-redis`, sqlx-cli, `.env.local` | **CURRENT — to be removed in Task 11 rewrite** |
+| GitHub Actions cache | Cache | rust/pnpm/apt caches via `actions/cache` | cache keyed per lockfile |
 
 ### Dependent Workflows
 
@@ -188,7 +175,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 ### Security Controls
 
-- **Access Control**: Fork PRs on public runners; internal branch runs use namespace
+- **Access Control**: All runs on public `ubuntu-latest`; GITHUB_TOKEN per repo
 - **Secret Management**: GH_ACCESS_TOKEN scoped minimal
 - **Vulnerability Scanning**: None in-workflow
 
@@ -199,23 +186,20 @@ locales_ok: check  # Description: intl:extract diff must be clean
 | Scenario | Expected Behavior | Validation Method |
 |----------|-------------------|-------------------|
 | Merge queue with no diff | `skip=true` → job ultimately skipped | Trigger merge_group |
-| Fork/external PR | Runs on `ubuntu-latest`, no namespace cache/turbocache | Observe runner label |
-| Labrinth tests cache-HIT | `check-labrinth` sets `needs_services=false`; no docker/sqlx steps | Dry-run test filter, observe cache status |
+| Non-merge_group trigger | `skip=false` → build job runs | Trigger push/PR |
 | i18n locale drift | `intl:extract --force` then diff fails CI | Remove a translation, run workflow |
-| **Labrinth harness removal** | **KNOWN SCOPE NOTE:** the labrinth test steps (check-labrinth, docker compose `clustered-redis`, `sqlx database setup`) are documented as CURRENT; the CI rewrite (Task 11) is expected to remove them since labrinth is no longer in-scope. Recorded as snapshot, not a defect. | Compare against target rewrite PR |
 
 ## Validation Criteria
 
 ### Workflow Validation
 
-- **VLD-001**: `skip`/`internal` outputs correctly gate the build job
+- **VLD-001**: `skip` output correctly gates the build job
 - **VLD-002**: `pnpm run ci` exits zero on healthy repo
 - **VLD-003**: `git diff` on locales/index.json is clean after intl:extract
-- **VLD-004**: labrinth tests run with the documented Redis cluster config (until removed)
 
 ### Performance Benchmarks
 
-- **PERF-001**: Turbo/nscloud cache Hit on repeated PRs
+- **PERF-001**: actions/cache Hit on repeated PRs
 - **PERF-002**: No CI on no-diff merge queue synthetic commits
 
 ## Change Management
@@ -232,7 +216,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | 2026-08-27 | Initial specification (documents pre-rewrite `turbo-ci.yml`) | DevOps Team |
+| 1.0 | 2026-08-27 | Initial specification (documents rewritten `turbo-ci.yml`) | DevOps Team |
 
 ## Related Specifications
 

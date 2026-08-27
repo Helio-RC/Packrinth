@@ -9,15 +9,15 @@ tags: [process, cicd, github-actions, automation, tauri, desktop-build]
 
 ## Workflow Overview
 
-**Purpose**: Build the Modrinth App desktop application (Linux, macOS, Windows) as signed/unsigned installers and app bundles, and upload them as GitHub Actions artifacts for downstream consumption by the release workflow.
+**Purpose**: Build the Packrinth App desktop application (Linux, macOS, Windows) as signed/unsigned installers and app bundles, and upload them as GitHub Actions artifacts for downstream consumption by the release workflow.
 
 **Trigger Events**:
 - Push to `main` branches
 - `v*` tag pushes
 - Manual `workflow_dispatch` (with `sign-windows-binaries`, `environment`, `app-version-override` inputs)
-- Path filters restrict auto-triggering to app/frontend/lib/macro/assets/ui/utils sources and this workflow file. (Note: `packages/app-macros/**` is a dead filter — see Edge Cases.)
+- Path filters restrict auto-triggering to app/frontend/lib/assets/ui/utils sources and this workflow file.
 
-**Target Environments**: `prod`, `staging`, `prod-with-staging-archon` (selected via `environment` input; used to pick `.env` template).
+**Target Environments**: `prod`, `staging`, `prod-with-staging-archon` (selected via `environment` input; used to pick `.env` template). `PRODUCT_NAME` is `Packrinth`, declared once at workflow scope and reused by every step.
 
 ## Execution Flow Diagram
 
@@ -40,7 +40,7 @@ graph TD
 
 | Job Name | Purpose | Dependencies | Execution Context |
 |----------|---------|--------------|-------------------|
-| build | Compile + bundle the app for each matrix platform | None (single job, matrix expansion) | `namespace-profile-medium-amd64` (self-hosted runner variants) |
+| build | Compile + bundle the app for each matrix platform | None (single job, matrix expansion) | matrix runners `macos-latest`/`windows-latest`/`ubuntu-latest` |
 
 ## Requirements Matrix
 
@@ -65,7 +65,7 @@ graph TD
 | ID | Metric | Target | Measurement Method |
 |----|-------|--------|-------------------|
 | PERF-001 | Rust compile time | Minimized via sccache | sccache cache hit ratio |
-| PERF-002 | Build time on repeated runs | Reduced via nscloud cache (rust + pnpm) | Cache action logs |
+| PERF-002 | Build time on repeated runs | Reduced via `actions/cache` (cargo + pnpm) | Cache action logs |
 
 ## Input/Output Contracts
 
@@ -117,12 +117,12 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 - **Timeout**: Default GitHub Action job timeout (none set explicitly in workflow)
 - **Concurrency**: `concurrency` group `${{ github.workflow }}-${{ github.ref }}`; `cancel-in-progress: true` except on `main`/`prod`
-- **Resource Limits**: nscloud shared caches for `rust` and `pnpm`; sccache for Rust; per-platform Java 17 for Windows signing
+- **Resource Limits**: `actions/cache` for `cargo` and `pnpm`; sccache for Rust; per-platform Java 17 for Windows signing
 
 ### Environmental Constraints
 
 - **Runner Requirements**: Linux requires `libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` via apt; Windows requires Java 17 (`JAVA_HOME_17_X64`) and optional `jsign` via choco; macOS uses universal `x86_64-apple-darwin` target
-- **Network Access**: GitHub, namespace cache endpoints, npm/pnpm registry, crates.io, apt repos, choco, dasel gh-release, Stripe (no runtime API, key embed only)
+- **Network Access**: GitHub, npm/pnpm registry, crates.io, apt repos, choco, dasel gh-release, Stripe (no runtime API, key embed only)
 - **Permissions**: Default GITHUB_TOKEN scope; secrets as listed above
 
 ## Error Handling Strategy
@@ -148,7 +148,7 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 ### Key Metrics
 
 - **Success Rate**: All matrix legs green per run
-- **Execution Time**: Tracked via nscloud cache health + sccache hit ratio
+- **Execution Time**: Tracked via `actions/cache` health + sccache hit ratio
 
 ### Alerting
 
@@ -162,15 +162,15 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 | System | Integration Type | Data Exchange | SLA Requirements |
 |--------|------------------|---------------|------------------|
-| namespace cache | Cache | rust + pnpm caches | Cache keyed per ref |
-| tauri bundler | Build | Installer packages (AppImage/deb/rpm/dmz/app.tar.gz/nsis) | Deterministic artifact names |
+| GitHub Actions cache | Cache | cargo + pnpm caches via `actions/cache` | Cache keyed per lockfile |
+| tauri bundler | Build | Installer packages (AppImage/deb/rpm/dmg/app.tar.gz/nsis) | Deterministic artifact names |
 | GitHub Actions artifacts | Output | App bundle per target | Downstream consumed by release workflow |
 
 ### Dependent Workflows
 
 | Workflow | Relationship | Trigger Mechanism |
 |----------|--------------|-------------------|
-| thised-release (Modrinth App release) | Downstream consumer (workflow_run) | Fires on the `Modrinth App build` run completing |
+| Packrinth App release (`theseus-release`) | Downstream consumer (workflow_run) | Fires on the `Packrinth App build` run completing |
 
 ## Compliance & Governance
 
@@ -192,7 +192,6 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 | Scenario | Expected Behavior | Validation Method |
 |----------|-------------------|-------------------|
-| app-macros path filter | **KNOWN DEFECT:** `packages/app-macros/**` filter references a package that is no longer present; it is a dead path filter. To be removed in the rewrite. | Inspect tree for `apps/app-macros` absence |
 | Dev build (non-main, non-tag) | Uses `tauri-dev.conf.json`, no code signing, dev git-hash product naming | Run on feature branch via workflow_dispatch |
 | app-version-override set | Forces release conf + uses override string as version; git-hash regex not applied | Pass override and inspect Cargo.toml/package.json |
 | Windows dev build | `signCommand` deleted to skip signing | Inspect generated `tauri-release.conf.json` |
@@ -210,7 +209,7 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 ### Performance Benchmarks
 
-- **PERF-001**: sccache/nscloud cache hit on repeat runs
+- **PERF-001**: sccache/`actions/cache` hit on repeat runs
 - **PERF-002**: No redundant pnpm/crate re-download when cache warm
 
 ## Change Management
@@ -227,7 +226,7 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | 2026-08-27 | Initial specification (documents pre-rewrite `theseus-build.yml`) | DevOps Team |
+| 1.0 | 2026-08-27 | Initial specification (documents rewritten `theseus-build.yml`) | DevOps Team |
 
 ## Related Specifications
 
