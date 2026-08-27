@@ -12,8 +12,8 @@ tags: [process, cicd, github-actions, automation, typos, toml, lint]
 **Purpose**: Run generic repository hygiene checks: typo detection (`typos`) and TOML lint/format (`tombi`).
 
 **Trigger Events**:
-- `pull_request`
-- Push to `main`
+- `pull_request` targeting `main`
+- Manual `workflow_dispatch`
 
 **Target Environments**: CI.
 

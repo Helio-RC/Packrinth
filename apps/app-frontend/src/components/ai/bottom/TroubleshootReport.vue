@@ -57,31 +57,32 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	placeholder: {
 		id: 'ai.troubleshoot.placeholder',
-		defaultMessage: '自动排障将在流 E 提供。当前可手动分析崩溃日志并查看后端返回的原始结果。',
+		defaultMessage:
+			'Auto troubleshooting arrives with stream E. For now you can manually analyze crash logs and view the raw backend result.',
 	},
 	analyze: {
 		id: 'ai.troubleshoot.analyze',
-		defaultMessage: '分析崩溃',
+		defaultMessage: 'Analyze crash',
 	},
 	fix: {
 		id: 'ai.troubleshoot.fix',
-		defaultMessage: '获取修复建议',
+		defaultMessage: 'Get fix suggestions',
 	},
 	running: {
 		id: 'ai.troubleshoot.running',
-		defaultMessage: '分析中…',
+		defaultMessage: 'Analyzing…',
 	},
 	logLines: {
 		id: 'ai.troubleshoot.log-lines',
-		defaultMessage: '日志行数',
+		defaultMessage: 'Log lines',
 	},
 	analysis: {
 		id: 'ai.troubleshoot.analysis',
-		defaultMessage: '分析',
+		defaultMessage: 'Analysis',
 	},
 	analysisEmpty: {
 		id: 'ai.troubleshoot.analysis-empty',
-		defaultMessage: '（后端当前返回 null）',
+		defaultMessage: '(backend currently returns null)',
 	},
 })
 

@@ -12,9 +12,8 @@ tags: [process, cicd, github-actions, automation, lint, test, turbo]
 **Purpose**: Run monorepo lint, test, and i18n checks on push/PR/merge_group. Supports the live branches (main) and PR-driven CI with a merge-queue diff-skip optimization.
 
 **Trigger Events**:
-- Push to `main`
-- `pull_request` (opened, synchronize)
-- `merge_group` (checks_requested)
+- `pull_request` targeting `main`
+- Manual `workflow_dispatch`
 
 **Target Environments**: CI (`ubuntu-latest` on GitHub-hosted runners).
 
@@ -22,9 +21,7 @@ tags: [process, cicd, github-actions, automation, lint, test, turbo]
 
 ```mermaid
 graph TD
-    A[Trigger] --> B[skip-if-clean]
-    B -->|skip=true| C[Skip build]
-    B -->|skip=false| D[build: Lint and Test]
+    A[Trigger: PR to main or manual] --> D[build: Lint and Test]
     D --> E[Check out code]
     E --> F[Setup Node/Corepack]
     F --> G[Configure pnpm store + cache]
@@ -43,8 +40,7 @@ graph TD
 
 | Job Name | Purpose | Dependencies | Execution Context |
 |----------|---------|--------------|-------------------|
-| skip-if-clean | Compute whether to skip (merge_queue no-diff) and whether run is internal | None | `ubuntu-latest` |
-| build | Lint + test + i18n checks | `skip-if-clean` (outputs `skip`) | `ubuntu-latest` |
+| build | Lint + test + i18n checks | None | `ubuntu-latest` |
 
 ## Requirements Matrix
 
@@ -52,16 +48,15 @@ graph TD
 
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|-------------------|
-| REQ-001 | Skip CI on no-diff merge queue synthetic commits | High | `skip` output true → build job skipped |
-| REQ-002 | Run on `ubuntu-latest` for all triggers | High | `build` job `runs-on: ubuntu-latest` |
-| REQ-003 | Lint + test whole monorepo | High | `pnpm run ci` passes |
-| REQ-004 | Verify `intl:extract` committed | High | `git diff --exit-code` on locale files |
+| REQ-001 | Run on `ubuntu-latest` for all triggers | High | `build` job `runs-on: ubuntu-latest` |
+| REQ-002 | Lint + test whole monorepo | High | `pnpm run ci` passes |
+| REQ-003 | Verify `intl:extract` committed | High | `git diff --exit-code` on locale and packrinth locale files |
 
 ### Security Requirements
 
 | ID | Requirement | Implementation Constraint |
 |----|-------------|---------------------------|
-| SEC-001 | No secrets required for CI | Only optional `secrets.GH_ACCESS_TOKEN` for merge-queue skipper |
+| SEC-001 | No secrets required for CI | None required |
 | SEC-002 | All runs on public `ubuntu-latest` | No self-hosted runner; fork PRs share the same runner |
 
 ### Performance Requirements
@@ -69,7 +64,6 @@ graph TD
 | ID | Metric | Target | Measurement Method |
 |----|-------|--------|-------------------|
 | PERF-001 | Cache reuse | rust / pnpm caches via `actions/cache` | cache action logs |
-| PERF-002 | Avoid full re-lint on no-diff merge queue | skip on cache hit | merge-queue-ci-skipper output |
 
 ## Input/Output Contracts
 
@@ -82,20 +76,15 @@ NEXTEST_NO_TESTS: pass  # Purpose: nextest ignores projects without tests
 RUSTFLAGS: '-Dwarnings'  # Purpose: fail on warnings in CI (explicit RUSTFLAGS override; root Cargo.toml exempt during dev)
 RUST_MIN_STACK: 134217728  # Purpose: avoid stack overflow in tests
 
-# Secrets
-GH_ACCESS_TOKEN: secret  # Purpose: used by local merge-queue-ci-skipper action
-
 # Triggers
 branches: [main]
-pull_request types: [opened, synchronize]
-merge_group types: [checks_requested]
+pull_request
+workflow_dispatch
 ```
 
 ### Outputs
 
 ```yaml
-# Job Outputs
-skip: string  # Description: skip-if-clean -> whether build job should be skipped
 # Side effects
 locales_ok: check  # Description: intl:extract diff must be clean
 ```
@@ -104,7 +93,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 | Type | Name | Purpose | Scope |
 |------|------|---------|-------|
-| Secret | GH_ACCESS_TOKEN | merge-queue-ci-skipper local action | skip-if-clean job |
+| (none) | - | No secrets required | - |
 
 ## Execution Constraints
 
@@ -163,7 +152,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 | Workflow | Relationship | Trigger Mechanism |
 |----------|--------------|-------------------|
-| merge-queue-ci-skipper (local action) | Skip optimization | `.github/merge-queue-ci-skipper` invoked from skip-if-clean |
+| (none) | - | - |
 
 ## Compliance & Governance
 
@@ -176,7 +165,7 @@ locales_ok: check  # Description: intl:extract diff must be clean
 ### Security Controls
 
 - **Access Control**: All runs on public `ubuntu-latest`; GITHUB_TOKEN per repo
-- **Secret Management**: GH_ACCESS_TOKEN scoped minimal
+- **Secret Management**: None required
 - **Vulnerability Scanning**: None in-workflow
 
 ## Edge Cases & Exceptions
@@ -185,22 +174,20 @@ locales_ok: check  # Description: intl:extract diff must be clean
 
 | Scenario | Expected Behavior | Validation Method |
 |----------|-------------------|-------------------|
-| Merge queue with no diff | `skip=true` → job ultimately skipped | Trigger merge_group |
-| Non-merge_group trigger | `skip=false` → build job runs | Trigger push/PR |
+| PR to main | build job runs | Open PR |
+| Manual dispatch | build job runs | Run workflow_dispatch |
 | i18n locale drift | `intl:extract --force` then diff fails CI | Remove a translation, run workflow |
 
 ## Validation Criteria
 
 ### Workflow Validation
 
-- **VLD-001**: `skip` output correctly gates the build job
-- **VLD-002**: `pnpm run ci` exits zero on healthy repo
-- **VLD-003**: `git diff` on locales/index.json is clean after intl:extract
+- **VLD-001**: `pnpm run ci` exits zero on healthy repo
+- **VLD-002**: `git diff` on locales* is clean after intl:extract
 
 ### Performance Benchmarks
 
 - **PERF-001**: actions/cache Hit on repeated PRs
-- **PERF-002**: No CI on no-diff merge queue synthetic commits
 
 ## Change Management
 

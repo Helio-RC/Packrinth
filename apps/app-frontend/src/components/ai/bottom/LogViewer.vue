@@ -70,23 +70,23 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	empty: {
 		id: 'ai.logs.empty',
-		defaultMessage: '暂无日志',
+		defaultMessage: 'No logs yet',
 	},
 	refresh: {
 		id: 'ai.logs.refresh',
-		defaultMessage: '刷新日志',
+		defaultMessage: 'Refresh logs',
 	},
 	pause: {
 		id: 'ai.logs.pause',
-		defaultMessage: '暂停自动滚动',
+		defaultMessage: 'Pause auto-scroll',
 	},
 	resume: {
 		id: 'ai.logs.resume',
-		defaultMessage: '恢复自动滚动',
+		defaultMessage: 'Resume auto-scroll',
 	},
 	lines: {
 		id: 'ai.logs.lines',
-		defaultMessage: '行',
+		defaultMessage: 'lines',
 	},
 })
 

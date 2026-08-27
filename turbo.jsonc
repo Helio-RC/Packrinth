@@ -81,6 +81,7 @@
 				"scripts/i18n-icu-contract.ts",
 				"apps/app-frontend/src/**/*.vue",
 			"apps/app-frontend/src/locales/**/*.json",
+			"apps/app-frontend/src/locales-packrinth/**/*.json",
 			"packages/ui/src/**/*.vue",
 			"packages/ui/src/locales/**/*.json"
 		],
@@ -116,12 +117,13 @@
 			"cache": false
 		},
 		"intl:extract": {},
+		"intl:extract-packrinth": {},
 		"intl:prune-local": {
 			"cache": false,
-			"dependsOn": ["intl:extract"]
+			"dependsOn": ["intl:extract", "intl:extract-packrinth"]
 		},
 		"prepr": {
-			"dependsOn": ["^prepr", "fix", "intl:extract", "intl:prune-local"]
+			"dependsOn": ["^prepr", "fix", "intl:extract", "intl:extract-packrinth", "intl:prune-local"]
 		}
 	}
 }

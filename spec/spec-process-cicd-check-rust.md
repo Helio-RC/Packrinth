@@ -12,8 +12,8 @@ tags: [process, cicd, github-actions, automation, rust, dependency-audit]
 **Purpose**: Detect and remove unused Rust package dependencies in the workspace via `cargo-shear`.
 
 **Trigger Events**:
-- `pull_request`
-- Push to `main`
+- `pull_request` targeting `main`
+- Manual `workflow_dispatch`
 
 **Target Environments**: CI.
 

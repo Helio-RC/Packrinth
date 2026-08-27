@@ -9,9 +9,9 @@ tags: [process, cicd, github-actions, automation, tauri, release, s3, updater]
 
 ## Workflow Overview
 
-**Purpose**: Based on a completed App Build run for a `v*` tag, download the build artifacts, generate a Tauri updater `updates.json` manifest, upload artifacts to an S3-compatible object store, and create a GitHub Release.
+**Purpose**: After a successful manual `Packrinth App build` run for a `v*` tag, download the build artifacts, generate a Tauri updater `updates.json` manifest, upload artifacts to an S3-compatible object store, and create a GitHub Release.
 
-**Trigger Events**: `workflow_run` — when the `Packrinth App build` workflow completes successfully for a `push` event whose `head_branch` starts with `v`.
+**Trigger Events**: Manual `workflow_dispatch` with `version` (e.g. `0.5.0`) and `build-run-id` inputs; typically triggered automatically by the build workflow via `gh workflow run` when `tag-type=release`.
 
 **Target Environments**: Production (`prod`); no environment input exposed to workflow_dispatch.
 
@@ -19,26 +19,28 @@ tags: [process, cicd, github-actions, automation, tauri, release, s3, updater]
 
 ```mermaid
 graph TD
-    A[workflow_run: build completed] --> B{conclusion success AND event push AND head_branch v*}
-    B -->|No| C[Skip]
-    B -->|Yes| D[Checkout]
-    D --> E[Verify ref is a tag]
-    E --> F[Download artifacts from build]
-    F --> G[Extract app changelog]
-    G --> H[Generate version manifest updates.json]
+    A[workflow_dispatch: version + build-run-id] --> B[Checkout v* tag]
+    B --> C[Verify version tag exists]
+    C --> D[Download artifacts from build run]
+    D --> E[Locate update signatures]
+    E --> F[Extract app changelog]
+    F --> G{Have signatures?}
+    G -->|Yes| H[Generate version manifest updates.json]
     H --> I[Upload release artifacts to S3]
-    I --> J[Create GitHub release]
-    J --> K[End]
+    G -->|No| J[Skip manifest and S3 upload]
+    I --> K[Create GitHub release]
+    J --> K
+    K --> L[End]
 
     style A fill:#e1f5fe
-    style K fill:#e8f5e8
+    style L fill:#e8f5e8
 ```
 
 ## Jobs & Dependencies
 
 | Job Name | Purpose | Dependencies | Execution Context |
 |----------|---------|--------------|-------------------|
-| release | Assemble + publish production release | Downstream of build workflow's successful `v*` tag run | `namespace-profile-medium-amd64` |
+| release | Assemble + publish production release | Triggered manually (or via `gh workflow run` from the build workflow) | ubuntu-latest |
 
 ## Requirements Matrix
 
@@ -46,8 +48,8 @@ graph TD
 
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|-------------------|
-| REQ-001 | Only act on successful `v*` tag pushes | High | Guardian `if` blocks all other conclusions/events/branches |
-| REQ-002 | Verify tag points at build head SHA | High | `gh api` ref check passes; error+exit on mismatch |
+| REQ-001 | Only act on a valid `v*` tag | High | Tag exists check passes; error+exit on mismatch |
+| REQ-002 | Verify tag points at this run's SHA | High | `gh api` ref check passes; error+exit on mismatch |
 | REQ-003 | Download the 3 platform artifacts | High | `action-download-artifact` pulls all `App bundle (*)` |
 | REQ-004 | Generate valid Tauri `updates.json` | High | Manifest matches Tauri updater server schema |
 | REQ-005 | Upload to S3 with correct layout | High | Artifacts land under `versions/<version>/<platform>` |
@@ -71,8 +73,12 @@ graph TD
 ### Inputs
 
 ```yaml
+# Manual inputs (workflow_dispatch)
+version: string  # Purpose: version to release (e.g. 0.5.0); workflow checks out tag v<version>
+build-run-id: string  # Purpose: build workflow run ID to download artifacts from
+
 # Environment Variables (release job scope)
-VERSION_TAG: string  # Purpose: branch of triggering build (e.g. v1.2.3) — from workflow_run.head_branch
+VERSION_TAG: string  # Purpose: mirrors inputs.version, used for manifest/tag naming
 LINUX_X64_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (x86_64-unknown-linux-gnu)'
 WINDOWS_X64_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (x86_64-pc-windows-msvc)'
 MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME: string  # Purpose: 'App bundle (universal-apple-darwin)'
@@ -184,8 +190,8 @@ Counts by role: 3 signature files, 3 `updates.json` `url` values, 5 `install_url
 
 | Workflow | Relationship | Trigger Mechanism |
 |----------|--------------|-------------------|
-| Packrinth App build | Upstream producer | Triggered via `workflow_run` chain |
-| App Build artifacts | Input | `dawidd6/action-download-artifact` keyed to branch `VERSION_TAG` |
+| Packrinth App build | Upstream producer | Dispatch (manual or auto via `gh workflow run` from the build when `tag-type=release`) |
+| App Build artifacts | Input | `dawidd6/action-download-artifact` keyed to run ID `build-run-id` |
 
 ## Compliance & Governance
 
@@ -207,9 +213,9 @@ Counts by role: 3 signature files, 3 `updates.json` `url` values, 5 `install_url
 
 | Scenario | Expected Behavior | Validation Method |
 |----------|-------------------|-------------------|
-| Build succeeds on non-tag branch | Release job skipped (guardian `if` fails) | Push main, observe no release |
-| Build completes with `v` branch but is a PR/merge | Skipped (event must be `push`) | Verify `workflow_run.event == 'push'` |
-| Tag points to older SHA | `::error::` + exit; no release | Force a fresh build on the tag |
+| Version input tag does not exist | `::error::` + exit; no release | Run dispatch with a bogus version |
+| Version tag points to other SHA | `::error::` + exit; no release | Run dispatch from a different commit |
+| Build was unsigned (no signatures) | Manifest + S3 upload skipped with warning; GitHub release still created | Inspect log warning |
 | S3 object store checksum incompatibility | `AWS_*_CHECKSUM_*: when_required` workaround | Release works against R2 |
 | Updates JSON for aarch64/x86_64 macOS | Both (aarch64 and x86_64) use same `universal-apple-darwin` app tar.gz + signature | Inspect `platforms` keys |
 

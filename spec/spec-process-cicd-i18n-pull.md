@@ -152,7 +152,7 @@ locales: files  # Description: updated locale files in PR
 
 | Workflow | Relationship | Trigger Mechanism |
 |----------|--------------|-------------------|
-| i18n-push (Crowdin push) | Peer (shared i18n-management concurrency) | Sibling workflow — mutually exclusive via concurrency group |
+| (none) | - | Crowdin push workflow removed; translations only pulled |
 
 ## Compliance & Governance
 
@@ -208,4 +208,4 @@ locales: files  # Description: updated locale files in PR
 
 ## Related Specifications
 
-- [spec-process-cicd-i18n-push.md](./spec-process-cicd-i18n-push.md)
+- (none; the Crowdin push workflow and its spec were removed)

@@ -83,15 +83,15 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.skills.title',
-		defaultMessage: '技能管理',
+		defaultMessage: 'Skills',
 	},
 	refresh: {
 		id: 'ai.skills.refresh',
-		defaultMessage: '刷新',
+		defaultMessage: 'Refresh',
 	},
 	empty: {
 		id: 'ai.skills.empty',
-		defaultMessage: '暂无技能',
+		defaultMessage: 'No skills yet',
 	},
 })
 

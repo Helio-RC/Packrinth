@@ -88,35 +88,35 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	empty: {
 		id: 'ai.tool-output.empty',
-		defaultMessage: '暂无工具输出',
+		defaultMessage: 'No tool output yet',
 	},
 	params: {
 		id: 'ai.tool-output.params',
-		defaultMessage: '参数',
+		defaultMessage: 'Parameters',
 	},
 	result: {
 		id: 'ai.tool-output.result',
-		defaultMessage: '结果',
+		defaultMessage: 'Result',
 	},
 	error: {
 		id: 'ai.tool-output.error',
-		defaultMessage: '错误',
+		defaultMessage: 'Error',
 	},
 	statusRunning: {
 		id: 'ai.tool-output.status-running',
-		defaultMessage: '运行中',
+		defaultMessage: 'Running',
 	},
 	statusSuccess: {
 		id: 'ai.tool-output.status-success',
-		defaultMessage: '成功',
+		defaultMessage: 'Success',
 	},
 	statusError: {
 		id: 'ai.tool-output.status-error',
-		defaultMessage: '失败',
+		defaultMessage: 'Failed',
 	},
 	statusCancelled: {
 		id: 'ai.tool-output.status-cancelled',
-		defaultMessage: '已取消',
+		defaultMessage: 'Cancelled',
 	},
 })
 

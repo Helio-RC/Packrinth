@@ -45,7 +45,7 @@ const { formatMessage } = useVIntl()
 const messages = defineMessages({
 	activitybarPosition: {
 		id: 'ai.activitybar.toggle-position',
-		defaultMessage: '切换活动栏位置',
+		defaultMessage: 'Toggle activity bar position',
 	},
 })
 

@@ -118,39 +118,39 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.tools.title',
-		defaultMessage: '工具面板',
+		defaultMessage: 'Tools',
 	},
 	empty: {
 		id: 'ai.tools.empty',
-		defaultMessage: '暂无工具',
+		defaultMessage: 'No tools yet',
 	},
 	confirmBadge: {
 		id: 'ai.tools.confirm-badge',
-		defaultMessage: '需确认',
+		defaultMessage: 'Requires confirmation',
 	},
 	execute: {
 		id: 'ai.tools.execute',
-		defaultMessage: '执行',
+		defaultMessage: 'Execute',
 	},
 	cancel: {
 		id: 'ai.tools.cancel',
-		defaultMessage: '取消',
+		defaultMessage: 'Cancel',
 	},
 	run: {
 		id: 'ai.tools.run',
-		defaultMessage: '运行',
+		defaultMessage: 'Run',
 	},
 	jsonPlaceholder: {
 		id: 'ai.tools.json-placeholder',
-		defaultMessage: 'JSON 数组/对象…',
+		defaultMessage: 'JSON array/object…',
 	},
 	invalidJson: {
 		id: 'ai.tools.invalid-json',
-		defaultMessage: '无效的 JSON',
+		defaultMessage: 'Invalid JSON',
 	},
 	requiredField: {
 		id: 'ai.tools.required-field',
-		defaultMessage: '此项为必填',
+		defaultMessage: 'This field is required',
 	},
 })
 

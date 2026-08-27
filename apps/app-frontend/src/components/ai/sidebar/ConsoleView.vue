@@ -110,71 +110,71 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	dashboardTitle: {
 		id: 'ai.console.dashboard-title',
-		defaultMessage: '数据仪表盘',
+		defaultMessage: 'Dashboard',
 	},
 	mods: {
 		id: 'ai.console.mods',
-		defaultMessage: 'Mod 数量',
+		defaultMessage: 'Mods',
 	},
 	disk: {
 		id: 'ai.console.disk',
-		defaultMessage: '磁盘占用',
+		defaultMessage: 'Disk usage',
 	},
 	gitBranch: {
 		id: 'ai.console.git-branch',
-		defaultMessage: 'Git 分支',
+		defaultMessage: 'Git branch',
 	},
 	conversations: {
 		id: 'ai.console.conversations',
-		defaultMessage: '会话数',
+		defaultMessage: 'Conversations',
 	},
 	skills: {
 		id: 'ai.console.skills',
-		defaultMessage: '技能数',
+		defaultMessage: 'Skills',
 	},
 	flowC: {
 		id: 'ai.console.flow-c',
-		defaultMessage: '由流 C 提供',
+		defaultMessage: 'Provided by stream C',
 	},
 	togglesTitle: {
 		id: 'ai.console.toggles-title',
-		defaultMessage: '核心开关',
+		defaultMessage: 'Toggles',
 	},
 	enabled: {
 		id: 'ai.console.enabled',
-		defaultMessage: 'AI 主开关',
+		defaultMessage: 'AI main switch',
 	},
 	enabledDesc: {
 		id: 'ai.console.enabled-desc',
-		defaultMessage: '启用或停用 AI 工作台功能。',
+		defaultMessage: 'Enable or disable the AI workbench.',
 	},
 	mock: {
 		id: 'ai.console.mock',
-		defaultMessage: 'Mock 模式',
+		defaultMessage: 'Mock mode',
 	},
 	mockDesc: {
 		id: 'ai.console.mock-desc',
-		defaultMessage: '使用模拟数据运行，便于离线调试。',
+		defaultMessage: 'Run with mock data for offline debugging.',
 	},
 	logLines: {
 		id: 'ai.console.log-lines',
-		defaultMessage: '日志行数',
+		defaultMessage: 'Log lines',
 	},
 	logLinesDesc: {
 		id: 'ai.console.log-lines-desc',
-		defaultMessage: 'AI 分析时可读取的日志缓冲行数。',
+		defaultMessage: 'Log buffer lines readable during AI analysis.',
 	},
 	advancedTitle: {
 		id: 'ai.console.advanced-title',
-		defaultMessage: '高级',
+		defaultMessage: 'Advanced',
 	},
 	troubleshoot: {
 		id: 'ai.console.troubleshoot',
-		defaultMessage: '自动排障',
+		defaultMessage: 'Auto troubleshooting',
 	},
 	troubleshootDesc: {
 		id: 'ai.console.troubleshoot-desc',
-		defaultMessage: '流 E 提供',
+		defaultMessage: 'Provided by stream E',
 	},
 })
 

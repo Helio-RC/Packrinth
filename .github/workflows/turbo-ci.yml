@@ -1,56 +1,18 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    types: [opened, synchronize]
-  merge_group:
-    types: [checks_requested]
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  skip-if-clean:
-    name: Skip if merge_queue produces no diff
-    runs-on: ubuntu-latest
-    outputs:
-      skip: ${{ steps.check.outputs.skip }}
-    if: ${{ always() }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Merge Queue CI Check Skipper
-        id: merge-queue-ci-skipper
-        uses: ./.github/merge-queue-ci-skipper
-        with:
-          secret: ${{ secrets.GH_ACCESS_TOKEN }}
-
-      - name: Check merge_group synthetic commit
-        id: check
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          SKIP_CHECK: ${{ steps.merge-queue-ci-skipper.outputs.skip-check }}
-        run: |
-          if [ "$EVENT_NAME" != "merge_group" ]; then
-            echo "skip=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          if [ "$SKIP_CHECK" = "true" ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
   build:
     name: Lint and Test
     runs-on: ubuntu-latest
-    needs: [skip-if-clean]
-    if: ${{ needs.skip-if-clean.outputs.skip != 'true' }}
 
     env:
       # Ensure pnpm output is colored in GitHub Actions logs
@@ -135,5 +97,7 @@ jobs:
       - name: Verify intl:extract has been run
         run: |
           pnpm turbo run intl:extract --force
+          pnpm turbo run intl:extract-packrinth --force
           pnpm scripts i18n-icu-contract prune-local --check
           git diff --exit-code --color */*/src/locales/*/index.json
+          git diff --exit-code --color */*/src/locales-packrinth/*/index.json

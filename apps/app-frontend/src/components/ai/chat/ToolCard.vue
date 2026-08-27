@@ -61,23 +61,23 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.chat.tool.title',
-		defaultMessage: '工具调用',
+		defaultMessage: 'Tool call',
 	},
 	arguments: {
 		id: 'ai.chat.tool.arguments',
-		defaultMessage: '参数',
+		defaultMessage: 'Arguments',
 	},
 	approve: {
 		id: 'ai.chat.tool.approve',
-		defaultMessage: '允许',
+		defaultMessage: 'Approve',
 	},
 	reject: {
 		id: 'ai.chat.tool.reject',
-		defaultMessage: '拒绝',
+		defaultMessage: 'Reject',
 	},
 	approved: {
 		id: 'ai.chat.tool.approved',
-		defaultMessage: '已批准',
+		defaultMessage: 'Approved',
 	},
 })
 

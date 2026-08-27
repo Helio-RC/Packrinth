@@ -6,6 +6,11 @@ const localeModules = import.meta.glob<{ default: CrowdinMessages }>('./locales/
 	eager: true,
 })
 
+const packrinthLocaleModules = import.meta.glob<{ default: CrowdinMessages }>(
+	'./locales-packrinth/*/index.json',
+	{ eager: true },
+)
+
 const i18n = createI18n({
 	legacy: false,
 	locale: 'en-US',
@@ -13,7 +18,7 @@ const i18n = createI18n({
 	messageCompiler: createMessageCompiler(),
 	missingWarn: false,
 	fallbackWarn: false,
-	messages: buildLocaleMessages(localeModules, uiLocaleModulesEager),
+	messages: buildLocaleMessages(packrinthLocaleModules, localeModules, uiLocaleModulesEager),
 })
 
 export default i18n

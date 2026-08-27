@@ -40,11 +40,11 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	aiReady: {
 		id: 'ai.status.ready',
-		defaultMessage: 'AI 已连接',
+		defaultMessage: 'AI connected',
 	},
 	aiUnconfigured: {
 		id: 'ai.status.unconfigured',
-		defaultMessage: 'AI 未配置',
+		defaultMessage: 'AI not configured',
 	},
 	tokens: {
 		id: 'ai.status.tokens',
@@ -52,7 +52,7 @@ const messages = defineMessages({
 	},
 	skills: {
 		id: 'ai.status.skills',
-		defaultMessage: '个技能',
+		defaultMessage: 'skills',
 	},
 })
 </script>

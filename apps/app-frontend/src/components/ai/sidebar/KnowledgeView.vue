@@ -78,27 +78,27 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.knowledge.title',
-		defaultMessage: '知识检索',
+		defaultMessage: 'Knowledge search',
 	},
 	placeholder: {
 		id: 'ai.knowledge.placeholder',
-		defaultMessage: '搜索知识库…',
+		defaultMessage: 'Search the knowledge base…',
 	},
 	search: {
 		id: 'ai.knowledge.search',
-		defaultMessage: '搜索',
+		defaultMessage: 'Search',
 	},
 	loading: {
 		id: 'ai.knowledge.loading',
-		defaultMessage: '搜索中…',
+		defaultMessage: 'Searching…',
 	},
 	noResults: {
 		id: 'ai.knowledge.no-results',
-		defaultMessage: '未找到相关结果',
+		defaultMessage: 'No results found',
 	},
 	prompt: {
 		id: 'ai.knowledge.prompt',
-		defaultMessage: '输入关键词开始检索',
+		defaultMessage: 'Enter a keyword to start searching',
 	},
 })
 

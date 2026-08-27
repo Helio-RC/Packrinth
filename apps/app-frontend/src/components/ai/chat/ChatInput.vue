@@ -78,35 +78,35 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	placeholder: {
 		id: 'ai.chat.input.placeholder',
-		defaultMessage: '输入消息，/ 查看命令…',
+		defaultMessage: 'Type a message, / for commands…',
 	},
 	send: {
 		id: 'ai.chat.input.send',
-		defaultMessage: '发送',
+		defaultMessage: 'Send',
 	},
 	commandsHint: {
 		id: 'ai.chat.input.commands-hint',
-		defaultMessage: '命令',
+		defaultMessage: 'Commands',
 	},
 	noCommands: {
 		id: 'ai.chat.input.no-commands',
-		defaultMessage: '没有匹配的命令',
+		defaultMessage: 'No matching commands',
 	},
 	newConversation: {
 		id: 'ai.chat.command.new',
-		defaultMessage: '新建会话',
+		defaultMessage: 'New conversation',
 	},
 	clear: {
 		id: 'ai.chat.command.clear',
-		defaultMessage: '清空全部会话',
+		defaultMessage: 'Clear all conversations',
 	},
 	confirmClear: {
 		id: 'ai.chat.command.confirm-clear',
-		defaultMessage: '确认清空全部会话？',
+		defaultMessage: 'Clear all conversations?',
 	},
 	help: {
 		id: 'ai.chat.command.help',
-		defaultMessage: '显示命令说明',
+		defaultMessage: 'Show command help',
 	},
 })
 

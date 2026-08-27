@@ -103,35 +103,35 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.history.title',
-		defaultMessage: '会话历史',
+		defaultMessage: 'Conversation history',
 	},
 	new: {
 		id: 'ai.history.new',
-		defaultMessage: '新建',
+		defaultMessage: 'New',
 	},
 	untitled: {
 		id: 'ai.history.untitled',
-		defaultMessage: '未命名会话',
+		defaultMessage: 'Untitled conversation',
 	},
 	empty: {
 		id: 'ai.history.empty',
-		defaultMessage: '暂无会话',
+		defaultMessage: 'No conversations yet',
 	},
 	confirm: {
 		id: 'ai.history.confirm-delete',
-		defaultMessage: '确认删除？',
+		defaultMessage: 'Delete?',
 	},
 	confirmClear: {
 		id: 'ai.history.confirm-clear',
-		defaultMessage: '确认清空全部？',
+		defaultMessage: 'Clear all?',
 	},
 	clearAll: {
 		id: 'ai.history.clear-all',
-		defaultMessage: '清空全部会话',
+		defaultMessage: 'Clear all conversations',
 	},
 	renamePlaceholder: {
 		id: 'ai.history.rename-placeholder',
-		defaultMessage: '输入新名称…',
+		defaultMessage: 'Enter a new name…',
 	},
 })
 

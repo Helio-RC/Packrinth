@@ -49,19 +49,19 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	hide: {
 		id: 'ai.bottom-panel.hide',
-		defaultMessage: '收起底部面板',
+		defaultMessage: 'Hide bottom panel',
 	},
 	tabLogs: {
 		id: 'ai.logs.title',
-		defaultMessage: '日志',
+		defaultMessage: 'Logs',
 	},
 	tabTools: {
 		id: 'ai.tool-output.title',
-		defaultMessage: '工具输出',
+		defaultMessage: 'Tool output',
 	},
 	tabTroubleshoot: {
 		id: 'ai.troubleshoot.title',
-		defaultMessage: '排障报告',
+		defaultMessage: 'Troubleshoot report',
 	},
 })
 

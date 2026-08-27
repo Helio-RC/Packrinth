@@ -12,9 +12,8 @@ tags: [process, cicd, github-actions, automation, tauri, desktop-build]
 **Purpose**: Build the Packrinth App desktop application (Linux, macOS, Windows) as signed/unsigned installers and app bundles, and upload them as GitHub Actions artifacts for downstream consumption by the release workflow.
 
 **Trigger Events**:
-- Push to `main` branches
-- `v*` tag pushes
-- Manual `workflow_dispatch` (with `sign-windows-binaries`, `environment`, `app-version-override` inputs)
+- `pull_request` targeting `main` (path-restricted to the app closure)
+- Manual `workflow_dispatch` with `branch`, `tag-type`, `release-tag-suffix`, `sign-windows-binaries`, `environment` inputs
 - Path filters restrict auto-triggering to app/frontend/lib/assets/ui/utils sources and this workflow file.
 
 **Target Environments**: `prod`, `staging`, `prod-with-staging-archon` (selected via `environment` input; used to pick `.env` template). `PRODUCT_NAME` is `Packrinth`, declared once at workflow scope and reused by every step.
@@ -50,7 +49,7 @@ graph TD
 |----|-------------|----------|-------------------|
 | REQ-001 | Build each of the 3 matrix platforms | High | All 3 matrix legs succeed |
 | REQ-002 | Inject correct app version into manifests | High | `package.version` set in both Cargo.tomls and package.json |
-| REQ-003 | Select dev vs release Tauri config | High | Release conf used on main/tags/override; dev conf else |
+| REQ-003 | Select dev vs release Tauri config | High | Release conf used when `tag-type=release`; dev conf else |
 | REQ-004 | Upload app bundles per platform | High | Artifact named `App bundle (<target>)` per platform |
 | REQ-005 | Strip dev git hash into product name | Medium | `tauri-dev.conf.json` generated with `productName`/`identifier` |
 
@@ -76,9 +75,11 @@ graph TD
 VITE_STRIPE_PUBLISHABLE_KEY: secret  # Purpose: Stripe publishable key baked at build time (pk_live_<key>)
 
 # Manual inputs (workflow_dispatch)
+branch: string                  # Purpose: ref (branch/tag) to build; v* tag used for releases (default: current ref)
+tag-type: choice                # Purpose: develop | release (release uses tauri-release.conf + triggers release workflow; default develop)
+release-tag-suffix: string      # Purpose: suffix appended to git-derived version for pre-releases, e.g. -beta.1 (default '')
 sign-windows-binaries: boolean  # Purpose: force Windows code signing (default false)
-environment: choice              # Purpose: prod | staging | prod-with-staging-archon (default prod)
-app-version-override: string     # Purpose: for updater testing; overrides git-derived version
+environment: choice             # Purpose: prod | staging | prod-with-staging-archon (default prod)
 
 # Repository Triggers
 paths: [.github/workflows/theseus-build.yml, apps/app/**, apps/app-frontend/**,
@@ -133,7 +134,7 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 | Error Type | Response | Recovery Action |
 |------------|----------|-----------------|
 | Build Failure | Job fails (fail-fast: false keeps other legs running) | Inspect per-leg logs; rerun workflow |
-| Windows signing missing (dev) | `dasel delete` removes `bundle.windows.signCommand` | Run without signing |
+| Signing credentials missing | `Configure signing` step clears signing flags and deletes `signCommand`/`createUpdaterArtifacts`; build continues unsigned | Run without signing; note updater manifest requires signatures |
 | Missing environment template | `cp` fails at `Set application version` step | Ensure `.env.<environment>` exists in app-lib |
 
 ## Quality Gates
@@ -144,7 +145,7 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 |------|----------|-------------------|
 | Platform build | All 3 legs pass | Manual workflow_dispatch may shorten to staging/dev conf |
 | Artifact presence | Upload `App bundle (<target>)` per platform | Fail if no bundle globs match |
-| Signing | Signing only on tags/main/override | Dev builds unsigned; Windows signing skippable via input |
+| Signing | Signing only when credentials are present | Builds continue unsigned when secrets are absent or not requested |
 
 ## Monitoring & Observability
 
@@ -195,10 +196,10 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 
 | Scenario | Expected Behavior | Validation Method |
 |----------|-------------------|-------------------|
-| Dev build (non-main, non-tag) | Uses `tauri-dev.conf.json`, no code signing, dev git-hash product naming | Run on feature branch via workflow_dispatch |
-| app-version-override set | Forces release conf + uses override string as version; git-hash regex not applied | Pass override and inspect Cargo.toml/package.json |
-| Windows dev build | `signCommand` deleted to skip signing | Inspect generated `tauri-release.conf.json` |
-| Non-`v` tag push | Workflow runs but uses git-describe-derived canary version | Push `main` PR; verify version suffix |
+| Dev build (PR, tag-type=develop) | Uses `tauri-dev.conf.json`, no code signing, dev git-hash product naming | Open PR to main; inspect artifacts |
+| Manual release build (tag-type=release) | Uses `tauri-release.conf.json`, signs when credentials exist, dispatches release workflow | Run workflow_dispatch with `tag-type=release` |
+| release-tag-suffix set | Appended to git-derived version (e.g. `0.5.0-beta.1`) | Run dispatch with a suffix; inspect Cargo.toml/package.json |
+| Signing credentials absent | `Configure signing` logs a warning and continues unsigned; updater artifacts skipped | Run dispatch on a repo without secrets |
 | Concurrency cancel | Non-main/prod runs cancel in-flight jobs for same ref | Trigger overlapping runs on a PR |
 
 ## Validation Criteria
@@ -206,9 +207,9 @@ build_artifacts: artifact  # Description: named per target, collected downstream
 ### Workflow Validation
 
 - **VLD-001**: All three platform legs produce `App bundle (<target>)` artifacts with expected globset
-- **VLD-002**: Version manifest (Cargo.toml ×2 + package.json) matches `VERSION_TAG` minus leading `v`
-- **VLD-003**: `tauri-dev.conf.json` contains git-hash-derived product name when dev
-- **VLD-004**: Release conf selected exactly when `refs/heads/main`, `refs/tags/v*`, or override set
+- **VLD-002**: Version manifest (Cargo.toml ×2 + package.json) matches git-describe-derived version plus optional suffix
+- **VLD-003**: `tauri-dev.conf.json` contains git-hash-derived product name when develop
+- **VLD-004**: Release conf selected exactly when `tag-type=release`
 
 ### Performance Benchmarks
 

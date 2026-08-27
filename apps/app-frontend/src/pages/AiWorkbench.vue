@@ -74,19 +74,20 @@ const store = useAiWorkshopStore()
 const messages = defineMessages({
 	title: {
 		id: 'ai.workbench.title',
-		defaultMessage: 'AI 工作台',
+		defaultMessage: 'AI Workbench',
 	},
 	description: {
 		id: 'ai.workbench.description',
-		defaultMessage: '使用自然语言与 AI 协作，完成模组安装、配置修改与内容定制。',
+		defaultMessage:
+			'Use natural language to work with AI on mod installation, configuration changes, and content customization.',
 	},
 	filesPlaceholder: {
 		id: 'ai.workbench.files-placeholder',
-		defaultMessage: '实例树将在流 C 提供',
+		defaultMessage: 'The instance tree arrives with stream C',
 	},
 	settingsPlaceholder: {
 		id: 'ai.workbench.settings-placeholder',
-		defaultMessage: '设置将在流 E 提供',
+		defaultMessage: 'Settings arrive with stream E',
 	},
 })
 

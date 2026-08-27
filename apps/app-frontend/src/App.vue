@@ -168,6 +168,7 @@ import { setupLoadingStateProvider } from '@/providers/setup/loading-state'
 import { setupAppUserPreferencesProvider } from '@/providers/setup/user-preferences.ts'
 import { appMessages } from '@/utils/app-messages'
 
+import { aiWorkbenchMessage } from './components/ai/messages'
 import { generateSkinPreviews } from './helpers/rendering/batch-skin-renderer'
 import { get_available_capes, get_available_skins } from './helpers/skins'
 import { AppNotificationManager } from './providers/app-notifications'
@@ -490,12 +491,6 @@ const { formatMessage } = useVIntl()
 const formatBytes = useFormatBytes()
 
 const messages = defineMessages({
-	// === AI-WORKSHOP START ===
-	aiWorkbench: {
-		id: 'app.nav.ai-workbench',
-		defaultMessage: 'AI Workbench',
-	},
-	// === AI-WORKSHOP END ===
 	warning: { id: 'app.notification.warning', defaultMessage: 'Warning' },
 	goBack: { id: 'app.navigation.go-back', defaultMessage: 'Go back' },
 	goForward: { id: 'app.navigation.go-forward', defaultMessage: 'Go forward' },
@@ -1911,7 +1906,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		>
 			<!-- === AI-WORKSHOP START === -->
 			<NavButton
-				v-tooltip.right="formatMessage(messages.aiWorkbench)"
+				v-tooltip.right="formatMessage(aiWorkbenchMessage)"
 				to="/ai-workbench"
 				:is-primary="(route) => route.path === '/ai-workbench'"
 			>
