@@ -4,7 +4,6 @@ use std::sync::{Arc, RwLock};
 
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Runtime};
-use tauri_plugin_store::StoreExt;
 
 use crate::api::Result;
 
@@ -303,21 +302,99 @@ impl ConfigManager {
 		Ok(())
 	}
 
-	/// 将明文 Key 写入 tauri-plugin-store 安全存储，并同步掩码提示到 config.json。
-	pub fn set_api_key(&self, app: &AppHandle, provider: &str, key: &str) -> Result<()> {
-		let store = app
-			.store("ai-workshop-secrets.json")
-			.map_err(|e| other_err(e.to_string()))?;
-		store.set(provider, serde_json::Value::String(key.to_string()));
-		store.save().map_err(|e| other_err(e.to_string()))?;
+	/// 读取 secrets.json 中的明文 Key 映射（provider → key）。
+	fn load_secrets(&self) -> HashMap<String, String> {
+		std::fs::read_to_string(&self.secrets_path)
+			.ok()
+			.and_then(|raw| serde_json::from_str(&raw).ok())
+			.unwrap_or_default()
+	}
+
+	/// 将明文 Key 映射写入 secrets.json（权限 0600），仅存于 ai-workshop 目录，
+	/// 不进入 config.json（那里只保留掩码提示）。返回真实 key 的保存结果。
+	fn write_secrets(&self, secrets: &HashMap<String, String>) -> Result<()> {
+		let raw =
+			serde_json::to_string_pretty(secrets).map_err(|e| other_err(e.to_string()))?;
+		std::fs::write(&self.secrets_path, raw)?;
+		#[cfg(unix)]
+		{
+			use std::os::unix::fs::PermissionsExt;
+			let _ = std::fs::set_permissions(&self.secrets_path, std::fs::Permissions::from_mode(0o600));
+		}
+		Ok(())
+	}
+
+	/// 将明文 Key 写入 secrets.json，并同步掩码提示到 config.json。
+	pub fn set_api_key(&self, provider: &str, key: &str) -> Result<()> {
+		let mut secrets = self.load_secrets();
+		secrets.insert(provider.to_string(), key.to_string());
+		self.write_secrets(&secrets)?;
 		self.set_api_key_hint(provider, key)
 	}
 
-	/// 从 tauri-plugin-store 读取明文 Key；store 不存在或未配置时返回 None。
-	pub fn get_decrypted_api_key(&self, app: &AppHandle, provider: &str) -> Option<String> {
-		let store = app.store("ai-workshop-secrets.json").ok()?;
-		store
-			.get(provider)
-			.and_then(|value| value.as_str().map(|s| s.to_string()))
+	/// 从 secrets.json 读取明文 Key；未配置时返回 None。
+	pub fn get_decrypted_api_key(&self, provider: &str) -> Option<String> {
+		self.load_secrets().get(provider).cloned()
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	fn temp_ai_root() -> PathBuf {
+		let nanos = std::time::SystemTime::now()
+			.duration_since(std::time::UNIX_EPOCH)
+			.unwrap()
+			.as_nanos();
+		let dir = std::env::temp_dir().join(format!("ai_config_test_{nanos}"));
+		std::fs::create_dir_all(&dir).unwrap();
+		dir
+	}
+
+	#[test]
+	fn api_key_round_trip_uses_temp_secrets_file() {
+		let dir = temp_ai_root();
+		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
+
+		manager.set_api_key("openai", "sk-real-key-123456").unwrap();
+
+		// 解密返回真实 key
+		assert_eq!(
+			manager.get_decrypted_api_key("openai").unwrap(),
+			"sk-real-key-123456"
+		);
+		// 未配置的 provider 返回 None
+		assert!(manager.get_decrypted_api_key("anthropic").is_none());
+
+		// config.json 中只存掩码提示，绝不含真实 key
+		let hint = manager.get_api_key_hint("openai").unwrap();
+		assert_ne!(hint, "sk-real-key-123456");
+		assert!(hint.contains("****"), "hint should be masked, got {hint}");
+
+		// secrets 落盘到 ai_root/secrets.json，而非 config.json
+		let config_raw = std::fs::read_to_string(manager.config_path.clone()).unwrap();
+		assert!(
+			!config_raw.contains("sk-real-key-123456"),
+			"config.json must not contain plaintext key"
+		);
+		assert!(manager.secrets_path.exists());
+
+		std::fs::remove_dir_all(&dir).unwrap();
+	}
+
+	#[test]
+	fn set_api_key_overwrites_and_persists() {
+		let dir = temp_ai_root();
+		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
+
+		manager.set_api_key("deepseek", "old-key").unwrap();
+		manager.set_api_key("deepseek", "new-key").unwrap();
+
+		// 新实例重新加载 secrets 后仍能读到最新 key（已持久化）
+		let reloaded = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
+		assert_eq!(reloaded.get_decrypted_api_key("deepseek").unwrap(), "new-key");
+
+		std::fs::remove_dir_all(&dir).unwrap();
 	}
 }
