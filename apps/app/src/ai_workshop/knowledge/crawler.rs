@@ -12,6 +12,10 @@ use super::source::SourceDocument;
 
 /// 响应体大小上限：2MB。
 const MAX_BODY_BYTES: usize = 2 * 1024 * 1024;
+/// 默认白名单域名，与 config.rs 中 AiWorkshopConfig::default().knowledge.allowed_domains 保持一致。
+/// crawl_document 工具在构造时固定使用此默认值（工具无 config 访问）。
+pub const DEFAULT_ALLOWED_DOMAINS: [&str; 4] =
+	["modrinth.com", "mcmod.cn", "minecraft.fandom.com", "ftbwiki.org"];
 /// 默认 User-Agent，避免被站点反爬拦截。
 const USER_AGENT: &str = "ModrinthAppBot/1.0 (+https://modrinth.com)";
 

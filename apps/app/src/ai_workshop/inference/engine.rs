@@ -515,7 +515,9 @@ mod tests {
 	}
 
 	/// 测试用 Mock 工具：install_mod，返回成功。
-	struct MockInstallModTool;
+	struct MockInstallModTool {
+		calls: Arc<AtomicUsize>,
+	}
 
 	#[async_trait]
 	impl Tool for MockInstallModTool {
@@ -533,6 +535,7 @@ mod tests {
 		}
 
 		async fn execute(&self, _arguments: Value, _ctx: &ExecutionContext) -> Result<Value, String> {
+			self.calls.fetch_add(1, Ordering::SeqCst);
 			Ok(serde_json::json!({ "success": true }))
 		}
 	}
@@ -652,7 +655,10 @@ mod tests {
 			.state
 			.tool_registry
 			.register(Arc::new(MockSearchModsTool { calls: search_calls.clone() }));
-		harness.state.tool_registry.register(Arc::new(MockInstallModTool));
+		harness
+			.state
+			.tool_registry
+			.register(Arc::new(MockInstallModTool { calls: Arc::new(AtomicUsize::new(0)) }));
 
 		let provider = Arc::new(TestProvider::new());
 		let conversation = harness
@@ -704,6 +710,195 @@ mod tests {
 		assert!(
 			tool_messages.iter().any(|m| m.content.contains("JEI")),
 			"persisted tool result should contain the mock search result"
+		);
+
+		let last_assistant = messages.iter().filter(|m| m.role == "assistant").last();
+		assert!(
+			last_assistant.is_some() && !last_assistant.unwrap().content.is_empty(),
+			"final assistant reply should be non-empty"
+		);
+	}
+
+	/// 三轮闭环 Provider：按已出现的 tool 消息数编排 search_mods → install_mod → 总结。
+	/// 轮 1（无 tool 消息）返回 search_mods；轮 2（1 条 tool 消息）返回 install_mod；
+	/// 轮 3（≥2 条 tool 消息）返回内容总结。
+	struct ClosedLoopProvider;
+
+	impl ClosedLoopProvider {
+		fn tool_msg_count(messages: &[AiMessage]) -> usize {
+			messages
+				.iter()
+				.filter(|m| matches!(m.role, AiMessageRole::Tool))
+				.count()
+		}
+
+		fn usage() -> Option<AiUsage> {
+			Some(AiUsage { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 })
+		}
+	}
+
+	#[async_trait]
+	impl AiProvider for ClosedLoopProvider {
+		fn name(&self) -> &'static str {
+			"closed_loop"
+		}
+
+		async fn chat(
+			&self,
+			messages: &[AiMessage],
+			_tools: &[ToolDefinition],
+		) -> Result<AiResponse, ProviderError> {
+			match Self::tool_msg_count(messages) {
+				0 => Ok(AiResponse {
+					content: None,
+					tool_calls: vec![ToolCall {
+						id: "call_search".to_string(),
+						name: "search_mods".to_string(),
+						arguments: serde_json::json!({ "query": "JEI", "limit": 5 }),
+					}],
+					usage: Self::usage(),
+				}),
+				1 => Ok(AiResponse {
+					content: None,
+					tool_calls: vec![ToolCall {
+						id: "call_install".to_string(),
+						name: "install_mod".to_string(),
+						arguments: serde_json::json!({ "mod_id": "jei", "instance_id": "i1" }),
+					}],
+					usage: Self::usage(),
+				}),
+				_ => Ok(AiResponse {
+					content: Some("已安装 JEI 并完成总结".to_string()),
+					tool_calls: vec![],
+					usage: Self::usage(),
+				}),
+			}
+		}
+
+		async fn stream(
+			&self,
+			messages: &[AiMessage],
+			_tools: &[ToolDefinition],
+			tx: tokio::sync::mpsc::Sender<StreamEvent>,
+		) -> Result<(), ProviderError> {
+			match Self::tool_msg_count(messages) {
+				0 => {
+					let _ = tx
+						.send(StreamEvent {
+							delta: None,
+							tool_calls: Some(vec![ToolCall {
+								id: "call_search".to_string(),
+								name: "search_mods".to_string(),
+								arguments: serde_json::json!({ "query": "JEI", "limit": 5 }),
+							}]),
+							usage: None,
+							done: false,
+							error: None,
+						})
+						.await;
+				}
+				1 => {
+					let _ = tx
+						.send(StreamEvent {
+							delta: None,
+							tool_calls: Some(vec![ToolCall {
+								id: "call_install".to_string(),
+								name: "install_mod".to_string(),
+								arguments: serde_json::json!({ "mod_id": "jei", "instance_id": "i1" }),
+							}]),
+							usage: None,
+							done: false,
+							error: None,
+						})
+						.await;
+				}
+				_ => {
+					let _ = tx
+						.send(StreamEvent {
+							delta: Some("已安装 JEI 并完成总结".to_string()),
+							tool_calls: None,
+							usage: None,
+							done: false,
+							error: None,
+						})
+						.await;
+				}
+			}
+			let _ = tx
+				.send(StreamEvent {
+					delta: None,
+					tool_calls: None,
+					usage: None,
+					done: true,
+					error: None,
+				})
+				.await;
+			Ok(())
+		}
+	}
+
+	#[tokio::test]
+	async fn mock_tool_multi_turn_closes_loop_with_two_tools() {
+		let harness = TestHarness::new();
+		let search_calls = Arc::new(AtomicUsize::new(0));
+		let install_calls = Arc::new(AtomicUsize::new(0));
+		harness
+			.state
+			.tool_registry
+			.register(Arc::new(MockSearchModsTool { calls: search_calls.clone() }));
+		harness
+			.state
+			.tool_registry
+			.register(Arc::new(MockInstallModTool { calls: install_calls.clone() }));
+
+		let provider = Arc::new(ClosedLoopProvider);
+		let conversation = harness
+			.state
+			.chat_history
+			.create_conversation("test", None)
+			.await
+			.unwrap();
+		let engine = InferenceEngine::with_provider(harness.state.clone(), provider.clone());
+
+		let events = Arc::new(std::sync::Mutex::new(Vec::new()));
+		let events_capture = events.clone();
+		engine
+			.run_multi_turn(
+				&conversation.id,
+				"搜索并安装 JEI",
+				Box::new(move |event: StreamEvent| {
+					events_capture.lock().unwrap().push(event);
+				}),
+			)
+			.await
+			.expect("multi turn should close the loop without error");
+
+		let events = events.lock().unwrap();
+		assert!(events.iter().all(|e| e.error.is_none()), "no error events should be emitted");
+		assert!(events.iter().any(|e| e.done), "a done event should be emitted");
+		drop(events);
+
+		assert!(
+			search_calls.load(Ordering::SeqCst) >= 1,
+			"search_mods mock tool should have been executed at least once"
+		);
+		assert!(
+			install_calls.load(Ordering::SeqCst) >= 1,
+			"install_mod mock tool should have been executed at least once"
+		);
+
+		let (_, messages) = harness
+			.state
+			.chat_history
+			.get_conversation(&conversation.id, 100, 0)
+			.await
+			.unwrap()
+			.unwrap();
+		let tool_messages: Vec<_> = messages.iter().filter(|m| m.role == "tool").collect();
+		assert!(
+			tool_messages.len() >= 2,
+			"both tool results should be persisted, got {}",
+			tool_messages.len()
 		);
 
 		let last_assistant = messages.iter().filter(|m| m.role == "assistant").last();

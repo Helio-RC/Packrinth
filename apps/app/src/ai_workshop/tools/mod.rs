@@ -5,6 +5,7 @@ use registry::ToolRegistry;
 
 pub mod config_ops;
 pub mod context;
+pub mod knowledge_ops;
 pub mod mod_ops;
 pub mod registry;
 pub mod script_gen;
@@ -14,6 +15,7 @@ pub mod script_gen;
 pub fn register_builtin_tools(registry: &Arc<ToolRegistry>) {
 	mod_ops::register_mod_ops_tools(registry);
 	config_ops::register_config_ops_tools(registry);
+	knowledge_ops::register_knowledge_tools(registry);
 	script_gen::register_script_gen_tools(registry);
 	crate::ai_workshop::git_ops::register_git_ops_tools(registry);
 }
