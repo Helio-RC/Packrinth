@@ -56,6 +56,7 @@ import { nextTick, onMounted, ref, watch } from 'vue'
 
 import ChatInput from '@/components/ai/chat/ChatInput.vue'
 import ChatMessage from '@/components/ai/chat/ChatMessage.vue'
+import WorkbenchLayout from '@/components/ai/layout/WorkbenchLayout.vue'
 import ChatHistory from '@/components/ai/sidebar/ChatHistory.vue'
 import ConsoleView from '@/components/ai/sidebar/ConsoleView.vue'
 import KnowledgeView from '@/components/ai/sidebar/KnowledgeView.vue'

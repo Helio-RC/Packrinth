@@ -23,6 +23,13 @@ Copy the `.env` template in `packages/app-lib/` before the first run.
 - `main` — our integration branch, rebased from `upstream/main`
 - `develop` — active development
 
+To sync with upstream:
+
+```bash
+git fetch upstream
+git rebase upstream/main # on main, then re-rebase develop
+```
+
 ## Goal
 
-For the product vision and roadmap, see [`apps/app/docs/goal.md`](apps/app/docs/goal.md).
+For the product vision and roadmap, see [`docs/goal.md`](docs/goal.md).
