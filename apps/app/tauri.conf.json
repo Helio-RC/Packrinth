@@ -109,7 +109,6 @@
 				"enable": true
 			},
 			"capabilities": [
-				"ads",
 				"core",
 				"plugins"
 			],
