@@ -26,11 +26,26 @@ pub struct ChatResult {
 /// 推理引擎：负责消息构建、提供商调用与工具执行循环。
 pub struct InferenceEngine {
 	state: Arc<AiWorkshopState>,
+	/// 测试注入的自定义提供商；None 时按 config 创建真实提供商。
+	provider: Option<Arc<dyn AiProvider>>,
 }
 
 impl InferenceEngine {
 	pub fn new(state: Arc<AiWorkshopState>) -> Self {
-		Self { state }
+		Self { state, provider: None }
+	}
+
+	/// 注入自定义提供商（测试用）：绕过 config 创建，以便控制多轮 tool 流程。
+	#[cfg(test)]
+	pub fn with_provider(state: Arc<AiWorkshopState>, provider: Arc<dyn AiProvider>) -> Self {
+		Self { state, provider: Some(provider) }
+	}
+
+	fn resolve_provider(&self) -> Result<Arc<dyn AiProvider>> {
+		if let Some(provider) = &self.provider {
+			return Ok(provider.clone());
+		}
+		create_provider(&self.state.config_manager.config()).map_err(other_err)
 	}
 
 	/// 单轮：构建消息 → provider.chat → 若有 tool_calls 则逐条执行（写入 tool 消息）→ 返回最终回复。
@@ -40,7 +55,7 @@ impl InferenceEngine {
 		let mut messages = context.build_messages(content).await;
 		messages = context.trim(messages).await;
 
-		let provider = create_provider(&self.state.config_manager.config()).map_err(other_err)?;
+		let provider = self.resolve_provider()?;
 		let tools = self.tool_definitions();
 
 		let response = provider
@@ -86,7 +101,7 @@ impl InferenceEngine {
 		let mut messages = context.build_messages(content).await;
 		messages = context.trim(messages).await;
 
-		let provider = create_provider(&self.state.config_manager.config()).map_err(other_err)?;
+		let provider = self.resolve_provider()?;
 		let tools = self.tool_definitions();
 		let max_iterations = self.state.config_manager.config().max_tool_iterations.max(1);
 
@@ -352,13 +367,19 @@ mod tests {
 	use crate::ai_workshop::config::{AiWorkshopConfig, ConfigManager};
 	use crate::ai_workshop::inference::engine::InferenceEngine;
 	use crate::ai_workshop::knowledge::KnowledgeRouter;
-	use crate::ai_workshop::providers::provider_trait::StreamEvent;
+	use crate::ai_workshop::providers::provider_trait::{
+		AiMessage, AiMessageRole, AiProvider, AiResponse, AiUsage, ProviderError, StreamEvent,
+		ToolCall, ToolDefinition,
+	};
 	use crate::ai_workshop::skills::SkillLoader;
 	use crate::ai_workshop::toolchain::ToolchainRegistry;
-	use crate::ai_workshop::tools::context::{InstanceLockManager, TaskRegistry};
-	use crate::ai_workshop::tools::registry::ToolRegistry;
+	use crate::ai_workshop::tools::context::{ExecutionContext, InstanceLockManager, TaskRegistry};
+	use crate::ai_workshop::tools::registry::{Tool, ToolDomain, ToolInfo, ToolRegistry};
 	use crate::ai_workshop::troubleshooter::LogBuffer;
 	use crate::ai_workshop::AiWorkshopState;
+	use async_trait::async_trait;
+	use serde_json::Value;
+	use std::sync::atomic::{AtomicUsize, Ordering};
 
 	struct TestHarness {
 		state: Arc<AiWorkshopState>,
@@ -466,6 +487,262 @@ mod tests {
 		assert!(
 			messages.iter().any(|m| m.role == "tool"),
 			"tool result should be persisted"
+		);
+	}
+
+	/// 测试用 Mock 工具：search_mods，返回 JEI 搜索结果。
+	struct MockSearchModsTool {
+		calls: Arc<AtomicUsize>,
+	}
+
+	#[async_trait]
+	impl Tool for MockSearchModsTool {
+		fn info(&self) -> ToolInfo {
+			ToolInfo {
+				name: "search_mods".to_string(),
+				description: "搜索模组".to_string(),
+				domain: ToolDomain::Mods,
+				requires_confirmation: false,
+				is_readonly: true,
+				params_schema: serde_json::json!({
+					"schema": { "type": "object", "properties": { "query": { "type": "string" } } }
+				}),
+			}
+		}
+
+		async fn execute(&self, _arguments: Value, _ctx: &ExecutionContext) -> Result<Value, String> {
+			self.calls.fetch_add(1, Ordering::SeqCst);
+			Ok(serde_json::json!([
+				{ "project_id": "jei", "title": "JEI", "version_type": "release" }
+			]))
+		}
+	}
+
+	/// 测试用 Mock 工具：install_mod，返回成功。
+	struct MockInstallModTool;
+
+	#[async_trait]
+	impl Tool for MockInstallModTool {
+		fn info(&self) -> ToolInfo {
+			ToolInfo {
+				name: "install_mod".to_string(),
+				description: "安装模组".to_string(),
+				domain: ToolDomain::Mods,
+				requires_confirmation: false,
+				is_readonly: false,
+				params_schema: serde_json::json!({
+					"schema": { "type": "object", "properties": { "project_id": { "type": "string" } } }
+				}),
+			}
+		}
+
+		async fn execute(&self, _arguments: Value, _ctx: &ExecutionContext) -> Result<Value, String> {
+			Ok(serde_json::json!({ "success": true }))
+		}
+	}
+
+	/// 可控 TestProvider：首轮（无 tool 消息）返回 search_mods tool_calls，
+	/// 次轮（含 tool 消息）返回总结 content；并记录收到的 tools 定义。
+	struct TestProvider {
+		received_tools: Arc<std::sync::Mutex<Vec<ToolDefinition>>>,
+	}
+
+	impl TestProvider {
+		fn new() -> Self {
+			Self {
+				received_tools: Arc::new(std::sync::Mutex::new(Vec::new())),
+			}
+		}
+
+		fn has_tool_message(messages: &[AiMessage]) -> bool {
+			messages
+				.iter()
+				.any(|m| matches!(m.role, AiMessageRole::Tool))
+		}
+	}
+
+	#[async_trait]
+	impl AiProvider for TestProvider {
+		fn name(&self) -> &'static str {
+			"test"
+		}
+
+		async fn chat(
+			&self,
+			messages: &[AiMessage],
+			tools: &[ToolDefinition],
+		) -> Result<AiResponse, ProviderError> {
+			self.received_tools
+				.lock()
+				.unwrap()
+				.extend(tools.iter().cloned());
+			let usage = Some(AiUsage {
+				prompt_tokens: 1,
+				completion_tokens: 1,
+				total_tokens: 2,
+			});
+			if Self::has_tool_message(messages) {
+				Ok(AiResponse {
+					content: Some("已安装 JEI 并应用配方".to_string()),
+					tool_calls: vec![],
+					usage,
+				})
+			} else {
+				Ok(AiResponse {
+					content: None,
+					tool_calls: vec![ToolCall {
+						id: "call_search".to_string(),
+						name: "search_mods".to_string(),
+						arguments: serde_json::json!({ "query": "JEI", "limit": 5 }),
+					}],
+					usage,
+				})
+			}
+		}
+
+		async fn stream(
+			&self,
+			messages: &[AiMessage],
+			tools: &[ToolDefinition],
+			tx: tokio::sync::mpsc::Sender<StreamEvent>,
+		) -> Result<(), ProviderError> {
+			self.received_tools
+				.lock()
+				.unwrap()
+				.extend(tools.iter().cloned());
+			if Self::has_tool_message(messages) {
+				let _ = tx
+					.send(StreamEvent {
+						delta: Some("已安装 JEI 并应用配方".to_string()),
+						tool_calls: None,
+						usage: None,
+						done: false,
+						error: None,
+					})
+					.await;
+			} else {
+				let _ = tx
+					.send(StreamEvent {
+						delta: None,
+						tool_calls: Some(vec![ToolCall {
+							id: "call_search".to_string(),
+							name: "search_mods".to_string(),
+							arguments: serde_json::json!({ "query": "JEI", "limit": 5 }),
+						}]),
+						usage: None,
+						done: false,
+						error: None,
+					})
+					.await;
+			}
+			let _ = tx
+				.send(StreamEvent {
+					delta: None,
+					tool_calls: None,
+					usage: None,
+					done: true,
+					error: None,
+				})
+				.await;
+			Ok(())
+		}
+	}
+
+	#[tokio::test]
+	async fn mock_tool_multi_turn_closes_the_loop() {
+		let harness = TestHarness::new();
+		let search_calls = Arc::new(AtomicUsize::new(0));
+		harness
+			.state
+			.tool_registry
+			.register(Arc::new(MockSearchModsTool { calls: search_calls.clone() }));
+		harness.state.tool_registry.register(Arc::new(MockInstallModTool));
+
+		let provider = Arc::new(TestProvider::new());
+		let conversation = harness
+			.state
+			.chat_history
+			.create_conversation("test", None)
+			.await
+			.unwrap();
+		let engine = InferenceEngine::with_provider(harness.state.clone(), provider.clone());
+
+		let events = Arc::new(std::sync::Mutex::new(Vec::new()));
+		let events_capture = events.clone();
+		engine
+			.run_multi_turn(
+				&conversation.id,
+				"安装 JEI",
+				Box::new(move |event: StreamEvent| {
+					events_capture.lock().unwrap().push(event);
+				}),
+			)
+			.await
+			.expect("multi turn should close the loop without error");
+
+		let events = events.lock().unwrap();
+		assert!(
+			events.iter().all(|e| e.error.is_none()),
+			"no error events should be emitted"
+		);
+		assert!(
+			events.iter().any(|e| e.tool_calls.is_some()),
+			"tool call event should be emitted"
+		);
+		drop(events);
+
+		assert!(
+			search_calls.load(Ordering::SeqCst) >= 1,
+			"search_mods mock tool should have been executed at least once"
+		);
+
+		let (_, messages) = harness
+			.state
+			.chat_history
+			.get_conversation(&conversation.id, 100, 0)
+			.await
+			.unwrap()
+			.unwrap();
+		let tool_messages: Vec<_> = messages.iter().filter(|m| m.role == "tool").collect();
+		assert!(!tool_messages.is_empty(), "tool result should be persisted");
+		assert!(
+			tool_messages.iter().any(|m| m.content.contains("JEI")),
+			"persisted tool result should contain the mock search result"
+		);
+
+		let last_assistant = messages.iter().filter(|m| m.role == "assistant").last();
+		assert!(
+			last_assistant.is_some() && !last_assistant.unwrap().content.is_empty(),
+			"final assistant reply should be non-empty"
+		);
+	}
+
+	#[tokio::test]
+	async fn engine_uses_registered_tool_definitions() {
+		let harness = TestHarness::new();
+		harness.state.tool_registry.register(Arc::new(MockSearchModsTool {
+			calls: Arc::new(AtomicUsize::new(0)),
+		}));
+
+		let provider = Arc::new(TestProvider::new());
+		let conversation = harness
+			.state
+			.chat_history
+			.create_conversation("test", None)
+			.await
+			.unwrap();
+		let engine = InferenceEngine::with_provider(harness.state.clone(), provider.clone());
+
+		let result = engine
+			.run_single_turn(&conversation.id, "安装 JEI")
+			.await
+			.expect("single turn should succeed");
+		assert!(!result.reply.is_empty(), "final reply should be non-empty");
+
+		let received = provider.received_tools.lock().unwrap();
+		assert!(
+			received.iter().any(|t| t.name == "search_mods"),
+			"provider should receive the registered search_mods tool definition"
 		);
 	}
 }
