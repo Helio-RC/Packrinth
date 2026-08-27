@@ -4,7 +4,7 @@ use std::path::Path;
 
 use tantivy::collector::TopDocs;
 use tantivy::query::{BooleanQuery, Occur, Query, QueryParser, TermQuery};
-use tantivy::schema::{Field, IndexRecordOption, OwnedValue, Schema, TantivyDocument, STORED, TEXT};
+use tantivy::schema::{Field, IndexRecordOption, OwnedValue, Schema, TantivyDocument, STORED, STRING, TEXT};
 use tantivy::{doc, Index, ReloadPolicy};
 
 use crate::ai_workshop::other_err;
@@ -27,8 +27,9 @@ fn build_schema() -> Schema {
 	let mut builder = Schema::builder();
 	builder.add_text_field("title", TEXT | STORED);
 	builder.add_text_field("content", TEXT | STORED);
-	builder.add_text_field("source_id", TEXT | STORED);
-	builder.add_text_field("path", STORED);
+	// STRING（indexed、不分词）保证 source_id/path 可被 TermQuery 精确过滤，且支持多 token 值。
+	builder.add_text_field("source_id", STRING | STORED);
+	builder.add_text_field("path", STRING | STORED);
 	builder.build()
 }
 
@@ -59,6 +60,8 @@ impl Bm25Index {
 		let path = schema.get_field("path").expect("path field");
 
 		let mut writer = self.index.writer(50_000_000).map_err(err)?;
+		// 替换式写入：先删除该 source_id 的全部旧文档，再重新添加，避免重复/陈旧命中。
+		writer.delete_term(tantivy::Term::from_field_text(source, source_id));
 		for d in docs {
 			writer
 				.add_document(doc!(
@@ -174,11 +177,13 @@ mod tests {
 	use std::path::PathBuf;
 
 	fn temp_index_dir() -> PathBuf {
+		static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 		let nanos = std::time::SystemTime::now()
 			.duration_since(std::time::UNIX_EPOCH)
 			.unwrap()
 			.as_nanos();
-		std::env::temp_dir().join(format!("bm25_test_{nanos}"))
+		let seq = COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+		std::env::temp_dir().join(format!("bm25_test_{nanos}_{seq}"))
 	}
 
 	fn doc(title: &str, content: &str) -> SourceDocument {
@@ -240,6 +245,26 @@ mod tests {
 		let empty = index.search("", 10, None).unwrap();
 		assert!(hits.is_empty());
 		assert!(empty.is_empty());
+	}
+
+	#[test]
+	fn reindex_replaces_old_documents() {
+		let dir = temp_index_dir();
+		let index = Bm25Index::new(&dir).unwrap();
+		index
+			.add_documents("skills", &[doc("Guide", "old content")])
+			.unwrap();
+		// 同 source_id 再次索引：应替换（删除旧文档后重加）而非追加，避免重复/陈旧命中。
+		index
+			.add_documents("skills", &[doc("Guide", "new content install")])
+			.unwrap();
+		let hits = index.search("install", 10, None).unwrap();
+		assert_eq!(hits.len(), 1, "reindex must not leave duplicate hits");
+		assert_eq!(hits[0].title, "Guide");
+		assert!(hits[0].snippet.contains("new"));
+		// 旧文档已被删除，不应再命中。
+		let old_hits = index.search("old", 10, None).unwrap();
+		assert!(old_hits.is_empty());
 	}
 }
 // === AI-WORKSHOP END ===

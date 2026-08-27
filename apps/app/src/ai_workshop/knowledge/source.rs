@@ -48,17 +48,18 @@ impl KnowledgeSource for SkillsSource {
 
 	async fn documents(&self) -> Result<Vec<SourceDocument>> {
 		let mut docs = Vec::new();
-		collect_markdown(&self.skills_dir, &mut docs)?;
+		// 始终以源根目录为基准生成相对路径，保证嵌套目录下同名文件键唯一。
+		collect_markdown(&self.skills_dir, &self.skills_dir, &mut docs)?;
 		Ok(docs)
 	}
 }
 
-fn collect_markdown(dir: &Path, docs: &mut Vec<SourceDocument>) -> Result<()> {
+fn collect_markdown(root: &Path, dir: &Path, docs: &mut Vec<SourceDocument>) -> Result<()> {
 	let entries = std::fs::read_dir(dir)?;
 	for entry in entries.flatten() {
 		let path = entry.path();
 		if path.is_dir() {
-			collect_markdown(&path, docs)?;
+			collect_markdown(root, &path, docs)?;
 		} else if path.extension().and_then(|e| e.to_str()) == Some("md") {
 			let content = std::fs::read_to_string(&path)?;
 			let title = path
@@ -66,7 +67,7 @@ fn collect_markdown(dir: &Path, docs: &mut Vec<SourceDocument>) -> Result<()> {
 				.map(|stem| stem.to_string_lossy().to_string())
 				.unwrap_or_default();
 			let rel = path
-				.strip_prefix(dir)
+				.strip_prefix(root)
 				.map(|p| p.to_string_lossy().to_string())
 				.unwrap_or_else(|_| path.to_string_lossy().to_string());
 			let mtime = std::fs::metadata(&path).ok().and_then(|m| m.modified().ok());
