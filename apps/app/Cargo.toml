@@ -65,6 +65,11 @@ features = ["devtools", "macos-private-api", "protocol-asset"]
 [build-dependencies]
 tauri-build = { workspace = true, features = ["codegen"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+# anthropic-sdk-rust 的 reqwest(默认特性) 在 mac 走 native-tls/openssl；
+# vendored 让 openssl-sys 源码编译，避免依赖 brew 安装（universal 构建安全）。
+openssl = { version = "0.10", features = ["vendored"] }
+
 [target.'cfg(target_os = "linux")'.dependencies]
 tauri-plugin-updater = { workspace = true, optional = true }
 
