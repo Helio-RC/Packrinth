@@ -148,7 +148,7 @@ Counts by role: 3 signature files, 3 `updates.json` `url` values, 5 `install_url
 |------------|----------|-----------------|
 | Tag/SHA mismatch | `::error::` then `exit 1` | Re-trigger build/release; verify tag attach |
 | Refresh: release notes generation | Uses `gh api` last release `published_at`; empty allowed | `// ""` fallback keeps job clean |
-| Missing signature file ake (jq --rawfile) | `updates.json` generation fails | Verify artifact was uploaded with `.sig` |
+| Missing signature file in S3 (jq --rawfile) | `updates.json` generation fails | Verify artifact was uploaded with `.sig` |
 | S3 upload failure | `aws s3 cp` fails the step | Re-run job (idempotent upload) |
 | Non-tag branch completing build | Guardian `if` short-circuits job | No action (expected) |
 

@@ -8300,7 +8300,6 @@ dependencies = [
  "async-openai",
  "async-trait",
  "async_zip",
- "bytes",
  "chrono",
  "daedalus",
  "dashmap",
@@ -8345,9 +8344,7 @@ dependencies = [
  "url",
  "urlencoding",
  "uuid",
- "webview2-com",
  "windows",
- "windows-core 0.61.2",
 ]
 
 [[package]]

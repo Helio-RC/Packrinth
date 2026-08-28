@@ -8,20 +8,34 @@ repository = "https://github.com/Helio-RC/Packrinth"
 license = "GPL-3.0-only"
 
 [dependencies]
-async_zip = { workspace = true, features = ["deflate", "tokio-fs", "tokio"] }
+ammonia = "4"
+anthropic-sdk-rust = "0.1.1"
+async-openai = { version = "0.41.3", features = ["chat-completion"] }
+async-trait = { workspace = true }
+async_zip = { workspace = true, features = ["deflate", "tokio", "tokio-fs"] }
 chrono = { workspace = true }
 daedalus = { workspace = true }
 dashmap = { workspace = true }
 either = { workspace = true }
 enumset = { workspace = true, features = ["serde"] }
+futures-util = { workspace = true }
+git2 = { version = "0.20", features = ["vendored-libgit2"] }
+html2md = "0.2.17"
 hyper = { workspace = true, features = ["server"] }
 hyper-util = { workspace = true }
+keyring = "3"
 native-dialog = { workspace = true }
+notify = { workspace = true }
 paste = { workspace = true }
 path-util = { workspace = true }
+pulldown-cmark = "0.13"
+reqwest = { workspace = true, features = ["json", "stream"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+scraper = "0.24"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
+tantivy = "0.26"
 tauri-plugin-deep-link = { workspace = true }
 tauri-plugin-dialog = { workspace = true }
 tauri-plugin-fs = { workspace = true }
@@ -29,26 +43,14 @@ tauri-plugin-http = { workspace = true }
 tauri-plugin-opener = { workspace = true }
 tauri-plugin-os = { workspace = true }
 tauri-plugin-single-instance = { workspace = true }
+tauri-plugin-store = "2"
 tauri-plugin-updater = { workspace = true }
 tauri-plugin-window-state = { workspace = true }
 theseus = { workspace = true, features = ["tauri"] }
 thiserror = { workspace = true }
 # === AI-WORKSHOP START ===
 # tokio 行重写于此：追加 "full" features（features 是叠加的，不影响其他 crate 依赖的 "time"）
-tokio = { workspace = true, features = ["time", "full"] }
-ammonia = "4"
-async-trait = { workspace = true }
-bytes = { workspace = true }
-futures-util = { workspace = true }
-git2 = { version = "0.20", features = ["vendored-libgit2"] }
-keyring = "3"
-notify = { workspace = true }
-pulldown-cmark = "0.13"
-reqwest = { workspace = true, features = ["json", "stream"] }
-rusqlite = { version = "0.32", features = ["bundled"] }
-scraper = "0.24"
-tantivy = "0.26"
-tauri-plugin-store = "2"
+tokio = { workspace = true, features = ["full", "time"] }
 toml = { workspace = true }
 # === AI-WORKSHOP END ===
 tracing = { workspace = true }
@@ -56,9 +58,6 @@ tracing-error = { workspace = true }
 url = { workspace = true }
 urlencoding = { workspace = true }
 uuid = { workspace = true, features = ["serde", "v4"] }
-async-openai = { version = "0.41.3", features = ["chat-completion"] }
-anthropic-sdk-rust = "0.1.1"
-html2md = "0.2.17"
 
 [dependencies.tauri]
 workspace = true
@@ -71,9 +70,6 @@ tauri-build = { workspace = true, features = ["codegen"] }
 tauri-plugin-updater = { workspace = true, optional = true }
 
 [target."cfg(windows)".dependencies]
-webview2-com.workspace = true
-windows-core.workspace = true
-
 [target."cfg(windows)".dependencies.windows]
 workspace = true
 features = [
