@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "Günlükleri görüntüle"
   },
-  "app.ads-consent.accept": {
-    "message": "Tümünü kabul et"
-  },
-  "app.ads-consent.body": {
-    "message": "Reklamlar, Modrinth'i mümkün kılıyor ve içerik üreticilerine yapılan ödemeleri finanse ediyor. Partnerlerimiz, reklamları kişiselleştirmek ve performansı ölçmek amacıyla uygulama içinde çerez depolayabilir veya bunlara erişebilir."
-  },
-  "app.ads-consent.manage": {
-    "message": "Tercihleri yönet"
-  },
-  "app.ads-consent.reject": {
-    "message": "Tümünü reddet"
-  },
-  "app.ads-consent.title": {
-    "message": "Sizin mahremiyetiniz ve reklamlar Modrinth'i nasıl destekler"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "Kütüphane kurulumlarını kompakt satır düzeninde göster."
   },
@@ -1232,9 +1217,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Bir Modrinth hesabıyla oturum açın"
   },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Modrinth+'a yükselt"
-  },
   "app.navigation.go-back": {
     "message": "Geri dön"
   },
@@ -1399,9 +1381,6 @@
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Reklamlar, Modrinth'i mümkün kılıyor ve içerik üreticilerine yapılan ödemeleri finanse ediyor. Partnerlerimiz, reklamları kişiselleştirmek ve performansı ölçmek amacıyla uygulama içinde çerez depolayabilir veya bunlara erişebilir. Aşağıdan tercihinizi yönetebilir veya vazgeçebilirsiniz."
   },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "Şu anki Discord aktiviteniz olarak, Packrinth'i gösterin. Bu, örneğe modlar tarafından eklenen Rich Presence'ı etkilemez. Uygulamayı yeniden başlatmayı gerektirir."

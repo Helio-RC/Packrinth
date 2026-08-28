@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "Bekijk logs"
   },
-  "app.ads-consent.accept": {
-    "message": "Alles accepteren"
-  },
-  "app.ads-consent.body": {
-    "message": "Advertenties maken Modrinth mogelijk en financieren de uitbetalingen aan makers. Onze partners kunnen cookies in de app opslaan of gebruiken om advertenties te personaliseren en de prestaties te meten."
-  },
-  "app.ads-consent.manage": {
-    "message": "Voorkeuren beheren"
-  },
-  "app.ads-consent.reject": {
-    "message": "Alles afwijzen"
-  },
-  "app.ads-consent.title": {
-    "message": "Je privacy en hoe advertenties Modrinth ondersteunen"
-  },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Start"
   },
@@ -758,9 +743,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Meld je aan bij een Modrinth-account"
   },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Upgrade naar Modrinth+"
-  },
   "app.news.title": {
     "message": "Nieuws"
   },
@@ -892,9 +874,6 @@
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Advertenties maken Modrinth mogelijk en financieren de uitbetalingen aan makers. Onze partners kunnen cookies in de app opslaan of gebruiken om advertenties te personaliseren en de prestaties te meten. Je kunt je hieronder afmelden of je voorkeuren beheren."
   },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "Laat Packrinth als jouw activiteit op Discord. Dit verandert niet activiteiten toegevoegd door mods."
