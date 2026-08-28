@@ -254,15 +254,15 @@ jobs:
         if: contains(matrix.artifact-target-name, 'darwin')
         env:
           TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
-          ENABLE_CODE_SIGNING: ${{ env.ENABLE_CODE_SIGNING }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          ENABLE_CODE_SIGNING: ${{ env.SIGNED == 'yes' && env.ENABLE_CODE_SIGNING || 'false' }}
+          APPLE_CERTIFICATE: ${{ env.SIGNED == 'yes' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ env.SIGNED == 'yes' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ env.SIGNED == 'yes' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_ID: ${{ env.SIGNED == 'yes' && secrets.APPLE_ID || '' }}
+          APPLE_TEAM_ID: ${{ env.SIGNED == 'yes' && secrets.APPLE_TEAM_ID || '' }}
+          APPLE_PASSWORD: ${{ env.SIGNED == 'yes' && secrets.APPLE_PASSWORD || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ env.SIGNED == 'yes' && secrets.TAURI_PRIVATE_KEY || '' }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ env.SIGNED == 'yes' && secrets.TAURI_KEY_PASSWORD || '' }}
 
       - name: Build Linux app
         run: ${{ env.RELEASE_BUILD && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json' }}
