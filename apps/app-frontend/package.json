@@ -10,7 +10,7 @@
 		"lint": "eslint . && prettier --check .",
 		"fix": "eslint . --fix && prettier --write .",
 		"intl:extract": "formatjs extract \"src/**/*.{vue,ts,tsx,js,jsx,mts,cts,mjs,cjs}\" --ignore \"**/*.d.ts\" --ignore node_modules --ignore \"src/components/ai/**\" --ignore \"src/pages/AiWorkbench.vue\" --out-file src/locales/en-US/index.json --format crowdin --preserve-whitespace",
-		"intl:extract-packrinth": "formatjs extract \"src/components/ai/**/*.{vue,ts}\" \"src/pages/AiWorkbench.vue\" --ignore \"**/*.d.ts\" --ignore node_modules --out-file src/locales-packrinth/en-US/index.json --format crowdin --preserve-whitespace",
+		"intl:extract-packrinth": "formatjs extract \"src/components/ai/**/*.{vue,ts}\" \"src/pages/AiWorkbench.vue\" --ignore \"**/*.d.ts\" --ignore node_modules --out-file src/locales-packrinth/en-US/index.json --format crowdin --preserve-whitespace && prettier --write src/locales-packrinth/en-US/index.json",
 		"intl:prune-local": "pnpm -w scripts i18n-icu-contract prune-local --scope apps/app-frontend",
 		"test": "vue-tsc --noEmit",
 		"test:unit": "vitest run"
