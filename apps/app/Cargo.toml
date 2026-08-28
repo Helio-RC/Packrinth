@@ -95,5 +95,9 @@ custom-protocol = ["tauri/custom-protocol"]
 export-app-events = ["theseus/export-ts"]
 updater = []
 
+[package.metadata.cargo-shear]
+# openssl 仅为统一 macOS native-tls 路径到 vendored 特性而引入（无直接引用）
+ignored = ["openssl"]
+
 [lints]
 workspace = true
