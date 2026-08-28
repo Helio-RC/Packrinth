@@ -1,21 +1,23 @@
-use crate::ai_workshop::providers::openai::{
-	build_chat_body, chat_openai_compatible, stream_openai_compatible,
-};
+// === AI-WORKSHOP START ===
+// Ollama 本地模型提供商：内部复用 OpenAIProvider（兼容 /v1/chat/completions，无鉴权）。
+use crate::ai_workshop::providers::openai::OpenAIProvider;
 use crate::ai_workshop::providers::provider_trait::{
 	AiMessage, AiProvider, AiResponse, ProviderError, StreamEvent, ToolDefinition,
 };
 
 /// Ollama 本地模型提供商（兼容 OpenAI 端点）。
 pub struct OllamaProvider {
-	base_url: String,
-	model: String,
+	inner: OpenAIProvider,
 }
 
 impl OllamaProvider {
 	pub fn new(model: String, base_url: Option<String>) -> Self {
+		let mut base = base_url.unwrap_or_else(|| "http://localhost:11434".to_string());
+		if !base.ends_with("/v1") {
+			base = format!("{}/v1", base.trim_end_matches('/'));
+		}
 		Self {
-			base_url: base_url.unwrap_or_else(|| "http://localhost:11434".to_string()),
-			model,
+			inner: OpenAIProvider::new(String::new(), model, Some(base)),
 		}
 	}
 }
@@ -31,10 +33,7 @@ impl AiProvider for OllamaProvider {
 		messages: &[AiMessage],
 		tools: &[ToolDefinition],
 	) -> Result<AiResponse, ProviderError> {
-		let client = reqwest::Client::new();
-		let url = format!("{}/v1/chat/completions", self.base_url.trim_end_matches('/'));
-		let body = build_chat_body(&self.model, messages, tools, false);
-		chat_openai_compatible(&client, &url, None, body).await
+		self.inner.chat(messages, tools).await
 	}
 
 	async fn stream(
@@ -43,9 +42,7 @@ impl AiProvider for OllamaProvider {
 		tools: &[ToolDefinition],
 		tx: tokio::sync::mpsc::Sender<StreamEvent>,
 	) -> Result<(), ProviderError> {
-		let client = reqwest::Client::new();
-		let url = format!("{}/v1/chat/completions", self.base_url.trim_end_matches('/'));
-		let body = build_chat_body(&self.model, messages, tools, true);
-		stream_openai_compatible(&client, &url, None, body, &tx).await
+		self.inner.stream(messages, tools, tx).await
 	}
 }
+// === AI-WORKSHOP END ===

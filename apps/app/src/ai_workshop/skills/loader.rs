@@ -47,10 +47,18 @@ fn default_author() -> String {
 	"user".to_string()
 }
 
+/// 加载失败的技能条目（目录名 + 原因），供 SkillsView "加载失败的技能" 列表展示。
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct FailedSkill {
+	pub dir_name: String,
+	pub reason: String,
+}
+
 /// 技能加载器：扫描 `<data_dir>/ai-workshop/skills/`，解析 `skill.toml` + `guide.md`。
 pub struct SkillLoader {
 	base_path: PathBuf,
 	skills: Mutex<HashMap<String, Skill>>,
+	failed: Mutex<Vec<FailedSkill>>,
 }
 
 impl SkillLoader {
@@ -58,7 +66,13 @@ impl SkillLoader {
 		Self {
 			base_path,
 			skills: Mutex::new(HashMap::new()),
+			failed: Mutex::new(Vec::new()),
 		}
+	}
+
+	/// 最近一次扫描中的失败清单（加载失败即整体跳过，见 §7.4）。
+	pub fn failed_skills(&self) -> Vec<FailedSkill> {
+		self.failed.lock().unwrap().clone()
 	}
 
 	/// 扫描并加载全部技能，返回加载失败的技能（目录名: 原因）列表。
@@ -108,6 +122,18 @@ impl SkillLoader {
 			}
 		}
 		*self.skills.lock().unwrap() = new_skills;
+		// 持久化失败清单供前端查询（跳过：不部分加载）。
+		let failed_skills = failed
+			.iter()
+			.filter_map(|entry| {
+				let (dir_name, reason) = entry.split_once(": ")?;
+				Some(FailedSkill {
+					dir_name: dir_name.to_string(),
+					reason: reason.to_string(),
+				})
+			})
+			.collect();
+		*self.failed.lock().unwrap() = failed_skills;
 		failed
 	}
 

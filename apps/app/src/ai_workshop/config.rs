@@ -5,12 +5,24 @@ use std::sync::{Arc, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Runtime};
 
+use crate::ai_workshop::keystore::{KeyStore, KeyringKeyStore};
 use crate::api::Result;
+
+#[cfg(test)]
+use crate::ai_workshop::keystore::InMemoryKeyStore;
 
 fn other_err(msg: impl Into<String>) -> crate::api::TheseusSerializableError {
 	crate::api::TheseusSerializableError::Theseus(
 		theseus::Error::from(theseus::ErrorKind::OtherError(msg.into())),
 	)
+}
+
+fn default_auto_troubleshoot() -> bool {
+	AUTO_TROUBLESHOOT_DEFAULT
+}
+
+fn default_log_flush_interval_secs() -> u64 {
+	120
 }
 
 /// 将 API Key 掩码为 `前4字符****后2字符`（过短时直接返回 `****`），仅持久化提示信息。
@@ -72,12 +84,18 @@ pub struct LayoutConfig {
 	pub split_ratio: f32,
 }
 
+pub const AUTO_TROUBLESHOOT_DEFAULT: bool = true;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "snake_case")]
 pub struct AiWorkshopConfig {
 	pub enabled: bool,
 	pub log_lines: usize,
+	#[serde(default = "default_log_flush_interval_secs")]
+	pub log_flush_interval_secs: u64,
 	pub mock_enabled: bool,
+	#[serde(default = "default_auto_troubleshoot")]
+	pub auto_troubleshoot: bool,
 	pub max_tool_iterations: usize,
 	pub token_warning_threshold: u64,
 	pub default_provider: Option<String>,
@@ -141,7 +159,9 @@ impl Default for AiWorkshopConfig {
 		Self {
 			enabled: true,
 			log_lines: 500,
+			log_flush_interval_secs: 120,
 			mock_enabled: false,
+			auto_troubleshoot: AUTO_TROUBLESHOOT_DEFAULT,
 			max_tool_iterations: 5,
 			token_warning_threshold: 4000,
 			default_provider: None,
@@ -182,7 +202,7 @@ pub struct ConfigManager {
 	inner: RwLock<AiWorkshopConfig>,
 	ai_root: PathBuf,
 	config_path: PathBuf,
-	secrets_path: PathBuf,
+	key_store: Arc<dyn KeyStore>,
 }
 
 impl ConfigManager {
@@ -221,7 +241,7 @@ impl ConfigManager {
 			inner: RwLock::new(config),
 			ai_root: ai_root.clone(),
 			config_path,
-			secrets_path: ai_root.join("secrets.json"),
+			key_store: Arc::new(KeyringKeyStore),
 		}))
 	}
 
@@ -241,7 +261,7 @@ impl ConfigManager {
 			inner: RwLock::new(config),
 			ai_root: ai_root.clone(),
 			config_path: ai_root.join("config.json"),
-			secrets_path: ai_root.join("secrets.json"),
+			key_store: Arc::new(InMemoryKeyStore::default()),
 		})
 	}
 
@@ -302,51 +322,87 @@ impl ConfigManager {
 		Ok(())
 	}
 
-	/// 读取 secrets.json 中的明文 Key 映射（provider → key）。
-	fn load_secrets(&self) -> HashMap<String, String> {
-		std::fs::read_to_string(&self.secrets_path)
-			.ok()
-			.and_then(|raw| serde_json::from_str(&raw).ok())
-			.unwrap_or_default()
-	}
-
-	/// 将明文 Key 映射写入 secrets.json（权限 0600），仅存于 ai-workshop 目录，
-	/// 不进入 config.json（那里只保留掩码提示）。返回真实 key 的保存结果。
-	fn write_secrets(&self, secrets: &HashMap<String, String>) -> Result<()> {
-		let raw =
-			serde_json::to_string_pretty(secrets).map_err(|e| other_err(e.to_string()))?;
-		#[cfg(unix)]
-		{
-			// unix 下用 OpenOptions + mode(0o600) 原子创建，避免 std::fs::write 之后
-			// 才 set_permissions 造成的"创建瞬间默认权限"窗口。
-			use std::io::Write;
-			use std::os::unix::fs::OpenOptionsExt;
-			let mut file = std::fs::OpenOptions::new()
-				.write(true)
-				.create(true)
-				.truncate(true)
-				.mode(0o600)
-				.open(&self.secrets_path)?;
-			file.write_all(raw.as_bytes())?;
-		}
-		#[cfg(not(unix))]
-		{
-			std::fs::write(&self.secrets_path, raw)?;
-		}
-		Ok(())
-	}
-
-	/// 将明文 Key 写入 secrets.json，并同步掩码提示到 config.json。
+	/// 将明文 Key 写入系统密钥环（keyring），并同步掩码提示到 config.json。
+	/// 密钥环不可用时上抛错误；调用方应提示用户配置系统密钥环，绝不回退明文落盘。
 	pub fn set_api_key(&self, provider: &str, key: &str) -> Result<()> {
-		let mut secrets = self.load_secrets();
-		secrets.insert(provider.to_string(), key.to_string());
-		self.write_secrets(&secrets)?;
+		self.key_store
+			.set(provider, key)
+			.map_err(|e| other_err(format!("API Key 存储失败：{e}")))?;
 		self.set_api_key_hint(provider, key)
 	}
 
-	/// 从 secrets.json 读取明文 Key；未配置时返回 None。
+	/// 从系统密钥环读取明文 Key；未配置时返回 None；密钥环出错记录警告并返回 None。
 	pub fn get_decrypted_api_key(&self, provider: &str) -> Option<String> {
-		self.load_secrets().get(provider).cloned()
+		match self.key_store.get(provider) {
+			Ok(value) => value,
+			Err(e) => {
+				tracing::warn!("ai_workshop: failed to read api key from keyring: {e}");
+				None
+			}
+		}
+	}
+}
+
+/// IPC 边界 DTO（camelCase，与前端 `AiWorkshopConfig` 契约一致）。
+/// config.json 文件格式保持 snake_case（见 goal.md §8.1），仅在 Tauri 命令出入口转换。
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct AiWorkshopConfigDto {
+	pub enabled: bool,
+	pub log_lines: usize,
+	pub log_flush_interval_secs: u64,
+	pub mock_enabled: bool,
+	pub auto_troubleshoot: bool,
+	pub max_tool_iterations: usize,
+	pub token_warning_threshold: u64,
+	pub default_provider: Option<String>,
+	pub providers: HashMap<String, ProviderConfig>,
+	pub knowledge: KnowledgeConfig,
+	pub skills: SkillsConfig,
+	pub mcp: McpConfig,
+	pub chat_history: ChatHistoryConfig,
+	pub layout: LayoutConfig,
+}
+
+impl From<&AiWorkshopConfig> for AiWorkshopConfigDto {
+	fn from(config: &AiWorkshopConfig) -> Self {
+		Self {
+			enabled: config.enabled,
+			log_lines: config.log_lines,
+			log_flush_interval_secs: config.log_flush_interval_secs,
+			mock_enabled: config.mock_enabled,
+			auto_troubleshoot: config.auto_troubleshoot,
+			max_tool_iterations: config.max_tool_iterations,
+			token_warning_threshold: config.token_warning_threshold,
+			default_provider: config.default_provider.clone(),
+			providers: config.providers.clone(),
+			knowledge: config.knowledge.clone(),
+			skills: config.skills.clone(),
+			mcp: config.mcp.clone(),
+			chat_history: config.chat_history.clone(),
+			layout: config.layout.clone(),
+		}
+	}
+}
+
+impl From<AiWorkshopConfigDto> for AiWorkshopConfig {
+	fn from(dto: AiWorkshopConfigDto) -> Self {
+		Self {
+			enabled: dto.enabled,
+			log_lines: dto.log_lines,
+			log_flush_interval_secs: dto.log_flush_interval_secs,
+			mock_enabled: dto.mock_enabled,
+			auto_troubleshoot: dto.auto_troubleshoot,
+			max_tool_iterations: dto.max_tool_iterations,
+			token_warning_threshold: dto.token_warning_threshold,
+			default_provider: dto.default_provider,
+			providers: dto.providers,
+			knowledge: dto.knowledge,
+			skills: dto.skills,
+			mcp: dto.mcp,
+			chat_history: dto.chat_history,
+			layout: dto.layout,
+		}
 	}
 }
 
@@ -365,7 +421,7 @@ mod tests {
 	}
 
 	#[test]
-	fn api_key_round_trip_uses_temp_secrets_file() {
+	fn api_key_round_trip_via_in_memory_key_store() {
 		let dir = temp_ai_root();
 		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
 
@@ -379,51 +435,74 @@ mod tests {
 		// 未配置的 provider 返回 None
 		assert!(manager.get_decrypted_api_key("anthropic").is_none());
 
-		// config.json 中只存掩码提示，绝不含真实 key
+		// config.json 中只存掩码提示，绝不含真实 key（密钥环不写盘）
 		let hint = manager.get_api_key_hint("openai").unwrap();
 		assert_ne!(hint, "sk-real-key-123456");
 		assert!(hint.contains("****"), "hint should be masked, got {hint}");
 
-		// secrets 落盘到 ai_root/secrets.json，而非 config.json
 		let config_raw = std::fs::read_to_string(manager.config_path.clone()).unwrap();
 		assert!(
 			!config_raw.contains("sk-real-key-123456"),
 			"config.json must not contain plaintext key"
 		);
-		assert!(manager.secrets_path.exists());
+
+		// 目录内不存在任何密钥落盘文件
+		let leaked: Vec<_> = std::fs::read_dir(&dir)
+			.unwrap()
+			.filter(|e| e.as_ref().unwrap().file_name().to_string_lossy().contains("secret"))
+			.collect();
+		assert!(leaked.is_empty(), "no secrets file may exist on disk");
 
 		std::fs::remove_dir_all(&dir).unwrap();
 	}
 
 	#[test]
-	fn set_api_key_overwrites_and_persists() {
+	fn set_api_key_overwrites_in_key_store() {
 		let dir = temp_ai_root();
 		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
 
 		manager.set_api_key("deepseek", "old-key").unwrap();
 		manager.set_api_key("deepseek", "new-key").unwrap();
-
-		// 新实例重新加载 secrets 后仍能读到最新 key（已持久化）
-		let reloaded = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
-		assert_eq!(reloaded.get_decrypted_api_key("deepseek").unwrap(), "new-key");
+		assert_eq!(manager.get_decrypted_api_key("deepseek").unwrap(), "new-key");
 
 		std::fs::remove_dir_all(&dir).unwrap();
 	}
 
-	#[cfg(unix)]
 	#[test]
-	fn write_secrets_creates_with_0600_mode() {
-		use std::os::unix::fs::PermissionsExt;
-
+	fn dto_round_trip_preserves_config() {
 		let dir = temp_ai_root();
 		let manager = ConfigManager::for_tests(AiWorkshopConfig::default(), dir.clone());
 
-		manager.set_api_key("openai", "sk-secret-1").unwrap();
+		let original = manager.config();
+		let dto = AiWorkshopConfigDto::from(&original);
+		let wire = serde_json::to_value(&dto).unwrap();
 
-		let meta = std::fs::metadata(&manager.secrets_path).unwrap();
-		let mode = meta.permissions().mode() & 0o777;
-		assert_eq!(mode, 0o600, "secrets file must be created with 0600 permissions, got {mode:o}");
+		// IPC 契约：camelCase 键
+		assert!(wire.get("logLines").is_some(), "dto must serialize camelCase keys");
+		assert!(wire.get("autoTroubleshoot").is_some());
+		assert!(wire.get("log_lines").is_none());
+
+		// 文件格式：snake_case
+		let file_value = serde_json::to_value(&original).unwrap();
+		assert!(file_value.get("log_lines").is_some(), "file format stays snake_case");
+
+		let parsed: AiWorkshopConfigDto = serde_json::from_value(wire).unwrap();
+		let back: AiWorkshopConfig = parsed.into();
+		assert_eq!(back.log_lines, original.log_lines);
+		assert_eq!(back.auto_troubleshoot, original.auto_troubleshoot);
 
 		std::fs::remove_dir_all(&dir).unwrap();
+	}
+
+	#[test]
+	fn auto_troubleshoot_defaults_true() {
+		let config = AiWorkshopConfig::default();
+		assert!(config.auto_troubleshoot);
+
+		// 旧 config.json 无该字段时，反序列化应默认 true
+		let mut value = serde_json::to_value(config).unwrap();
+		value.as_object_mut().unwrap().remove("auto_troubleshoot");
+		let legacy: AiWorkshopConfig = serde_json::from_value(value).unwrap();
+		assert!(legacy.auto_troubleshoot);
 	}
 }

@@ -18,6 +18,7 @@ pub enum ToolDomain {
 	Git,
 	Knowledge,
 	System,
+	Mcp,
 }
 
 /// 工具的静态描述信息（含参数 Schema，供前端动态渲染表单）。
@@ -81,6 +82,11 @@ impl ToolRegistry {
 			.unwrap()
 			.get(name)
 			.map(|tool| tool.info().params_schema)
+	}
+
+	/// 移除指定工具（供 MCP 热刷新等动态注册场景）；返回是否存在。
+	pub fn remove(&self, name: &str) -> bool {
+		self.inner.lock().unwrap().remove(name).is_some()
 	}
 }
 // === AI-WORKSHOP END ===

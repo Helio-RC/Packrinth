@@ -224,7 +224,7 @@ apps/app-frontend/src/
 
 > ⚠️ 技能安全限制（`loader.rs` 实现，来自设计评审）：
 >
-> - **路径遍历防护**：使用 `std::fs::canonicalize` 将用户提供的路径与 `base_path` 规范化后比较，防止 `../` 绕过；在 `loader.rs` 中封装 `safe_path` 函数，统一应用于所有文件操作。
+> - **路径遍历防护**：使用 `std::fs::canonicalize` 将用户提供的路径与 `base_path` 规范化后比较，防止 `../` 绕过；在 `loader.rs` 中封装 `safe_path` 函数，统一应用于所有文件操作。**导入豁免（2026-08-28 修订）**：`import_skill` 来源可为任意已存在的目录（canonicalize + 存在性/目录校验，不做前缀包含限制），目录名取规范化来源的叶名，目标始终为 `base_path.join(dir_name)`，不会逃逸 base_path；内部扫描/读取仍严格受 base_path 限制。
 > - **内容净化**（封装于独立 `sanitizer.rs`，便于单测）：第一层用 `pulldown-cmark` 解析为 AST，拒绝包含 HTML 块或 `html` 标签的事件；第二层对允许的 AST 渲染为 HTML 后用 `ammonia` 清理 `<script>`、`on*` 事件、`javascript:` 链接；第三层限制链接仅允许 `http`/`https` 协议，禁止 `file://` 或 `data:`。明确不支持嵌入脚本或外部资源。
 
 ### 3.4 对话历史存储位置（用户侧）
@@ -306,7 +306,7 @@ CREATE INDEX idx_conversations_updated ON conversations(updated_at DESC);
 
 | 任务 | 操作 |
 |------|------|
-| M1-1 | 前端 `AiClient` 对接 `ai_stream`，SSE 流式渲染 |
+| M1-1 | 前端 `AiClient` 对接 `ai_stream`，Tauri `ipc::Channel` 事件流渲染（2026-08-28 修订：实现采用 Channel 而非 HTTP SSE——Tauri 2 无内置 SSE 端点，启本地 HTTP 端口属过度工程；`lib/ai/websocket.ts` 保留为 MCP/远程流预留） |
 | M1-2 | Mock 模式验证基础对话 |
 | M1-3 | 工具调用卡片显示 `tool_calls`，用户确认/拒绝 |
 | M1-4 | 对话历史可保存和恢复（验证 SQLite 写入与读取） |
@@ -431,6 +431,8 @@ CREATE INDEX idx_conversations_updated ON conversations(updated_at DESC);
 ### 6.1 原子工具接口清单
 
 > 所有原子工具不仅供 AI 引擎调用，也通过 `ui_commands.rs` 封装为 Tauri Commands，前端 `ToolsView.vue` 可直接调用，为用户提供手动操作入口。
+>
+> **暂缓项（2026-08-28 修订）**：`get_config_schema` 与 `validate_script` 暂缓实现（无 theseus 底层 API 可包装，完整实现需真实 JSON-Schema 规则库/JS 解析器）；待后续版本完整实现。工具链由 `execute_toolchain` 命令执行（`list_toolchains` 查询）。
 
 #### 模组管理
 
@@ -611,7 +613,7 @@ version = "1.0"
 author = "user"
 ```
 
-> **字段校验规则（来自设计评审）**：`loader.rs` 须校验——`priority` 范围 0~100（数值越大优先级越高）；`keywords` 至少 1 个、最多 20 个；`name` 仅允许字母、数字、空格和连字符。**校验失败则跳过整个技能**（不部分加载），在 `app.log` 记录警告，并在 `SkillsView.vue` 的"加载失败的技能"列表中展示，便于用户排查。
+> **字段校验规则（来自设计评审）**：`loader.rs` 须校验——`priority` 范围 0~100（数值越大优先级越高）；`keywords` 至少 1 个、最多 20 个；`name` 仅允许 **Unicode 字母/数字、空格和连字符**（2026-08-28 修订：放行中文等非 ASCII 字母，中文技能名为合法需求；仍拒绝符号与控制字符）。**校验失败则跳过整个技能**（不部分加载），在 `app.log` 记录警告，并在 `SkillsView.vue` 的"加载失败的技能"列表中展示，便于用户排查（该列表已实现于 `list_skills` 返回的 `failed` 字段）。
 
 ### 7.5 扩展方式对比总结
 
@@ -688,7 +690,7 @@ AI 配置**不写入 `tauri.conf.json`**——Tauri 2 的 `tauri.conf.json` 顶�
 > - 向量检索相关配置已移除，`knowledge.mode` 固定为 `"BM25"`。
 > - **布局配置（`layout` 节）为默认真源**：运行时修改写入 localStorage，可通过"保存为默认"写回本文件（见 §5.1）；"重置布局"从本文件重新加载（即使用户曾修改过默认值），另提供"恢复出厂布局"选项。用户亦可通过设置页导出/导入布局文件。
 > - **路径占位符**：配置中的 `bm25_index_path`、`skills.base_path`、`chat_history.database_path` 等使用 `<data_dir>` 占位符，运行时由 `config.rs` 基于 **theseus 解析出的数据目录**拼接为真实路径——**不再混用 Tauri `app_data_dir()`**，避免路径分裂；Tauri 不使用 `~/.modrinth`，且硬编码 `~` 在 Windows 上无效。
-> - **API Key 安全存储（来自设计评审）**：`providers.*.api_key` 在 `config.json` 中仅保留 `api_key_hint`（如 `****abc`），真实值由 `tauri-plugin-store`（基于 keyring 或加密文件）安全存储，从首个版本起即加密落盘，跨设备同步时不会暴露明文。`config.rs` 提供 `get_decrypted_api_key(provider_name)` 方法内部调用 `tauri-plugin-store` 读取解密；`ProviderFactory` 经 `config_manager` 调用该方法获取真实 Key，前端无需感知加密细节。
+> - **API Key 安全存储（来自设计评审，2026-08-28 实现修订）**：`providers.*.api_key` 在 `config.json` 中仅保留 `api_key_hint`（如 `****abc`），真实值写入**系统密钥环**（`keyring` crate：macOS Keychain / Windows 凭据管理器 / Linux Secret Service），从首个版本起即加密落盘，跨设备同步时不会暴露明文。实现经 `KeyStore` trait 抽象（`ai_workshop/keystore.rs`）：生产实现 `KeyringKeyStore`，测试/CI 用内存实现；密钥环不可用时**上抛错误**提示用户（绝不回退明文落盘）。`config.rs` 提供 `get_decrypted_api_key(provider_name)` / `set_api_key`，`ProviderFactory` 经 `config_manager` 调用获取真实 Key，前端无需感知加密细节。密钥环尚未落的旧 `secrets.json`（若有）不再读取。
 > - **BM25 索引刷新（来自设计评审）**：`KnowledgeRouter` 记录每个 `KnowledgeSource` 的修改时间（mtime）作为第一道过滤，仅当 mtime 变化时才计算内容哈希做二次确认，避免大文档频繁重算；每次检索前检查是否需要重建索引，并提供手动刷新按钮；索引重建作为耗时任务走进度上报机制（见 §6.4），在后台线程进行不阻塞主线程。
 > - **日志与监控（来自设计评审）**：集成 `tracing`/`log`，将 AI 工作台内部错误（Provider 调用失败、工具执行异常等）写入文件 `<data_dir>/ai-workshop/logs/app.log`，便于用户报告问题。
 
@@ -751,7 +753,7 @@ Rust 侧使用 `#[cfg(test)]`：
 
 ### 9.4 CI/CD
 
-GitHub Actions 流水线：自动运行 Mock 测试 + 单元测试 + E2E 测试；覆盖率门禁 > 70%；安全扫描（`cargo audit`、前端依赖审计）。
+GitHub Actions 流水线：自动运行 Mock 测试 + 单元测试（`cargo nextest`，经 `pnpm run ci` 的 turbo `test` 任务触发；已确认接入）。**2026-08-28 收缩项**：按当前开发阶段决策，E2E 测试（`tauri-driver`/Playwright）、覆盖率 >70% 门禁（llvm-cov）与 `cargo audit` 暂缓接入；前端单测经 Vitest 最小集覆盖 `lib/ai` 封装（见 P3）。后续里程碑再按需补充。
 
 ---
 

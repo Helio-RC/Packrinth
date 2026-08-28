@@ -81,9 +81,18 @@ pub async fn fetch_and_extract(url: &str) -> Result<FetchedPage> {
 		return Err(err(format!("响应体超过 {MAX_BODY_BYTES} 字节限制")));
 	}
 
-	let document = Html::parse_document(&String::from_utf8_lossy(&body));
+	let html = String::from_utf8_lossy(&body);
+	let document = Html::parse_document(&html);
 	let title = extract_title(&document);
-	let content = extract_content(&document);
+	// html2md 整体转 Markdown（保留标题层级/表格）；空结果回退到 scraper 文本提取。
+	let content = {
+		let markdown = html2md::parse_html(&html);
+		if markdown.trim().is_empty() {
+			extract_content(&document)
+		} else {
+			normalize_text(&markdown)
+		}
+	};
 	Ok(FetchedPage { url: url.to_string(), title, content })
 }
 

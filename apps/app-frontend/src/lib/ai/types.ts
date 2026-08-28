@@ -64,6 +64,18 @@ export interface SkillInfo {
 	enabled: boolean
 }
 
+/** 加载失败的技能条目（整个技能被跳过，见 §7.4）。 */
+export interface FailedSkill {
+	dirName: string
+	reason: string
+}
+
+/** list_skills 响应：技能列表 + 加载失败清单。 */
+export interface SkillsListResponse {
+	skills: SkillInfo[]
+	failed: FailedSkill[]
+}
+
 /** 知识检索命中结果。 */
 export interface KnowledgeHit {
 	title: string
@@ -95,7 +107,9 @@ export interface ProviderConfig {
 export interface AiWorkshopConfig {
 	enabled: boolean
 	logLines: number
+	logFlushIntervalSecs: number
 	mockEnabled: boolean
+	autoTroubleshoot: boolean
 	maxToolIterations: number
 	tokenWarningThreshold: number
 	defaultProvider: string | null

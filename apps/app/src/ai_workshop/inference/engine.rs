@@ -51,14 +51,45 @@ impl InferenceEngine {
 		create_provider(&self.state.config_manager, None).map_err(other_err)
 	}
 
+	/// 上下文窗口溢出保护：接近上限时调用 LLM 对早期消息生成摘要并替换
+	/// （保留最近 12 条），失败时不动原消息（由调用方回退到截断）。
+	const KEEP_RECENT: usize = 12;
+
+	async fn compress_history(
+		&self,
+		provider: &Arc<dyn AiProvider>,
+		messages: Vec<AiMessage>,
+	) -> Vec<AiMessage> {
+		if !crate::ai_workshop::context_guard::summarize_needed(&messages, 120_000) {
+			return messages;
+		}
+		let keep = Self::KEEP_RECENT.min(messages.len());
+		let (old, recent) = messages.split_at(messages.len() - keep);
+		if old.is_empty() {
+			return messages;
+		}
+		match provider.summarize(old).await {
+			Ok(summary) if !summary.trim().is_empty() => {
+				let mut out = vec![AiMessage::system(format!(
+					"【历史会话摘要】\n{}\n（早期对话已压缩为以上摘要）",
+					summary.trim()
+				))];
+				out.extend(recent.iter().cloned());
+				out
+			}
+			_ => messages,
+		}
+	}
+
 	/// 单轮：构建消息 → provider.chat → 若有 tool_calls 则逐条执行（写入 tool 消息）→ 返回最终回复。
 	pub async fn run_single_turn(&self, conversation_id: &str, content: &str) -> Result<ChatResult> {
 		let context =
 			super::context::InferenceContext::new(self.state.clone(), conversation_id.to_string());
 		let mut messages = context.build_messages(content).await;
-		messages = context.trim(messages).await;
 
 		let provider = self.resolve_provider()?;
+		messages = self.compress_history(&provider, messages).await;
+		messages = context.trim(messages).await;
 		let tools = self.tool_definitions();
 
 		let response = provider
@@ -102,9 +133,10 @@ impl InferenceEngine {
 		let context =
 			super::context::InferenceContext::new(self.state.clone(), conversation_id.to_string());
 		let mut messages = context.build_messages(content).await;
-		messages = context.trim(messages).await;
 
 		let provider = self.resolve_provider()?;
+		messages = self.compress_history(&provider, messages).await;
+		messages = context.trim(messages).await;
 		let tools = self.tool_definitions();
 		let max_iterations = self.state.config_manager.config().max_tool_iterations.max(1);
 
@@ -168,6 +200,7 @@ impl InferenceEngine {
 				name: None,
 			});
 			messages.extend(tool_messages);
+			messages = self.compress_history(&provider, messages).await;
 			messages = context.trim(messages).await;
 		}
 

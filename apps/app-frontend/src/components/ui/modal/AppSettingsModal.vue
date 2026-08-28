@@ -9,6 +9,7 @@ import {
 	RefreshCwIcon,
 	Settings2Icon,
 	ShieldIcon,
+	SparklesIcon,
 	ToggleRightIcon,
 	UserIcon,
 } from '@modrinth/assets'
@@ -29,6 +30,7 @@ import { computed, provide, ref, watch } from 'vue'
 import PrivacySettings from '@/components/ui/settings/account/PrivacySettings.vue'
 import ProfileSettings from '@/components/ui/settings/account/ProfileSettings.vue'
 import SocialSettings from '@/components/ui/settings/account/SocialSettings.vue'
+import AiSettings from '@/components/ui/settings/ai/AiSettings.vue'
 import AppearanceSettings from '@/components/ui/settings/display/AppearanceSettings.vue'
 import BehaviorSettings from '@/components/ui/settings/display/BehaviorSettings.vue'
 import FeatureFlagSettings from '@/components/ui/settings/display/FeatureFlagSettings.vue'
@@ -68,6 +70,10 @@ const tabCategories = defineMessages({
 	instances: {
 		id: 'app.settings.sidebar.label.instances',
 		defaultMessage: 'Instances',
+	},
+	ai: {
+		id: 'app.settings.sidebar.label.ai',
+		defaultMessage: 'AI',
 	},
 })
 
@@ -154,6 +160,15 @@ const tabs = [
 		category: tabCategories.instances,
 		icon: GaugeIcon,
 		content: ResourceManagementSettings,
+	},
+	{
+		name: defineMessage({
+			id: 'app.settings.tabs.ai-workshop',
+			defaultMessage: 'AI workspace',
+		}),
+		category: tabCategories.ai,
+		icon: SparklesIcon,
+		content: AiSettings,
 	},
 ]
 

@@ -1,6 +1,6 @@
 // === AI-WORKSHOP START ===
 use std::collections::VecDeque;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 /// 日志环形缓冲区：容量可配置，周期性落盘，供排障与 AI 分析使用。
@@ -8,6 +8,10 @@ use std::sync::Mutex;
 pub struct LogBuffer {
 	inner: Mutex<VecDeque<String>>,
 	capacity: usize,
+	/// 落盘目标目录（附加后启用行数阈值落盘）。
+	dest: Mutex<Option<PathBuf>>,
+	/// 距上次落盘多少行触发一次落盘（log_lines / 10）；0 表示仅按时间间隔落盘。
+	flush_after: std::sync::atomic::AtomicUsize,
 }
 
 impl LogBuffer {
@@ -15,15 +19,33 @@ impl LogBuffer {
 		Self {
 			inner: Mutex::new(VecDeque::with_capacity(capacity)),
 			capacity,
+			dest: Mutex::new(None),
+			flush_after: std::sync::atomic::AtomicUsize::new(0),
 		}
 	}
 
+	/// 绑定落盘目录与行数阈值（阈值 = log_lines / 10，默认 50 行）。
+	pub fn attach_dest(&self, dir: PathBuf, flush_after: usize) {
+		*self.dest.lock().unwrap() = Some(dir);
+		self.flush_after.store(flush_after, std::sync::atomic::Ordering::Relaxed);
+	}
+
 	pub fn push(&self, line: String) {
-		let mut inner = self.inner.lock().unwrap();
-		while inner.len() >= self.capacity {
-			inner.pop_front();
+		let threshold_reached = {
+			let mut inner = self.inner.lock().unwrap();
+			while inner.len() >= self.capacity {
+				inner.pop_front();
+			}
+			inner.push_back(line);
+			let flush_after = self.flush_after.load(std::sync::atomic::Ordering::Relaxed);
+			flush_after > 0 && inner.len() >= flush_after
+		};
+		// 行数阈值落盘（锁外执行，避免与 flush_to_disk 的 inner 锁重入/死锁）。
+		if threshold_reached {
+			if let Some(dir) = self.dest.lock().unwrap().clone() {
+				let _ = self.flush_to_disk(&dir);
+			}
 		}
-		inner.push_back(line);
 	}
 
 	/// 将缓冲区内容追加写入 `<dir>/app.log`（不覆盖历史）。
@@ -68,6 +90,17 @@ impl LogBuffer {
 	pub fn inject(&self, log: String) {
 		self.push(log);
 	}
+}
+
+/// 测试辅助：建临时目录（测试间命名唯一）。
+fn temp_dir(tag: &str) -> std::path::PathBuf {
+	let nanos = std::time::SystemTime::now()
+		.duration_since(std::time::UNIX_EPOCH)
+		.unwrap()
+		.as_nanos();
+	let dir = std::env::temp_dir().join(format!("log_buffer_{tag}_{nanos}"));
+	std::fs::create_dir_all(&dir).unwrap();
+	dir
 }
 
 #[cfg(test)]
@@ -119,6 +152,49 @@ mod tests {
 			"flushed buffer must be drained so old lines are not re-appended"
 		);
 		fs::remove_dir_all(&dir).ok();
+	}
+
+	#[test]
+	fn threshold_flush_flushes_after_n_lines() {
+		let dir = temp_dir("threshold");
+		let buffer = LogBuffer::new(100);
+		buffer.attach_dest(dir.clone(), 5);
+
+		for i in 0..4 {
+			buffer.push(format!("line{i}"));
+		}
+		// 未达阈值：不落盘
+		assert!(!dir.join("app.log").exists());
+
+		buffer.push("line4".to_string());
+		// 达阈值：落盘且清空
+		let raw = std::fs::read_to_string(dir.join("app.log")).unwrap();
+		assert!(raw.contains("line4"));
+		assert!(raw.contains("line0"), "整批写入，包含较早行");
+		assert!(buffer.content().is_empty(), "落盘后缓冲区清空");
+
+		std::fs::remove_dir_all(&dir).unwrap();
+	}
+
+	#[test]
+	fn threshold_flush_resets_after_flush() {
+		let dir = temp_dir("threshold2");
+		let buffer = LogBuffer::new(100);
+		buffer.attach_dest(dir.clone(), 3);
+
+		for i in 0..3 {
+			buffer.push(format!("a{i}"));
+		}
+		for i in 0..3 {
+			buffer.push(format!("b{i}"));
+		}
+		let raw = std::fs::read_to_string(dir.join("app.log")).unwrap();
+		assert!(raw.contains("a2"));
+		assert!(raw.contains("b2"));
+		// 同一行不会重复追加：第二批发第 3 行后再次落盘，file 只有 6 行内容
+		assert_eq!(raw.lines().count(), 6);
+
+		std::fs::remove_dir_all(&dir).unwrap();
 	}
 
 	#[test]

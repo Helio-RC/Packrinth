@@ -11,6 +11,23 @@
 		</div>
 
 		<div class="flex-1 min-h-0 overflow-y-auto">
+			<div
+				v-if="store.failedSkills.length > 0"
+				class="flex flex-col gap-2 border-b border-divider p-3"
+			>
+				<p class="text-sm font-semibold text-red-600">
+					{{ formatMessage(messages.failedTitle) }}
+				</p>
+				<div
+					v-for="failed in store.failedSkills"
+					:key="failed.dirName"
+					class="rounded-lg border border-red-900/40 bg-red-950/10 p-2 text-xs"
+				>
+					<p class="font-medium text-red-600">{{ failed.dirName }}</p>
+					<p class="mt-0.5 text-secondary">{{ failed.reason }}</p>
+				</div>
+			</div>
+
 			<div v-if="store.skills.length === 0" class="flex flex-col gap-2 px-3 py-6 text-center">
 				<p class="text-sm text-secondary">{{ formatMessage(messages.empty) }}</p>
 			</div>
@@ -92,6 +109,10 @@ const messages = defineMessages({
 	empty: {
 		id: 'ai.skills.empty',
 		defaultMessage: 'No skills yet',
+	},
+	failedTitle: {
+		id: 'ai.skills.failed-title',
+		defaultMessage: 'Failed skills',
 	},
 })
 

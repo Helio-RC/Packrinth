@@ -6,6 +6,7 @@ pub mod config;
 pub mod context_guard;
 pub mod git_ops;
 pub mod inference;
+pub mod keystore;
 pub mod knowledge;
 pub mod mcp_client;
 pub mod providers;
@@ -99,6 +100,11 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 					knowledge::source::SkillsSource::new(config_manager.skills_dir()),
 				));
 				let log_buffer = Arc::new(LogBuffer::new(config_manager.config().log_lines));
+				// 行数阈值落盘：log_lines / 10（默认 500/10=50 行），与 §C.5 一致。
+				log_buffer.attach_dest(
+					config_manager.logs_dir(),
+					(config_manager.config().log_lines / 10).max(1),
+				);
 				let instance_lock_manager = Arc::new(InstanceLockManager::default());
 				let task_registry = Arc::new(TaskRegistry::default());
 
@@ -118,6 +124,17 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 				spawn_log_persist_loop(&config_manager, &log_buffer);
 				spawn_skill_watcher(&config_manager, &skill_loader);
 
+				let mcp_cfg = config_manager.config().mcp;
+				if mcp_cfg.enabled {
+					// MCP 客户端仅在配置启用时拉起（默认禁用）；工具注册进共享 ToolRegistry。
+					mcp_client::McpClient::spawn(
+						mcp_cfg.command,
+						mcp_cfg.args,
+						mcp_cfg.health_check_interval_secs,
+						tool_registry.clone(),
+					);
+				}
+
 				let close_task_registry = task_registry.clone();
 				app.listen("tauri://close-requested", move |_| {
 					close_task_registry.cancel_all();
@@ -127,8 +144,9 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 			})
 		})
 		.invoke_handler(tauri::generate_handler![
-			ai_chat, ai_stream, ai_confirm_tool, set_provider_api_key,
+			ai_chat, ai_stream, ai_confirm_tool, set_provider_api_key, test_provider_connection,
 			tool_execute, cancel_task, list_tools, get_tool_schema,
+			list_toolchains, execute_toolchain_command,
 			list_conversations, get_conversation, create_conversation,
 			rename_conversation, delete_conversation, export_conversation,
 			clear_all_conversations,
@@ -142,13 +160,15 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 		.build()
 }
 
-/// 日志环形缓冲区周期性落盘（默认 120 秒一次），失败仅记录警告。
+/// 日志环形缓冲区周期性落盘（间隔可由配置 `log_flush_interval_secs` 调整，默认 120 秒），
+/// 失败仅记录警告。行数阈值落盘由 LogBuffer::push 内部触发（见 §C.5）。
 fn spawn_log_persist_loop(config_manager: &Arc<ConfigManager>, log_buffer: &Arc<LogBuffer>) {
 	let log_buffer = log_buffer.clone();
 	let logs_dir = config_manager.logs_dir();
+	let interval = config_manager.config().log_flush_interval_secs.max(1);
 	tauri::async_runtime::spawn(async move {
 		loop {
-			tokio::time::sleep(std::time::Duration::from_secs(120)).await;
+			tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
 			if let Err(e) = log_buffer.flush_to_disk(&logs_dir) {
 				tracing::warn!("ai_workshop: failed to persist log buffer: {e}");
 			}
@@ -306,7 +326,7 @@ pub async fn ai_confirm_tool<R: Runtime>(
 	Ok(())
 }
 
-/// 为指定提供商保存真实 API Key：写入 secrets.json 并同步掩码提示到 config.json。
+/// 为指定提供商保存真实 API Key：写入系统密钥环（keyring），并同步掩码提示到 config.json。
 #[tauri::command]
 pub async fn set_provider_api_key<R: Runtime>(
 	app: tauri::AppHandle<R>,
@@ -315,6 +335,30 @@ pub async fn set_provider_api_key<R: Runtime>(
 ) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
 	state.config_manager.set_api_key(&provider, &api_key)
+}
+
+/// 连接测试（设置页"连接测试"按钮）：用给定提供商发一条极简短消息验证 Key / 端点有效。
+#[tauri::command]
+pub async fn test_provider_connection<R: Runtime>(
+	app: tauri::AppHandle<R>,
+	provider: String,
+) -> Result<serde_json::Value> {
+	use providers::provider_trait::AiMessage;
+
+	let state = app.state::<AiWorkshopState>();
+	let provider_instance = providers::factory::create_provider(&state.config_manager, Some(&provider))
+		.map_err(other_err)?;
+	let test_messages = vec![AiMessage::user("请只回复：OK".to_string())];
+	match provider_instance.chat(&test_messages, &[]).await {
+		Ok(response) => Ok(serde_json::json!({
+			"ok": true,
+			"reply": response.content.unwrap_or_default(),
+		})),
+		Err(e) => Ok(serde_json::json!({
+			"ok": false,
+			"error": e.to_string(),
+		})),
+	}
 }
 
 // 工具
@@ -371,6 +415,36 @@ pub async fn get_tool_schema<R: Runtime>(app: tauri::AppHandle<R>, name: String)
 		.schema(&name)
 		.ok_or_else(|| other_err(format!("Unknown tool: {name}")))?;
 	serde_json::to_value(schema).map_err(serde_err)
+}
+
+/// 列出全部工具链（名称 + 描述）。
+#[tauri::command]
+pub async fn list_toolchains<R: Runtime>(
+	app: tauri::AppHandle<R>,
+) -> Result<Vec<serde_json::Value>> {
+	let state = app.state::<AiWorkshopState>();
+	let mut chains = Vec::new();
+	for name in state.toolchain_registry.list() {
+		if let Some(toolchain) = state.toolchain_registry.get(name) {
+			chains.push(serde_json::json!({
+				"name": toolchain.name(),
+				"description": toolchain.description(),
+			}));
+		}
+	}
+	Ok(chains)
+}
+
+/// 执行工具链（供手动面板调用）。
+#[tauri::command]
+pub async fn execute_toolchain_command<R: Runtime>(
+	app: tauri::AppHandle<R>,
+	name: String,
+	instance_id: Option<String>,
+	params: serde_json::Value,
+) -> Result<serde_json::Value> {
+	let state = app.state::<AiWorkshopState>();
+	ui_commands::execute_toolchain(&state, &name, instance_id, params).await
 }
 
 // 对话历史
@@ -485,13 +559,24 @@ pub async fn clear_all_conversations<R: Runtime>(app: tauri::AppHandle<R>, confi
 
 /// 列出全部技能（含启用状态）。
 #[tauri::command]
-pub async fn list_skills<R: Runtime>(app: tauri::AppHandle<R>) -> Result<Vec<serde_json::Value>> {
+pub async fn list_skills<R: Runtime>(app: tauri::AppHandle<R>) -> Result<serde_json::Value> {
 	let state = app.state::<AiWorkshopState>();
 	let mut skills = Vec::new();
 	for skill in state.skill_loader.skills() {
 		skills.push(serde_json::to_value(skill).map_err(serde_err)?);
 	}
-	Ok(skills)
+	let failed = state
+		.skill_loader
+		.failed_skills()
+		.iter()
+		.map(|f| {
+			serde_json::json!({
+				"dir_name": f.dir_name,
+				"reason": f.reason,
+			})
+		})
+		.collect::<Vec<_>>();
+	Ok(serde_json::json!({ "skills": skills, "failed": failed }))
 }
 
 /// 获取技能详情及 guide.md 全文，返回 `{ skill, guide_md }`。
@@ -577,21 +662,23 @@ pub async fn refresh_knowledge<R: Runtime>(app: tauri::AppHandle<R>) -> Result<(
 
 // 配置与状态
 
-/// 获取当前 AI 工作台配置。
+/// 获取当前 AI 工作台配置（IPC 边界为 camelCase DTO；文件格式保持 snake_case）。
 #[tauri::command]
-pub async fn get_ai_config<R: Runtime>(app: tauri::AppHandle<R>) -> Result<config::AiWorkshopConfig> {
+pub async fn get_ai_config<R: Runtime>(
+	app: tauri::AppHandle<R>,
+) -> Result<config::AiWorkshopConfigDto> {
 	let state = app.state::<AiWorkshopState>();
-	Ok(state.config_manager.config())
+	Ok(config::AiWorkshopConfigDto::from(&state.config_manager.config()))
 }
 
-/// 保存 AI 工作台配置。
+/// 保存 AI 工作台配置（接收 camelCase DTO，落盘前转为 snake_case 文件格式）。
 #[tauri::command]
 pub async fn set_ai_config<R: Runtime>(
 	app: tauri::AppHandle<R>,
-	config: config::AiWorkshopConfig,
+	config: config::AiWorkshopConfigDto,
 ) -> Result<()> {
 	let state = app.state::<AiWorkshopState>();
-	state.config_manager.save_config(config).await
+	state.config_manager.save_config(config.into()).await
 }
 
 /// 获取 AI 工作台运行状态摘要。

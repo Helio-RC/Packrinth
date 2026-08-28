@@ -155,8 +155,71 @@
 	"ai.logs.title": {
 		"message": "Logs"
 	},
+	"ai.main.chat": {
+		"message": "Chat"
+	},
+	"ai.main.close": {
+		"message": "Close pane"
+	},
+	"ai.main.preview": {
+		"message": "Preview"
+	},
+	"ai.main.swap": {
+		"message": "Move to other pane"
+	},
+	"ai.preview.diff": {
+		"message": "Diff"
+	},
+	"ai.preview.editor": {
+		"message": "Editor"
+	},
+	"ai.preview.no-diff": {
+		"message": "No diff available yet"
+	},
+	"ai.preview.no-file": {
+		"message": "No file selected"
+	},
+	"ai.settings.base-url": {
+		"message": "Base URL"
+	},
+	"ai.settings.default-provider": {
+		"message": "Default provider"
+	},
+	"ai.settings.key": {
+		"message": "API Key"
+	},
+	"ai.settings.loading": {
+		"message": "Loading AI configuration…"
+	},
+	"ai.settings.model": {
+		"message": "Model"
+	},
+	"ai.settings.none": {
+		"message": "None"
+	},
+	"ai.settings.ollama-url": {
+		"message": "http://localhost:11434"
+	},
+	"ai.settings.providers": {
+		"message": "Providers"
+	},
+	"ai.settings.save-key": {
+		"message": "Save key"
+	},
+	"ai.settings.test": {
+		"message": "Test connection"
+	},
+	"ai.settings.test-fail": {
+		"message": "Connection failed"
+	},
+	"ai.settings.test-ok": {
+		"message": "Connection OK"
+	},
 	"ai.skills.empty": {
 		"message": "No skills yet"
+	},
+	"ai.skills.failed-title": {
+		"message": "Failed skills"
 	},
 	"ai.skills.refresh": {
 		"message": "Refresh"
@@ -259,6 +322,12 @@
 	},
 	"ai.workbench.files-placeholder": {
 		"message": "The instance tree arrives with stream C"
+	},
+	"ai.workbench.provider-banner": {
+		"message": "No AI provider configured yet — configure a provider to start chatting."
+	},
+	"ai.workbench.provider-banner-action": {
+		"message": "Open settings"
 	},
 	"ai.workbench.settings-placeholder": {
 		"message": "Settings arrive with stream E"

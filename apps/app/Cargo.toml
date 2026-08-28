@@ -41,6 +41,7 @@ async-trait = { workspace = true }
 bytes = { workspace = true }
 futures-util = { workspace = true }
 git2 = { version = "0.20", features = ["vendored-libgit2"] }
+keyring = "3"
 notify = { workspace = true }
 pulldown-cmark = "0.13"
 reqwest = { workspace = true, features = ["json", "stream"] }
@@ -55,6 +56,9 @@ tracing-error = { workspace = true }
 url = { workspace = true }
 urlencoding = { workspace = true }
 uuid = { workspace = true, features = ["serde", "v4"] }
+async-openai = { version = "0.41.3", features = ["chat-completion"] }
+anthropic-sdk-rust = "0.1.1"
+html2md = "0.2.17"
 
 [dependencies.tauri]
 workspace = true

@@ -132,6 +132,11 @@ impl From<String> for ProviderError {
 	}
 }
 
+/// 上下文压缩的系统提示标记（Mock 据此识别总结意图）。
+pub const SUMMARIZE_SYSTEM_PROMPT: &str =
+	"你是会话压缩助手。请将下面的历史对话压缩为一条不超过 300 字的简洁摘要，\
+	保留：用户意图、已完成的动作、工具调用结果要点、当前未决事项。只输出摘要正文。";
+
 /// AI 提供商抽象：非流式 chat 与流式 stream。
 #[async_trait::async_trait]
 pub trait AiProvider: Send + Sync {
@@ -147,4 +152,14 @@ pub trait AiProvider: Send + Sync {
 		tools: &[ToolDefinition],
 		tx: tokio::sync::mpsc::Sender<StreamEvent>,
 	) -> Result<(), ProviderError>;
+
+	/// 上下文压缩：将给定历史消息压缩为摘要文本。默认通过 chat 生成，
+	/// 提供商可覆写（如 Mock 直接返回固定摘要）；失败由调用方回退到截断。
+	async fn summarize(&self, messages: &[AiMessage]) -> Result<String, ProviderError> {
+		let mut summary_messages = Vec::new();
+		summary_messages.push(AiMessage::system(SUMMARIZE_SYSTEM_PROMPT.to_string()));
+		summary_messages.extend(messages.iter().cloned());
+		let response = self.chat(&summary_messages, &[]).await?;
+		Ok(response.content.unwrap_or_default())
+	}
 }

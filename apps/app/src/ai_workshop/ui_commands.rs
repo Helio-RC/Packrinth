@@ -23,6 +23,37 @@ pub async fn execute_tool<R: Runtime>(
 	execute_tool_with_timeout(state, app, task_id, name, params, TOOL_TIMEOUT).await
 }
 
+/// 执行工具链（供手动面板调用）。与原子工具一样受实例写锁与超时约束。
+pub async fn execute_toolchain(
+	state: &AiWorkshopState,
+	name: &str,
+	instance_id: Option<String>,
+	params: Value,
+) -> Result<Value> {
+	let toolchain = state
+		.toolchain_registry
+		.get(name)
+		.ok_or_else(|| other_err(format!("未知工具链: {name}")))?;
+	let context = ExecutionContext {
+		instance_id: instance_id.clone(),
+		instance_lock_manager: state.instance_lock_manager.clone(),
+		..Default::default()
+	};
+	let _instance_guard = match instance_id.clone() {
+		Some(id) => Some(
+			state
+				.instance_lock_manager
+				.acquire_write_lock(&id, std::time::Duration::from_secs(30))
+				.await
+				.map_err(other_err)?,
+		),
+		None => None,
+	};
+	tokio::time::timeout(TOOL_TIMEOUT, toolchain.execute(instance_id.as_deref(), params, &context))
+		.await
+		.map_err(|_| other_err("工具链执行超时（300 秒）"))?
+}
+
 /// 内部实现，超时可注入（供测试缩短）。
 async fn execute_tool_with_timeout<R: Runtime>(
 	state: &AiWorkshopState,

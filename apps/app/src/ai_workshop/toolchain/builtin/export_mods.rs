@@ -102,6 +102,7 @@ impl ExecutableToolchain for ExportModsToolchain {
 	async fn execute(
 		&self,
 		instance_id: Option<&str>,
+		_params: serde_json::Value,
 		ctx: &ExecutionContext,
 	) -> Result<serde_json::Value> {
 		let instance_id = instance_id.ok_or_else(|| other_err("缺少 instance_id"))?;

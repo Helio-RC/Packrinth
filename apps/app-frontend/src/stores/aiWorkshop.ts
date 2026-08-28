@@ -38,6 +38,7 @@ import type {
 	AiStatus,
 	AiWorkshopConfig,
 	Conversation,
+	FailedSkill,
 	KnowledgeHit,
 	Message,
 	SkillInfo,
@@ -63,6 +64,10 @@ export interface WorkshopLayout {
 	splitRatio: number
 	sidebarVisible: boolean
 	bottomVisible: boolean
+	/** 主区域视图序列（chat / preview），支持拆分/合并/移动。 */
+	mainViews: string[]
+	/** 活动栏条目顺序（可拖拽调整）。 */
+	activityOrder: string[]
 }
 
 /** 布局持久化使用的 localStorage 键。 */
@@ -79,6 +84,8 @@ const FACTORY_LAYOUT: WorkshopLayout = {
 	splitRatio: 0.6,
 	sidebarVisible: true,
 	bottomVisible: true,
+	mainViews: ['chat', 'preview'],
+	activityOrder: ['chat', 'files', 'knowledge', 'skills', 'tools', 'console', 'settings'],
 }
 
 /** 工具进度事件监听器（模块级单例，避免重复注册）。 */
@@ -96,6 +103,12 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 	state: () => ({
 		layout: { ...FACTORY_LAYOUT },
 		activeActivity: 'chat' as ActivityId,
+		/** 预览面板：当前编辑内容与 Diff 前后快照（由工具视图/对话写入）。 */
+		previewText: '' as string,
+		previewFileName: '' as string,
+		previewLanguage: 'json' as string,
+		previewBefore: '' as string,
+		previewAfter: '' as string,
 		conversations: [] as Conversation[],
 		currentConversationId: null as string | null,
 		messages: [] as Message[],
@@ -109,6 +122,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 		tools: [] as ToolInfo[],
 		toolOutputs: [] as ToolOutput[],
 		skills: [] as SkillInfo[],
+		failedSkills: [] as FailedSkill[],
 		knowledgeResults: [] as KnowledgeHit[],
 		logs: [] as string[],
 	}),
@@ -339,9 +353,11 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 			this.tools = await listTools()
 		},
 
-		/** 重新加载技能列表。 */
+		/** 重新加载技能列表（含加载失败清单）。 */
 		async loadSkills() {
-			this.skills = await listSkills()
+			const response = await listSkills()
+			this.skills = response.skills
+			this.failedSkills = response.failed
 		},
 
 		/** 启用/禁用技能并刷新列表。 */

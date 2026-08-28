@@ -4,14 +4,7 @@
  */
 import { type Channel, invoke } from '@tauri-apps/api/core'
 
-import type {
-	AiStatus,
-	AiWorkshopConfig,
-	ChatResult,
-	KnowledgeHit,
-	SkillInfo,
-	StreamEvent,
-} from './types'
+import type { AiStatus, AiWorkshopConfig, ChatResult, KnowledgeHit, StreamEvent } from './types'
 
 function toErrorMessage(err: unknown): string {
 	return err instanceof Error ? err.message : String(err)
@@ -66,6 +59,29 @@ export async function aiConfirmTool(
 export async function getAiStatus(): Promise<AiStatus> {
 	try {
 		return await invoke<AiStatus>('plugin:ai_workshop|get_ai_status')
+	} catch (err) {
+		throw new Error(toErrorMessage(err))
+	}
+}
+
+/** 保存指定提供商的 API Key（写入系统密钥环）。 */
+export async function setProviderApiKey(provider: string, apiKey: string): Promise<void> {
+	try {
+		await invoke<void>('plugin:ai_workshop|set_provider_api_key', { provider, apiKey })
+	} catch (err) {
+		throw new Error(toErrorMessage(err))
+	}
+}
+
+/** 连接测试：验证 API Key / 端点可用性。 */
+export async function testProviderConnection(
+	provider: string,
+): Promise<{ ok: boolean; reply?: string; error?: string }> {
+	try {
+		return await invoke<{ ok: boolean; reply?: string; error?: string }>(
+			'plugin:ai_workshop|test_provider_connection',
+			{ provider },
+		)
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -137,10 +153,10 @@ export async function injectCrashLog(logContent: string): Promise<void> {
 	}
 }
 
-/** 列出全部技能（含启用状态）。 */
-export async function listSkills(): Promise<SkillInfo[]> {
+/** 列出全部技能（含启用状态）与加载失败清单。 */
+export async function listSkills(): Promise<SkillsListResponse> {
 	try {
-		return await invoke<SkillInfo[]>('plugin:ai_workshop|list_skills')
+		return await invoke<SkillsListResponse>('plugin:ai_workshop|list_skills')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}

@@ -28,7 +28,7 @@ const RECIPE_JSON: &str = r#"{"content":null,"tool_calls":[{"id":"call_9","name"
 
 const CRASH_JSON: &str = r#"{"content":"我分析了崩溃日志，看起来是模组 A 与模组 B 之间的冲突导致的。建议你尝试移除其中一个模组，或者更新到兼容版本。需要我帮你进一步分析吗？","tool_calls":[],"usage":{"prompt_tokens":30,"completion_tokens":50,"total_tokens":80}}"#;
 
-const DEPS_JSON: &str = r#"{"content":null,"tool_calls":[{"id":"call_10","name":"resolve_dependencies","arguments":{"mod_id":"jei"}}],"usage":{"prompt_tokens":20,"completion_tokens":14,"total_tokens":34}}"#;
+const DEPS_JSON: &str = r#"{"content":null,"tool_calls":[{"id":"call_10","name":"resolve_dependencies","arguments":{"mod_ids":["jei"]}}],"usage":{"prompt_tokens":20,"completion_tokens":14,"total_tokens":34}}"#;
 
 const GIT_JSON: &str = r#"{"content":null,"tool_calls":[{"id":"call_11","name":"git_commit","arguments":{"message":"update modpack config"}}],"usage":{"prompt_tokens":18,"completion_tokens":12,"total_tokens":30}}"#;
 
@@ -170,6 +170,11 @@ fn parse_usage(value: &serde_json::Value) -> Option<AiUsage> {
 impl AiProvider for MockProvider {
 	fn name(&self) -> &'static str {
 		"mock"
+	}
+
+	/// Mock 模式下压缩摘要返回固定文本，保证上下文压缩链路可离线测试。
+	async fn summarize(&self, _messages: &[AiMessage]) -> Result<String, ProviderError> {
+		Ok("【Mock 摘要】用户请求安装 JEI（已完成搜索），当前等待工具确认。".to_string())
 	}
 
 	async fn chat(

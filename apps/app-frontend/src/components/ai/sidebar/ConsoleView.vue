@@ -83,11 +83,10 @@
 				{{ formatMessage(messages.advancedTitle) }}
 			</h2>
 			<SettingsToggleCard
-				:model-value="false"
+				:model-value="store.aiConfig?.autoTroubleshoot ?? true"
 				:title="formatMessage(messages.troubleshoot)"
 				:description="formatMessage(messages.troubleshootDesc)"
-				:toggle-disabled="true"
-				disabled
+				@update:model-value="(v) => save({ autoTroubleshoot: v })"
 			/>
 		</section>
 	</div>
