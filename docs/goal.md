@@ -41,7 +41,7 @@
 | AI 接入 | Rust crate（见下方决策） | `Cargo.toml` |
 | 对话持久化 | SQLite（`rusqlite`） | `Cargo.toml` |
 | 全文检索 | tantivy (BM25) | `Cargo.toml` |
-| HTML 解析 | scraper + html2md | `Cargo.toml` |
+| HTML 解析 | scraper（html2md 0.2.17 与 release panic=abort 不兼容，2026-08-28 移除） | `Cargo.toml` |
 | 版本控制 | git2 | `Cargo.toml` |
 | 向量检索（暂缓） | ~~candle 或外部 Embedding API~~ | ~~`Cargo.toml` (optional)~~ |
 

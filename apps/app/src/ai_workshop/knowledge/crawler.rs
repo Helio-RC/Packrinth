@@ -99,15 +99,8 @@ pub async fn fetch_and_extract(url: &str) -> Result<FetchedPage> {
     let html = String::from_utf8_lossy(&body);
     let document = Html::parse_document(&html);
     let title = extract_title(&document);
-    // html2md 整体转 Markdown（保留标题层级/表格）；空结果回退到 scraper 文本提取。
-    let content = {
-        let markdown = html2md::parse_html(&html);
-        if markdown.trim().is_empty() {
-            extract_content(&document)
-        } else {
-            normalize_text(&markdown)
-        }
-    };
+    // scraper 提取主体内容文本（html2md 0.2.17 与 workspace release panic=abort 不兼容，已移除）。
+    let content = extract_content(&document);
     Ok(FetchedPage {
         url: url.to_string(),
         title,

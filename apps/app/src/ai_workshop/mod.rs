@@ -857,8 +857,18 @@ pub async fn apply_fix<R: Runtime>(
 }
 
 /// 仅测试用：向日志缓冲区注入崩溃日志。
+/// 发布构建提供同名命令但直接报错，保证 handler 宏在两个 profile 下都能生成。
+#[cfg(not(debug_assertions))]
 #[tauri::command]
+pub async fn inject_crash_log<R: Runtime>(
+    _: tauri::AppHandle<R>,
+    _: String,
+) -> Result<()> {
+    Err(other_err("inject_crash_log 仅在调试构建可用"))
+}
+
 #[cfg(debug_assertions)]
+#[tauri::command]
 pub async fn inject_crash_log<R: Runtime>(
     app: tauri::AppHandle<R>,
     log_content: String,

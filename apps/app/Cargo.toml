@@ -20,7 +20,6 @@ either = { workspace = true }
 enumset = { workspace = true, features = ["serde"] }
 futures-util = { workspace = true }
 git2 = { version = "0.20", features = ["vendored-libgit2"] }
-html2md = "0.2.17"
 hyper = { workspace = true, features = ["server"] }
 hyper-util = { workspace = true }
 keyring = "3"
