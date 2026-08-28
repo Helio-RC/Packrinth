@@ -675,8 +675,6 @@ struct LegacySettings {
     pub max_concurrent_writes: usize,
     pub collapsed_navigation: bool,
     #[serde(default)]
-    pub disable_discord_rpc: bool,
-    #[serde(default)]
     pub hide_on_process: bool,
     #[serde(default)]
     pub native_decorations: bool,

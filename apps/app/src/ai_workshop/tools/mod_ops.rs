@@ -13,93 +13,97 @@ use theseus::instance::InstallProjectWithDependenciesRequest;
 
 /// 从 arguments 中读取字符串参数；缺失或类型不符返回错误。
 fn string_arg(arguments: &Value, key: &str) -> Result<String, String> {
-	arguments
-		.get(key)
-		.and_then(Value::as_str)
-		.map(str::to_string)
-		.ok_or_else(|| format!("缺少参数: {key}"))
+    arguments
+        .get(key)
+        .and_then(Value::as_str)
+        .map(str::to_string)
+        .ok_or_else(|| format!("缺少参数: {key}"))
 }
 
 /// 搜索模组（readonly）。参数：query 必填，limit 默认 10，loader 可选。
 pub struct SearchModsTool;
 
 impl SearchModsTool {
-	fn info_impl() -> ToolInfo {
-		ToolInfo {
-			name: "search_mods".to_string(),
-			description: "在 Modrinth 搜索模组，返回匹配项目的摘要列表。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: false,
-			is_readonly: true,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"query": { "type": "string", "description": "搜索关键词" },
-					"limit": { "type": "integer", "default": 10, "description": "返回条数，默认 10" },
-					"loader": { "type": "string", "description": "可选：按加载器过滤，如 fabric / forge" }
-				},
-				"required": ["query"]
-			}),
-		}
-	}
+    fn info_impl() -> ToolInfo {
+        ToolInfo {
+            name: "search_mods".to_string(),
+            description: "在 Modrinth 搜索模组，返回匹配项目的摘要列表。"
+                .to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: false,
+            is_readonly: true,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "query": { "type": "string", "description": "搜索关键词" },
+                    "limit": { "type": "integer", "default": 10, "description": "返回条数，默认 10" },
+                    "loader": { "type": "string", "description": "可选：按加载器过滤，如 fabric / forge" }
+                },
+                "required": ["query"]
+            }),
+        }
+    }
 }
 
 #[async_trait]
 impl Tool for SearchModsTool {
-	fn info(&self) -> ToolInfo {
-		Self::info_impl()
-	}
+    fn info(&self) -> ToolInfo {
+        Self::info_impl()
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let query = string_arg(&arguments, "query")?;
-		let limit = arguments
-			.get("limit")
-			.and_then(Value::as_u64)
-			.unwrap_or(10)
-			.min(100);
-		let loader = arguments.get("loader").and_then(Value::as_str);
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let query = string_arg(&arguments, "query")?;
+        let limit = arguments
+            .get("limit")
+            .and_then(Value::as_u64)
+            .unwrap_or(10)
+            .min(100);
+        let loader = arguments.get("loader").and_then(Value::as_str);
 
-		// 搜索 key 是 v2 search 接口的查询串（?query=...&facets=...&limit=...）
-		let mut key = format!("?query={}", urlencoding::encode(&query));
-		if let Some(loader) = loader {
-			let facets =
-				json!([["project_type:mod"], [format!("categories:{loader}")]]);
-			key.push_str(&format!(
-				"&facets={}",
-				urlencoding::encode(&facets.to_string())
-			));
-		}
-		key.push_str(&format!("&limit={limit}"));
+        // 搜索 key 是 v2 search 接口的查询串（?query=...&facets=...&limit=...）
+        let mut key = format!("?query={}", urlencoding::encode(&query));
+        if let Some(loader) = loader {
+            let facets =
+                json!([["project_type:mod"], [format!("categories:{loader}")]]);
+            key.push_str(&format!(
+                "&facets={}",
+                urlencoding::encode(&facets.to_string())
+            ));
+        }
+        key.push_str(&format!("&limit={limit}"));
 
-		let results =
-			theseus::cache::get_search_results(&key, None).await.map_err(|e| e.to_string())?;
-		let Some(results) = results else {
-			return Ok(json!({ "hits": [], "query": query }));
-		};
+        let results = theseus::cache::get_search_results(&key, None)
+            .await
+            .map_err(|e| e.to_string())?;
+        let Some(results) = results else {
+            return Ok(json!({ "hits": [], "query": query }));
+        };
 
-		let hits: Vec<Value> = results
-			.result
-			.hits
-			.iter()
-			.map(|h| {
-				json!({
-					"project_id": h.project_id,
-					"title": h.title,
-					"slug": h.slug,
-					"description": h.description,
-					"downloads": h.downloads,
-					"icon_url": h.icon_url,
-					"categories": h.categories,
-				})
-			})
-			.collect();
+        let hits: Vec<Value> = results
+            .result
+            .hits
+            .iter()
+            .map(|h| {
+                json!({
+                    "project_id": h.project_id,
+                    "title": h.title,
+                    "slug": h.slug,
+                    "description": h.description,
+                    "downloads": h.downloads,
+                    "icon_url": h.icon_url,
+                    "categories": h.categories,
+                })
+            })
+            .collect();
 
-		Ok(json!({ "hits": hits, "query": query, "total_hits": results.result.total_hits }))
-	}
+        Ok(
+            json!({ "hits": hits, "query": query, "total_hits": results.result.total_hits }),
+        )
+    }
 }
 
 /// 获取模组详情（readonly）。参数：mod_id 必填。返回 Project 全量。
@@ -107,34 +111,35 @@ pub struct GetModDetailsTool;
 
 #[async_trait]
 impl Tool for GetModDetailsTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "get_mod_details".to_string(),
-			description: "获取单个模组的完整信息。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: false,
-			is_readonly: true,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"mod_id": { "type": "string", "description": "Modrinth 项目 ID" }
-				},
-				"required": ["mod_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "get_mod_details".to_string(),
+            description: "获取单个模组的完整信息。".to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: false,
+            is_readonly: true,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "mod_id": { "type": "string", "description": "Modrinth 项目 ID" }
+                },
+                "required": ["mod_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let mod_id = string_arg(&arguments, "mod_id")?;
-		let project =
-			theseus::cache::get_project(&mod_id, None).await.map_err(|e| e.to_string())?;
-		let project = project.ok_or_else(|| format!("未找到模组: {mod_id}"))?;
-		serde_json::to_value(project).map_err(|e| e.to_string())
-	}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let mod_id = string_arg(&arguments, "mod_id")?;
+        let project = theseus::cache::get_project(&mod_id, None)
+            .await
+            .map_err(|e| e.to_string())?;
+        let project = project.ok_or_else(|| format!("未找到模组: {mod_id}"))?;
+        serde_json::to_value(project).map_err(|e| e.to_string())
+    }
 }
 
 /// 安装模组（需确认）。参数：mod_id、instance_id 必填，version_id 可选。
@@ -143,79 +148,82 @@ pub struct InstallModTool;
 
 #[async_trait]
 impl Tool for InstallModTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "install_mod".to_string(),
-			description: "将模组安装到指定实例（含依赖解析）。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
-					"instance_id": { "type": "string", "description": "目标实例 ID" },
-					"version_id": { "type": "string", "description": "可选：指定版本 ID" }
-				},
-				"required": ["mod_id", "instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "install_mod".to_string(),
+            description: "将模组安装到指定实例（含依赖解析）。".to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
+                    "instance_id": { "type": "string", "description": "目标实例 ID" },
+                    "version_id": { "type": "string", "description": "可选：指定版本 ID" }
+                },
+                "required": ["mod_id", "instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let mod_id = string_arg(&arguments, "mod_id")?;
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		// 获取实例写锁：串行化同一实例上的写操作（禁止嵌套获取——工具间无嵌套调用）。
-		let _lock = ctx
-			.instance_lock_manager
-			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
-			.await?;
-		let version_id = arguments.get("version_id").and_then(Value::as_str);
+    async fn execute(
+        &self,
+        arguments: Value,
+        ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let mod_id = string_arg(&arguments, "mod_id")?;
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        // 获取实例写锁：串行化同一实例上的写操作（禁止嵌套获取——工具间无嵌套调用）。
+        let _lock = ctx
+            .instance_lock_manager
+            .acquire_write_lock(
+                &instance_id,
+                std::time::Duration::from_secs(30),
+            )
+            .await?;
+        let version_id = arguments.get("version_id").and_then(Value::as_str);
 
-		let request = InstallProjectWithDependenciesRequest {
-			project_id: mod_id,
-			version_id: version_id.map(str::to_string),
-			content_type: ContentType::Mod,
-			selected: ResolutionPreferences::default(),
-		};
-		let plan = theseus::instance::install_project_with_dependencies(
-			&instance_id,
-			request,
-		)
-		.await
-		.map_err(|e| e.to_string())?;
+        let request = InstallProjectWithDependenciesRequest {
+            project_id: mod_id,
+            version_id: version_id.map(str::to_string),
+            content_type: ContentType::Mod,
+            selected: ResolutionPreferences::default(),
+        };
+        let plan = theseus::instance::install_project_with_dependencies(
+            &instance_id,
+            request,
+        )
+        .await
+        .map_err(|e| e.to_string())?;
 
-		Ok(json!({
-			"primary": plan.primary,
-			"dependencies": plan.dependencies,
-			"skipped": plan.skipped,
-			"dependencies_count": plan.dependencies.len(),
-		}))
-	}
+        Ok(json!({
+            "primary": plan.primary,
+            "dependencies": plan.dependencies,
+            "skipped": plan.skipped,
+            "dependencies_count": plan.dependencies.len(),
+        }))
+    }
 }
 
 /// 在实例已安装内容中查找 mod_id 对应的相对路径（如 "mods/foo.jar"）。
 async fn find_project_path(
-	instance_id: &str,
-	mod_id: &str,
+    instance_id: &str,
+    mod_id: &str,
 ) -> Result<String, String> {
-	let projects = theseus::instance::get_projects(instance_id, None)
-		.await
-		.map_err(|e| e.to_string())?;
-	for (path, content) in projects.into_iter() {
-		if content
-			.metadata
-			.as_ref()
-			.is_some_and(|m| m.project_id == mod_id)
-		{
-			return Ok(path);
-		}
-	}
-	Err(format!("未在实例中找到该模组: {mod_id}"))
+    let projects = theseus::instance::get_projects(instance_id, None)
+        .await
+        .map_err(|e| e.to_string())?;
+    for (path, content) in projects.into_iter() {
+        if content
+            .metadata
+            .as_ref()
+            .is_some_and(|m| m.project_id == mod_id)
+        {
+            return Ok(path);
+        }
+    }
+    Err(format!("未在实例中找到该模组: {mod_id}"))
 }
 
 /// 移除模组（需确认）。参数：mod_id、instance_id 必填，keep_config 默认 true（仅记录，不删配置）。
@@ -223,47 +231,50 @@ pub struct RemoveModTool;
 
 #[async_trait]
 impl Tool for RemoveModTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "remove_mod".to_string(),
-			description: "从实例中移除模组。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
-					"instance_id": { "type": "string", "description": "目标实例 ID" },
-					"keep_config": { "type": "boolean", "default": true, "description": "是否保留配置文件（仅记录，移除本身不删除配置）" }
-				},
-				"required": ["mod_id", "instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "remove_mod".to_string(),
+            description: "从实例中移除模组。".to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
+                    "instance_id": { "type": "string", "description": "目标实例 ID" },
+                    "keep_config": { "type": "boolean", "default": true, "description": "是否保留配置文件（仅记录，移除本身不删除配置）" }
+                },
+                "required": ["mod_id", "instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let mod_id = string_arg(&arguments, "mod_id")?;
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		let keep_config = arguments
-			.get("keep_config")
-			.and_then(Value::as_bool)
-			.unwrap_or(true);
+    async fn execute(
+        &self,
+        arguments: Value,
+        ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let mod_id = string_arg(&arguments, "mod_id")?;
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        let keep_config = arguments
+            .get("keep_config")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
 
-		let _lock = ctx
-			.instance_lock_manager
-			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
-			.await?;
-		let path = find_project_path(&instance_id, &mod_id).await?;
-		theseus::instance::remove_project(&instance_id, &path)
-			.await
-			.map_err(|e| e.to_string())?;
-		Ok(json!({ "removed": path, "keep_config": keep_config }))
-	}
+        let _lock = ctx
+            .instance_lock_manager
+            .acquire_write_lock(
+                &instance_id,
+                std::time::Duration::from_secs(30),
+            )
+            .await?;
+        let path = find_project_path(&instance_id, &mod_id).await?;
+        theseus::instance::remove_project(&instance_id, &path)
+            .await
+            .map_err(|e| e.to_string())?;
+        Ok(json!({ "removed": path, "keep_config": keep_config }))
+    }
 }
 
 /// 更新模组（需确认）。参数：mod_id、instance_id 必填。
@@ -271,42 +282,46 @@ pub struct UpdateModTool;
 
 #[async_trait]
 impl Tool for UpdateModTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "update_mod".to_string(),
-			description: "将已安装模组更新到最新可用版本。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
-					"instance_id": { "type": "string", "description": "目标实例 ID" }
-				},
-				"required": ["mod_id", "instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "update_mod".to_string(),
+            description: "将已安装模组更新到最新可用版本。".to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "mod_id": { "type": "string", "description": "Modrinth 项目 ID" },
+                    "instance_id": { "type": "string", "description": "目标实例 ID" }
+                },
+                "required": ["mod_id", "instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let mod_id = string_arg(&arguments, "mod_id")?;
-		let instance_id = string_arg(&arguments, "instance_id")?;
+    async fn execute(
+        &self,
+        arguments: Value,
+        ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let mod_id = string_arg(&arguments, "mod_id")?;
+        let instance_id = string_arg(&arguments, "instance_id")?;
 
-		let _lock = ctx
-			.instance_lock_manager
-			.acquire_write_lock(&instance_id, std::time::Duration::from_secs(30))
-			.await?;
-		let path = find_project_path(&instance_id, &mod_id).await?;
-		let new_path = theseus::instance::update_project(&instance_id, &path, None)
-			.await
-			.map_err(|e| e.to_string())?;
-		Ok(json!({ "updated": path, "new_path": new_path }))
-	}
+        let _lock = ctx
+            .instance_lock_manager
+            .acquire_write_lock(
+                &instance_id,
+                std::time::Duration::from_secs(30),
+            )
+            .await?;
+        let path = find_project_path(&instance_id, &mod_id).await?;
+        let new_path =
+            theseus::instance::update_project(&instance_id, &path, None)
+                .await
+                .map_err(|e| e.to_string())?;
+        Ok(json!({ "updated": path, "new_path": new_path }))
+    }
 }
 
 /// 列出实例已安装模组（readonly）。参数：instance_id 必填。
@@ -314,45 +329,45 @@ pub struct ListInstalledModsTool;
 
 #[async_trait]
 impl Tool for ListInstalledModsTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "list_installed_mods".to_string(),
-			description: "列出实例中已安装的模组。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: false,
-			is_readonly: true,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"instance_id": { "type": "string", "description": "目标实例 ID" }
-				},
-				"required": ["instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "list_installed_mods".to_string(),
+            description: "列出实例中已安装的模组。".to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: false,
+            is_readonly: true,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "instance_id": { "type": "string", "description": "目标实例 ID" }
+                },
+                "required": ["instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		let projects = theseus::instance::get_projects(&instance_id, None)
-			.await
-			.map_err(|e| e.to_string())?;
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        let projects = theseus::instance::get_projects(&instance_id, None)
+            .await
+            .map_err(|e| e.to_string())?;
 
-		let mut mods: Vec<Value> = Vec::new();
-		for (path, content) in projects.into_iter() {
-			mods.push(json!({
+        let mut mods: Vec<Value> = Vec::new();
+        for (path, content) in projects.into_iter() {
+            mods.push(json!({
 				"path": path,
 				"file_name": content.file_name,
 				"enabled": content.enabled,
 				"project_id": content.metadata.as_ref().map(|m| m.project_id.clone()),
 				"version_id": content.metadata.as_ref().map(|m| m.version_id.clone()),
 			}));
-		}
-		Ok(json!({ "mods": mods }))
-	}
+        }
+        Ok(json!({ "mods": mods }))
+    }
 }
 
 /// 列出全部实例（readonly）。无参数。
@@ -360,61 +375,62 @@ pub struct ListInstancesTool;
 
 #[async_trait]
 impl Tool for ListInstancesTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "list_instances".to_string(),
-			description: "列出全部实例及其游戏版本与加载器。".to_string(),
-			domain: ToolDomain::Instance,
-			requires_confirmation: false,
-			is_readonly: true,
-			params_schema: json!({
-				"type": "object",
-				"properties": {}
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "list_instances".to_string(),
+            description: "列出全部实例及其游戏版本与加载器。".to_string(),
+            domain: ToolDomain::Instance,
+            requires_confirmation: false,
+            is_readonly: true,
+            params_schema: json!({
+                "type": "object",
+                "properties": {}
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		_arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instances = theseus::instance::list().await.map_err(|e| e.to_string())?;
-		let list: Vec<Value> = instances
-			.iter()
-			.map(|meta| {
-				json!({
-					"id": meta.instance.id,
-					"name": meta.instance.name,
-					"game_version": meta.applied_content_set.game_version,
-					"loader": meta.applied_content_set.loader,
-				})
-			})
-			.collect();
-		Ok(json!({ "instances": list }))
-	}
+    async fn execute(
+        &self,
+        _arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instances =
+            theseus::instance::list().await.map_err(|e| e.to_string())?;
+        let list: Vec<Value> = instances
+            .iter()
+            .map(|meta| {
+                json!({
+                    "id": meta.instance.id,
+                    "name": meta.instance.name,
+                    "game_version": meta.applied_content_set.game_version,
+                    "loader": meta.applied_content_set.loader,
+                })
+            })
+            .collect();
+        Ok(json!({ "instances": list }))
+    }
 }
 
 /// 构造并注册全部模组操作工具。
 pub fn register_mod_ops_tools(registry: &Arc<super::registry::ToolRegistry>) {
-	let tools: Vec<Arc<dyn Tool>> = vec![
-		Arc::new(SearchModsTool),
-		Arc::new(GetModDetailsTool),
-		Arc::new(InstallModTool),
-		Arc::new(RemoveModTool),
-		Arc::new(UpdateModTool),
-		Arc::new(ListInstalledModsTool),
-		Arc::new(ListInstancesTool),
-		Arc::new(ResolveDependenciesTool),
-		Arc::new(GetInstanceInfoTool),
-		Arc::new(CreateInstanceTool),
-		Arc::new(DuplicateInstanceTool),
-		Arc::new(DeleteInstanceTool),
-		Arc::new(LaunchInstanceTool),
-	];
-	for tool in tools {
-		registry.register(tool);
-	}
+    let tools: Vec<Arc<dyn Tool>> = vec![
+        Arc::new(SearchModsTool),
+        Arc::new(GetModDetailsTool),
+        Arc::new(InstallModTool),
+        Arc::new(RemoveModTool),
+        Arc::new(UpdateModTool),
+        Arc::new(ListInstalledModsTool),
+        Arc::new(ListInstancesTool),
+        Arc::new(ResolveDependenciesTool),
+        Arc::new(GetInstanceInfoTool),
+        Arc::new(CreateInstanceTool),
+        Arc::new(DuplicateInstanceTool),
+        Arc::new(DeleteInstanceTool),
+        Arc::new(LaunchInstanceTool),
+    ];
+    for tool in tools {
+        registry.register(tool);
+    }
 }
 
 /// 解析依赖（readonly）。参数：mod_ids（string[]）必填。逐一取最新版本并列出依赖项目摘要。
@@ -422,8 +438,8 @@ pub struct ResolveDependenciesTool;
 
 #[async_trait]
 impl Tool for ResolveDependenciesTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
 			name: "resolve_dependencies".to_string(),
 			description: "解析一个或多个模组的最新版本的依赖关系（含依赖类型与依赖项目信息）。".to_string(),
 			domain: ToolDomain::Mods,
@@ -437,64 +453,78 @@ impl Tool for ResolveDependenciesTool {
 				"required": ["mod_ids"]
 			}),
 		}
-	}
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let mod_ids: Vec<String> = arguments
-			.get("mod_ids")
-			.and_then(Value::as_array)
-			.map(|arr| arr.iter().filter_map(Value::as_str).map(str::to_string).collect())
-			.unwrap_or_default();
-		if mod_ids.is_empty() {
-			return Err("缺少参数: mod_ids (非空字符串数组)".to_string());
-		}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let mod_ids: Vec<String> = arguments
+            .get("mod_ids")
+            .and_then(Value::as_array)
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(Value::as_str)
+                    .map(str::to_string)
+                    .collect()
+            })
+            .unwrap_or_default();
+        if mod_ids.is_empty() {
+            return Err("缺少参数: mod_ids (非空字符串数组)".to_string());
+        }
 
-		let mut report = Vec::new();
-		for mod_id in &mod_ids {
-			let versions = theseus::cache::get_project_versions(mod_id, None)
-				.await
-				.map_err(|e| format!("获取 {mod_id} 版本失败: {e}"))?
-				.unwrap_or_default();
-			let Some(latest) = versions.into_iter().next() else {
-				report.push(json!({
-					"mod_id": mod_id,
-					"error": "未找到可用版本",
-					"dependencies": [],
-				}));
-				continue;
-			};
-			let mut deps = Vec::new();
-			for dependency in latest.dependencies {
-				let Some(dep_project_id) = dependency.project_id.clone() else {
-					continue;
-				};
-				let dep_info = match theseus::cache::get_project(&dep_project_id, None).await {
-					Ok(Some(project)) => json!({
-						"project_id": dep_project_id,
-						"title": project.title,
-						"slug": project.slug,
-					}),
-					Ok(None) => json!({ "project_id": dep_project_id, "title": null, "slug": null }),
-					Err(e) => json!({ "project_id": dep_project_id, "error": e.to_string() }),
-				};
-				deps.push(json!({
+        let mut report = Vec::new();
+        for mod_id in &mod_ids {
+            let versions = theseus::cache::get_project_versions(mod_id, None)
+                .await
+                .map_err(|e| format!("获取 {mod_id} 版本失败: {e}"))?
+                .unwrap_or_default();
+            let Some(latest) = versions.into_iter().next() else {
+                report.push(json!({
+                    "mod_id": mod_id,
+                    "error": "未找到可用版本",
+                    "dependencies": [],
+                }));
+                continue;
+            };
+            let mut deps = Vec::new();
+            for dependency in latest.dependencies {
+                let Some(dep_project_id) = dependency.project_id.clone() else {
+                    continue;
+                };
+                let dep_info = match theseus::cache::get_project(
+                    &dep_project_id,
+                    None,
+                )
+                .await
+                {
+                    Ok(Some(project)) => json!({
+                        "project_id": dep_project_id,
+                        "title": project.title,
+                        "slug": project.slug,
+                    }),
+                    Ok(None) => {
+                        json!({ "project_id": dep_project_id, "title": null, "slug": null })
+                    }
+                    Err(e) => {
+                        json!({ "project_id": dep_project_id, "error": e.to_string() })
+                    }
+                };
+                deps.push(json!({
 					"dependency_type": format!("{:?}", dependency.dependency_type).to_lowercase(),
 					"project": dep_info,
 				}));
-			}
-			report.push(json!({
-				"mod_id": mod_id,
-				"version_id": latest.id,
-				"version_number": latest.version_number,
-				"dependencies": deps,
-			}));
-		}
-		Ok(json!({ "report": report }))
-	}
+            }
+            report.push(json!({
+                "mod_id": mod_id,
+                "version_id": latest.id,
+                "version_number": latest.version_number,
+                "dependencies": deps,
+            }));
+        }
+        Ok(json!({ "report": report }))
+    }
 }
 
 /// 获取实例详情（readonly）。参数：instance_id 必填。
@@ -502,45 +532,49 @@ pub struct GetInstanceInfoTool;
 
 #[async_trait]
 impl Tool for GetInstanceInfoTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "get_instance_info".to_string(),
-			description: "获取单个实例的详细信息（版本、加载器、路径、已装模组列表等）。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: false,
-			is_readonly: true,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"instance_id": { "type": "string", "description": "实例 ID" }
-				},
-				"required": ["instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "get_instance_info".to_string(),
+            description:
+                "获取单个实例的详细信息（版本、加载器、路径、已装模组列表等）。"
+                    .to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: false,
+            is_readonly: true,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "instance_id": { "type": "string", "description": "实例 ID" }
+                },
+                "required": ["instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		let metadata = theseus::instance::get(&instance_id)
-			.await
-			.map_err(|e| e.to_string())?
-			.ok_or_else(|| format!("未找到实例: {instance_id}"))?;
-		let installed = theseus::instance::get_installed_project_ids(&instance_id)
-			.await
-			.unwrap_or_default();
-		let mut value = serde_json::to_value(&metadata).map_err(|e| e.to_string())?;
-		if let Value::Object(obj) = &mut value {
-			obj.insert(
-				"installed_project_ids".to_string(),
-				serde_json::to_value(installed).map_err(|e| e.to_string())?,
-			);
-		}
-		Ok(value)
-	}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        let metadata = theseus::instance::get(&instance_id)
+            .await
+            .map_err(|e| e.to_string())?
+            .ok_or_else(|| format!("未找到实例: {instance_id}"))?;
+        let installed =
+            theseus::instance::get_installed_project_ids(&instance_id)
+                .await
+                .unwrap_or_default();
+        let mut value =
+            serde_json::to_value(&metadata).map_err(|e| e.to_string())?;
+        if let Value::Object(obj) = &mut value {
+            obj.insert(
+                "installed_project_ids".to_string(),
+                serde_json::to_value(installed).map_err(|e| e.to_string())?,
+            );
+        }
+        Ok(value)
+    }
 }
 
 /// 创建实例（写入，需确认）。参数：name / mc_version / loader / loader_version（可选）。
@@ -548,8 +582,8 @@ pub struct CreateInstanceTool;
 
 #[async_trait]
 impl Tool for CreateInstanceTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
 			name: "create_instance".to_string(),
 			description: "创建新实例（指定名称、游戏版本与加载器）。安装任务异步执行，返回任务快照。".to_string(),
 			domain: ToolDomain::Mods,
@@ -566,33 +600,40 @@ impl Tool for CreateInstanceTool {
 				"required": ["name", "mc_version", "loader"]
 			}),
 		}
-	}
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let name = string_arg(&arguments, "name")?;
-		let game_version = string_arg(&arguments, "mc_version")?;
-		let loader = parse_loader(string_arg(&arguments, "loader")?.as_str())
-			.ok_or_else(|| "未知加载器，仅支持 fabric/forge/quilt/neoforge/vanilla".to_string())?;
-		let loader_version = arguments.get("loader_version").and_then(Value::as_str);
+    async fn execute(
+        &self,
+        arguments: Value,
+        ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let name = string_arg(&arguments, "name")?;
+        let game_version = string_arg(&arguments, "mc_version")?;
+        let loader = parse_loader(string_arg(&arguments, "loader")?.as_str())
+            .ok_or_else(|| {
+            "未知加载器，仅支持 fabric/forge/quilt/neoforge/vanilla".to_string()
+        })?;
+        let loader_version =
+            arguments.get("loader_version").and_then(Value::as_str);
 
-		ctx.report_progress("创建实例".to_string(), Some(3.0), Some("提交安装任务...".to_string()));
-		let snapshot = theseus::install::create_instance(
-			name.trim().to_string(),
-			game_version,
-			loader,
-			loader_version.map(str::to_string),
-			None,
-			None,
-			theseus::data::InstanceLink::Unmanaged,
-		)
-		.await
-		.map_err(|e| format!("创建实例失败: {e}"))?;
-		serde_json::to_value(&snapshot).map_err(|e| e.to_string())
-	}
+        ctx.report_progress(
+            "创建实例".to_string(),
+            Some(3.0),
+            Some("提交安装任务...".to_string()),
+        );
+        let snapshot = theseus::install::create_instance(
+            name.trim().to_string(),
+            game_version,
+            loader,
+            loader_version.map(str::to_string),
+            None,
+            None,
+            theseus::data::InstanceLink::Unmanaged,
+        )
+        .await
+        .map_err(|e| format!("创建实例失败: {e}"))?;
+        serde_json::to_value(&snapshot).map_err(|e| e.to_string())
+    }
 }
 
 /// 复制实例（写入，需确认）。参数：instance_id；new_name 可选（注明：复制后名称与原实例一致）。
@@ -600,35 +641,38 @@ pub struct DuplicateInstanceTool;
 
 #[async_trait]
 impl Tool for DuplicateInstanceTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "duplicate_instance".to_string(),
-			description: "复制现有实例（含模组与配置）。异步任务执行，返回任务快照。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"instance_id": { "type": "string", "description": "源实例 ID" },
-					"new_name": { "type": "string", "description": "新实例名称（当前版本不重命名，仅作提示）" }
-				},
-				"required": ["instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "duplicate_instance".to_string(),
+            description:
+                "复制现有实例（含模组与配置）。异步任务执行，返回任务快照。"
+                    .to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "instance_id": { "type": "string", "description": "源实例 ID" },
+                    "new_name": { "type": "string", "description": "新实例名称（当前版本不重命名，仅作提示）" }
+                },
+                "required": ["instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		let snapshot = theseus::install::duplicate_instance(instance_id.clone())
-			.await
-			.map_err(|e| format!("复制实例失败: {e}"))?;
-		serde_json::to_value(&snapshot).map_err(|e| e.to_string())
-	}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        let snapshot =
+            theseus::install::duplicate_instance(instance_id.clone())
+                .await
+                .map_err(|e| format!("复制实例失败: {e}"))?;
+        serde_json::to_value(&snapshot).map_err(|e| e.to_string())
+    }
 }
 
 /// 删除实例（写入，需确认）。参数：instance_id；keep_files 当前版本不支持（仅提示）。
@@ -636,35 +680,36 @@ pub struct DeleteInstanceTool;
 
 #[async_trait]
 impl Tool for DeleteInstanceTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "delete_instance".to_string(),
-			description: "删除实例及其数据文件。不可恢复，请谨慎确认。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"instance_id": { "type": "string", "description": "实例 ID" },
-					"keep_files": { "type": "boolean", "description": "预留参数，当前版本忽略" }
-				},
-				"required": ["instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "delete_instance".to_string(),
+            description: "删除实例及其数据文件。不可恢复，请谨慎确认。"
+                .to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "instance_id": { "type": "string", "description": "实例 ID" },
+                    "keep_files": { "type": "boolean", "description": "预留参数，当前版本忽略" }
+                },
+                "required": ["instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		theseus::instance::remove(&instance_id)
-			.await
-			.map_err(|e| format!("删除实例失败: {e}"))?;
-		Ok(json!({ "deleted": instance_id }))
-	}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        theseus::instance::remove(&instance_id)
+            .await
+            .map_err(|e| format!("删除实例失败: {e}"))?;
+        Ok(json!({ "deleted": instance_id }))
+    }
 }
 
 /// 启动实例（需确认）。参数：instance_id；jvm_args 当前版本忽略（会保留供扩展）。
@@ -672,129 +717,140 @@ pub struct LaunchInstanceTool;
 
 #[async_trait]
 impl Tool for LaunchInstanceTool {
-	fn info(&self) -> ToolInfo {
-		ToolInfo {
-			name: "launch_instance".to_string(),
-			description: "启动实例（启动游戏）。参数 jvm_args 当前版本忽略。".to_string(),
-			domain: ToolDomain::Mods,
-			requires_confirmation: true,
-			is_readonly: false,
-			params_schema: json!({
-				"type": "object",
-				"properties": {
-					"instance_id": { "type": "string", "description": "实例 ID" },
-					"jvm_args": { "type": "string", "description": "预留参数，当前版本忽略" }
-				},
-				"required": ["instance_id"]
-			}),
-		}
-	}
+    fn info(&self) -> ToolInfo {
+        ToolInfo {
+            name: "launch_instance".to_string(),
+            description: "启动实例（启动游戏）。参数 jvm_args 当前版本忽略。"
+                .to_string(),
+            domain: ToolDomain::Mods,
+            requires_confirmation: true,
+            is_readonly: false,
+            params_schema: json!({
+                "type": "object",
+                "properties": {
+                    "instance_id": { "type": "string", "description": "实例 ID" },
+                    "jvm_args": { "type": "string", "description": "预留参数，当前版本忽略" }
+                },
+                "required": ["instance_id"]
+            }),
+        }
+    }
 
-	async fn execute(
-		&self,
-		arguments: Value,
-		_ctx: &ExecutionContext,
-	) -> Result<Value, String> {
-		let instance_id = string_arg(&arguments, "instance_id")?;
-		let process = theseus::instance::run(&instance_id, theseus::instance::QuickPlayType::None)
-			.await
-			.map_err(|e| format!("启动实例失败: {e}"))?;
-		serde_json::to_value(&process).map_err(|e| e.to_string())
-	}
+    async fn execute(
+        &self,
+        arguments: Value,
+        _ctx: &ExecutionContext,
+    ) -> Result<Value, String> {
+        let instance_id = string_arg(&arguments, "instance_id")?;
+        let process = theseus::instance::run(
+            &instance_id,
+            theseus::instance::QuickPlayType::None,
+        )
+        .await
+        .map_err(|e| format!("启动实例失败: {e}"))?;
+        serde_json::to_value(&process).map_err(|e| e.to_string())
+    }
 }
 
 fn parse_loader(loader: &str) -> Option<theseus::data::ModLoader> {
-	use theseus::data::ModLoader;
-	match loader.to_lowercase().as_str() {
-		"vanilla" => Some(ModLoader::Vanilla),
-		"forge" => Some(ModLoader::Forge),
-		"fabric" => Some(ModLoader::Fabric),
-		"quilt" => Some(ModLoader::Quilt),
-		"neoforge" => Some(ModLoader::NeoForge),
-		_ => None,
-	}
+    use theseus::data::ModLoader;
+    match loader.to_lowercase().as_str() {
+        "vanilla" => Some(ModLoader::Vanilla),
+        "forge" => Some(ModLoader::Forge),
+        "fabric" => Some(ModLoader::Fabric),
+        "quilt" => Some(ModLoader::Quilt),
+        "neoforge" => Some(ModLoader::NeoForge),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
 mod tests {
-	use super::*;
-	use serde_json::json;
+    use super::*;
+    use serde_json::json;
 
-	#[tokio::test]
-	async fn search_mods_requires_query() {
-		let tool = SearchModsTool;
-		let result = tool.execute(json!({}), &ExecutionContext::default()).await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: query");
-	}
+    #[tokio::test]
+    async fn search_mods_requires_query() {
+        let tool = SearchModsTool;
+        let result =
+            tool.execute(json!({}), &ExecutionContext::default()).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: query");
+    }
 
-	#[tokio::test]
-	async fn search_mods_rejects_wrong_query_type() {
-		let tool = SearchModsTool;
-		let result = tool
-			.execute(json!({ "query": 42 }), &ExecutionContext::default())
-			.await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: query");
-	}
+    #[tokio::test]
+    async fn search_mods_rejects_wrong_query_type() {
+        let tool = SearchModsTool;
+        let result = tool
+            .execute(json!({ "query": 42 }), &ExecutionContext::default())
+            .await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: query");
+    }
 
-	#[tokio::test]
-	async fn get_mod_details_requires_mod_id() {
-		let tool = GetModDetailsTool;
-		let result = tool.execute(json!({}), &ExecutionContext::default()).await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: mod_id");
-	}
+    #[tokio::test]
+    async fn get_mod_details_requires_mod_id() {
+        let tool = GetModDetailsTool;
+        let result =
+            tool.execute(json!({}), &ExecutionContext::default()).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: mod_id");
+    }
 
-	#[tokio::test]
-	async fn install_mod_requires_mod_id_and_instance_id() {
-		let tool = InstallModTool;
-		let err = tool
-			.execute(json!({ "mod_id": "abc" }), &ExecutionContext::default())
-			.await
-			.unwrap_err();
-		assert_eq!(err, "缺少参数: instance_id");
-		let err = tool
-			.execute(json!({ "instance_id": "i1" }), &ExecutionContext::default())
-			.await
-			.unwrap_err();
-		assert_eq!(err, "缺少参数: mod_id");
-	}
+    #[tokio::test]
+    async fn install_mod_requires_mod_id_and_instance_id() {
+        let tool = InstallModTool;
+        let err = tool
+            .execute(json!({ "mod_id": "abc" }), &ExecutionContext::default())
+            .await
+            .unwrap_err();
+        assert_eq!(err, "缺少参数: instance_id");
+        let err = tool
+            .execute(
+                json!({ "instance_id": "i1" }),
+                &ExecutionContext::default(),
+            )
+            .await
+            .unwrap_err();
+        assert_eq!(err, "缺少参数: mod_id");
+    }
 
-	#[tokio::test]
-	async fn remove_mod_requires_mod_id() {
-		let tool = RemoveModTool;
-		let result = tool.execute(json!({}), &ExecutionContext::default()).await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: mod_id");
-	}
+    #[tokio::test]
+    async fn remove_mod_requires_mod_id() {
+        let tool = RemoveModTool;
+        let result =
+            tool.execute(json!({}), &ExecutionContext::default()).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: mod_id");
+    }
 
-	#[tokio::test]
-	async fn update_mod_requires_instance_id() {
-		let tool = UpdateModTool;
-		let result = tool
-			.execute(json!({ "mod_id": "abc" }), &ExecutionContext::default())
-			.await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: instance_id");
-	}
+    #[tokio::test]
+    async fn update_mod_requires_instance_id() {
+        let tool = UpdateModTool;
+        let result = tool
+            .execute(json!({ "mod_id": "abc" }), &ExecutionContext::default())
+            .await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: instance_id");
+    }
 
-	#[tokio::test]
-	async fn list_installed_mods_requires_instance_id() {
-		let tool = ListInstalledModsTool;
-		let result = tool.execute(json!({}), &ExecutionContext::default()).await;
-		assert!(result.is_err());
-		assert_eq!(result.unwrap_err(), "缺少参数: instance_id");
-	}
+    #[tokio::test]
+    async fn list_installed_mods_requires_instance_id() {
+        let tool = ListInstalledModsTool;
+        let result =
+            tool.execute(json!({}), &ExecutionContext::default()).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "缺少参数: instance_id");
+    }
 
-	#[test]
-	fn search_mods_default_limit_and_schema() {
-		let tool = SearchModsTool;
-		assert!(!tool.requires_confirmation());
-		assert!(tool.info().is_readonly);
-		let schema = tool.info().params_schema;
-		assert_eq!(schema["required"][0], json!("query"));
-		assert_eq!(schema["properties"]["limit"]["default"], json!(10));
-	}
+    #[test]
+    fn search_mods_default_limit_and_schema() {
+        let tool = SearchModsTool;
+        assert!(!tool.requires_confirmation());
+        assert!(tool.info().is_readonly);
+        let schema = tool.info().params_schema;
+        assert_eq!(schema["required"][0], json!("query"));
+        assert_eq!(schema["properties"]["limit"]["default"], json!(10));
+    }
 }
 // === AI-WORKSHOP END ===
