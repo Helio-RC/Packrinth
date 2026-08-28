@@ -30,9 +30,6 @@ pub use self::process::*;
 mod java_globals;
 pub use self::java_globals::*;
 
-mod discord;
-pub use self::discord::*;
-
 mod minecraft_auth;
 pub use self::minecraft_auth::*;
 
@@ -83,9 +80,6 @@ pub struct State {
     shared_instance_locks: DashMap<String, Arc<Mutex<()>>>,
     /// Serializes canonical synced-option mutations and checkpoint updates.
     synced_options_lock: Mutex<()>,
-
-    /// Discord RPC
-    pub discord_rpc: DiscordGuard,
 
     /// Process manager
     pub process_manager: ProcessManager,
@@ -196,14 +190,13 @@ impl State {
             }
 
             let res = tokio::try_join!(
-                state.discord_rpc.clear_to_default(true),
                 instances::refresh_all_instances(),
                 Settings::migrate(&state.pool),
                 ModrinthCredentials::refresh_all(),
             );
 
             if let Err(e) = res {
-                tracing::error!("Error running discord RPC: {e}");
+                tracing::error!("Error initializing instance state: {e}");
             }
 
             let _ = state
@@ -275,8 +268,6 @@ impl State {
         let directories =
             DirectoryInfo::init(settings.custom_dir, &app_identifier).await?;
 
-        let discord_rpc = DiscordGuard::init()?;
-
         tracing::info!("Initializing file watcher");
         let file_watcher = instances::watcher::init_watcher().await?;
 
@@ -295,7 +286,6 @@ impl State {
             instance_screenshot_locks: DashMap::new(),
             shared_instance_locks: DashMap::new(),
             synced_options_lock: Mutex::new(()),
-            discord_rpc,
             process_manager,
             friends_socket,
             restart_after_pending_update: AtomicBool::new(false),

@@ -1301,12 +1301,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discord의 현재 활동 상태에 Packrinth을 표시합니다. 모드가 인스턴스에 추가한 Rich Presence에는 영향을 미치지 않습니다. 앱 재시작이 필요합니다."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord 활동 상태"
-  },
   "app.settings.privacy.telemetry.description": {
     "message": "Packrinth는 사용자 경험 향상 및 맞춤 설정을 위해 익명화된 분석 데이터와 사용 데이터를 수집합니다. 이 옵션을 비활성화하면 데이터 수집을 거부하게 되며, 더 이상 데이터가 수집되지 않습니다."
   },

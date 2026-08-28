@@ -893,12 +893,6 @@
   "app.settings.operating-system.macos": {
     "message": "MacOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discordの現在のプレイ中に Packrinth を表示します。これはModによってインスタンスに追加されるRich Presenceには影響しません。適用にはアプリの再起動が必要です。"
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
     "message": "Packrinthはユーザー体験の向上および最適化のために、匿名化されたアナリティクスと利用データを収集しています。このオプションをオフにすることで無効化（オプトアウト）され、以降データの収集は行われません。"
   },

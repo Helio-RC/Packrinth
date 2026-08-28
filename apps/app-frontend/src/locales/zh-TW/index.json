@@ -1382,12 +1382,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "在 Discord 上將 Packrinth 顯示為目前活動。這不會影響模組為實例新增的豐富狀態。需要重新啟動應用程式。"
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord 豐富狀態"
-  },
   "app.settings.privacy.telemetry.description": {
     "message": "Packrinth 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
   },

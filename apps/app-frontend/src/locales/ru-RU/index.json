@@ -1361,12 +1361,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показывать Packrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
     "message": "Packrinth собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
   },

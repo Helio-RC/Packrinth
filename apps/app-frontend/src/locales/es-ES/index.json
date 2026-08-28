@@ -1328,9 +1328,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Estado de la actividad en Discord"
-  },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetría"
   },

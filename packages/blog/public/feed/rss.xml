@@ -10,7 +10,7 @@
 		<description><![CDATA[Keep up-to-date on the latest news from Modrinth.]]></description>
 		<link>https://modrinth.com/news/</link>
 		<generator>@modrinth/blog</generator>
-		<lastBuildDate>Fri, 28 Aug 2026 12:27:51 GMT</lastBuildDate>
+		<lastBuildDate>Fri, 28 Aug 2026 13:57:34 GMT</lastBuildDate>
 		<atom:link
 			href="https://modrinth.com/news/feed/rss.xml"
 			rel="self"

@@ -985,8 +985,6 @@ impl Process {
             tracing::warn!("Failed to write exit status to log file: {}", e);
         }
 
-        let _ = state.discord_rpc.clear_to_default(true).await;
-
         let _ = state.friends_socket.update_status(None).await;
 
         // If in tauri, window should show itself again after process exists if it was hidden

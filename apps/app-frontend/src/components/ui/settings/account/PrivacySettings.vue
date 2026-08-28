@@ -18,15 +18,6 @@ const messages = defineMessages({
 		defaultMessage:
 			'Packrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected.',
 	},
-	discordRichPresenceTitle: {
-		id: 'app.settings.privacy.discord-rich-presence.title',
-		defaultMessage: 'Discord Rich Presence',
-	},
-	discordRichPresenceDescription: {
-		id: 'app.settings.privacy.discord-rich-presence.description',
-		defaultMessage:
-			'Show Packrinth as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart.',
-	},
 })
 
 watch(
@@ -55,17 +46,5 @@ watch(
 			</p>
 		</div>
 		<Toggle id="opt-out-analytics" v-model="settings.telemetry" />
-	</div>
-
-	<div class="mt-4 flex items-center justify-between gap-4">
-		<div>
-			<h2 class="m-0 text-lg font-semibold text-contrast">
-				{{ formatMessage(messages.discordRichPresenceTitle) }}
-			</h2>
-			<p class="m-0 mt-1">
-				{{ formatMessage(messages.discordRichPresenceDescription) }}
-			</p>
-		</div>
-		<Toggle id="disable-discord-rpc" v-model="settings.discord_rpc" />
 	</div>
 </template>

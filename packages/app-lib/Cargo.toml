@@ -31,7 +31,6 @@ dashmap = { workspace = true, features = ["serde"] }
 data-url = { workspace = true }
 derive_more = { workspace = true, features = ["display"] }
 dirs = { workspace = true }
-discord-rich-presence = { workspace = true }
 dunce = { workspace = true }
 either = { workspace = true }
 encoding_rs = { workspace = true }

@@ -1118,12 +1118,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "A Packrinth megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
     "message": "A Packrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
   },
