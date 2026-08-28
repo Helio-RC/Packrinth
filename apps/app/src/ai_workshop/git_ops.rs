@@ -658,6 +658,12 @@ mod tests {
         index.write().unwrap();
         let tree_id = index.write_tree().unwrap();
         let tree = repo.find_tree(tree_id).unwrap();
+        // CI 无全局 git 身份；测试用仓库级身份，避免依赖环境配置。
+        {
+            let mut config = repo.config().unwrap();
+            config.set_str("user.name", "test").unwrap();
+            config.set_str("user.email", "test@packrinth.local").unwrap();
+        }
         let sig = repo.signature().unwrap();
         let parent = repo.head().ok().and_then(|h| h.peel_to_commit().ok());
         match parent {
