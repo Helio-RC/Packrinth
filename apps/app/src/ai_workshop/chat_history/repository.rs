@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 use std::path::Path;
 use std::sync::Mutex;
 
@@ -219,14 +221,13 @@ impl ChatHistoryRepository {
             "markdown" => {
                 let mut out = format!("# {}\n\n", conversation.title);
                 for message in &messages {
-                    out.push_str(&format!(
-                        "**{}**: {}\n",
+                    let _ = writeln!(
+                        out,
+                        "**{}**: {}",
                         message.role, message.content
-                    ));
+                    );
                     if let Some(tool_calls) = &message.tool_calls {
-                        out.push_str(&format!(
-                            "  - tool_calls: {tool_calls}\n"
-                        ));
+                        let _ = writeln!(out, "  - tool_calls: {tool_calls}");
                     }
                 }
                 Ok(out)

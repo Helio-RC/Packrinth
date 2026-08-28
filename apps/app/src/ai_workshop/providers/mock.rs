@@ -126,20 +126,27 @@ fn parse_tool_calls(value: &serde_json::Value) -> Vec<ToolCall> {
         .map(|calls| {
             calls
                 .iter()
-                .map(|call| ToolCall {
-                    id: call
-                        .get("id")
-                        .and_then(|id| id.as_str())
-                        .unwrap_or_default()
-                        .to_string(),
-                    name: call
-                        .get("name")
-                        .and_then(|name| name.as_str())
-                        .unwrap_or_default()
-                        .to_string(),
-                    arguments: call.get("arguments").cloned().unwrap_or_else(
-                        || serde_json::Value::Object(Default::default()),
-                    ),
+                .map(|call| {
+                    ToolCall {
+                        id: call
+                            .get("id")
+                            .and_then(|id| id.as_str())
+                            .unwrap_or_default()
+                            .to_string(),
+                        name: call
+                            .get("name")
+                            .and_then(|name| name.as_str())
+                            .unwrap_or_default()
+                            .to_string(),
+                        arguments: call
+                            .get("arguments")
+                            .cloned()
+                            .unwrap_or_else(|| {
+                                serde_json::Value::Object(
+                                    serde_json::Map::default(),
+                                )
+                            }),
+                    }
                 })
                 .collect()
         })
@@ -246,7 +253,7 @@ impl AiProvider for MockProvider {
             .and_then(|c| c.as_u64())
             .unwrap_or(0) as usize;
         if chunk_count > 0 && !chars.is_empty() {
-            let chunk_size = (chars.len() + chunk_count - 1) / chunk_count;
+            let chunk_size = chars.len().div_ceil(chunk_count);
             for chunk in chars.chunks(chunk_size) {
                 let text: String = chunk.iter().collect();
                 let _ = tx

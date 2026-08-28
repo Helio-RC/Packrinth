@@ -140,7 +140,7 @@ mod tests {
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let addr = listener.local_addr().unwrap();
         std::thread::spawn(move || {
-            for stream in listener.incoming().flatten() {
+            if let Some(stream) = listener.incoming().flatten().next() {
                 let mut stream = stream;
                 let mut buf = [0u8; 4096];
                 let _ = std::io::Read::read(&mut stream, &mut buf);
@@ -150,7 +150,6 @@ mod tests {
                     body
                 );
                 let _ = stream.write_all(response.as_bytes());
-                break;
             }
         });
         format!("http://{addr}/")

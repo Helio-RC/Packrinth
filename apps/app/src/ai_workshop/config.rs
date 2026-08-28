@@ -215,11 +215,10 @@ impl ConfigManager {
         let config_path = ai_root.join("config.json");
         let config = if config_path.exists() {
             match std::fs::read_to_string(&config_path)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+                .map_err(std::io::Error::other)
                 .and_then(|raw| {
-                    serde_json::from_str::<AiWorkshopConfig>(&raw).map_err(
-                        |e| std::io::Error::new(std::io::ErrorKind::Other, e),
-                    )
+                    serde_json::from_str::<AiWorkshopConfig>(&raw)
+                        .map_err(std::io::Error::other)
                 }) {
                 Ok(config) => config,
                 Err(e) => {
@@ -232,7 +231,7 @@ impl ConfigManager {
         } else {
             let default = AiWorkshopConfig::default();
             if let Err(e) = serde_json::to_string_pretty(&default)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+                .map_err(std::io::Error::other)
                 .and_then(|raw| std::fs::write(&config_path, raw))
             {
                 tracing::warn!(
@@ -244,7 +243,7 @@ impl ConfigManager {
 
         Ok(Arc::new(Self {
             inner: RwLock::new(config),
-            ai_root: ai_root.clone(),
+            ai_root,
             config_path,
             key_store: Arc::new(KeyringKeyStore),
         }))

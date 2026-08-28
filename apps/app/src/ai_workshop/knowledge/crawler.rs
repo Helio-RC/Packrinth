@@ -53,12 +53,11 @@ impl UrlFilter {
     }
 
     pub fn is_allowed(&self, url: &str) -> bool {
-        let host = match Url::parse(url)
+        let Some(host) = Url::parse(url)
             .ok()
             .and_then(|u| u.host_str().map(|h| h.to_lowercase()))
-        {
-            Some(h) => h,
-            None => return false,
+        else {
+            return false;
         };
         self.allowed_domains.iter().any(|domain| {
             host == *domain || host.ends_with(&format!(".{domain}"))
@@ -87,10 +86,10 @@ pub async fn fetch_and_extract(url: &str) -> Result<FetchedPage> {
             return Err(err(format!("非 HTML 内容类型: {ct}")));
         }
     }
-    if let Some(len) = response.content_length() {
-        if len > MAX_BODY_BYTES as u64 {
-            return Err(err(format!("响应体超过 {MAX_BODY_BYTES} 字节限制")));
-        }
+    if let Some(len) = response.content_length()
+        && len > MAX_BODY_BYTES as u64
+    {
+        return Err(err(format!("响应体超过 {MAX_BODY_BYTES} 字节限制")));
     }
     let body = response.bytes().await.map_err(err)?;
     if body.len() > MAX_BODY_BYTES {
@@ -142,13 +141,13 @@ pub async fn crawl(
 /// 提取标题：title 标签优先，fallback h1。
 fn extract_title(document: &Html) -> String {
     for sel in ["title", "h1"] {
-        if let Ok(selector) = Selector::parse(sel) {
-            if let Some(el) = document.select(&selector).next() {
-                let text = el.text().collect::<Vec<_>>().join(" ");
-                let collapsed = collapse_whitespace(&text);
-                if !collapsed.is_empty() {
-                    return collapsed;
-                }
+        if let Ok(selector) = Selector::parse(sel)
+            && let Some(el) = document.select(&selector).next()
+        {
+            let text = el.text().collect::<Vec<_>>().join(" ");
+            let collapsed = collapse_whitespace(&text);
+            if !collapsed.is_empty() {
+                return collapsed;
             }
         }
     }
@@ -168,10 +167,10 @@ fn extract_content(document: &Html) -> String {
             }
         }
     }
-    if let Ok(selector) = Selector::parse("body") {
-        if let Some(el) = document.select(&selector).next() {
-            return normalize_text(&el.text().collect::<Vec<_>>().join(" "));
-        }
+    if let Ok(selector) = Selector::parse("body")
+        && let Some(el) = document.select(&selector).next()
+    {
+        return normalize_text(&el.text().collect::<Vec<_>>().join(" "));
     }
     normalize_text(
         &document.root_element().text().collect::<Vec<_>>().join(" "),
@@ -233,7 +232,7 @@ mod tests {
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let addr = listener.local_addr().unwrap();
         std::thread::spawn(move || {
-            for stream in listener.incoming().flatten() {
+            if let Some(stream) = listener.incoming().flatten().next() {
                 let mut stream = stream;
                 // 先消费请求，hyper 才会接受随后写出的响应（否则报 UnexpectedMessage）。
                 let mut buf = [0u8; 4096];
@@ -244,7 +243,6 @@ mod tests {
                     body
                 );
                 let _ = stream.write_all(response.as_bytes());
-                break;
             }
         });
         format!("http://{addr}/")
@@ -254,7 +252,7 @@ mod tests {
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let addr = listener.local_addr().unwrap();
         std::thread::spawn(move || {
-            for stream in listener.incoming().flatten() {
+            if let Some(stream) = listener.incoming().flatten().next() {
                 let mut stream = stream;
                 let mut buf = [0u8; 4096];
                 let _ = std::io::Read::read(&mut stream, &mut buf);
@@ -264,7 +262,6 @@ mod tests {
                     MAX_BODY_BYTES as u64 + 1
                 );
                 let _ = stream.write_all(response.as_bytes());
-                break;
             }
         });
         format!("http://{addr}/")
@@ -306,7 +303,7 @@ mod tests {
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let addr = listener.local_addr().unwrap();
         std::thread::spawn(move || {
-            for stream in listener.incoming().flatten() {
+            if let Some(stream) = listener.incoming().flatten().next() {
                 let mut stream = stream;
                 let mut buf = [0u8; 4096];
                 let _ = std::io::Read::read(&mut stream, &mut buf);
@@ -315,7 +312,6 @@ mod tests {
                     body.len()
                 );
                 let _ = stream.write_all(response.as_bytes());
-                break;
             }
         });
         format!("http://{addr}/")

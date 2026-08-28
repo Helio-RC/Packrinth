@@ -43,10 +43,10 @@ impl LogBuffer {
             flush_after > 0 && inner.len() >= flush_after
         };
         // 行数阈值落盘（锁外执行，避免与 flush_to_disk 的 inner 锁重入/死锁）。
-        if threshold_reached {
-            if let Some(dir) = self.dest.lock().unwrap().clone() {
-                let _ = self.flush_to_disk(&dir);
-            }
+        if threshold_reached
+            && let Some(dir) = self.dest.lock().unwrap().clone()
+        {
+            let _ = self.flush_to_disk(&dir);
         }
     }
 

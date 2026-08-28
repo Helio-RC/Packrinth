@@ -1,4 +1,5 @@
 // === AI-WORKSHOP START ===
+use std::fmt::Write as _;
 // System Prompt 技能注入：将技能名 + 描述 + guide_md（前 2000 字符）拼接为 Markdown 块。
 // 本模块仅提供纯函数；实际接入推理引擎由 Task 16 完成。
 use super::loader::Skill;
@@ -8,10 +9,11 @@ pub fn build_skill_prompt(skills: &[Skill]) -> String {
     let mut out = String::new();
     for skill in skills {
         let guide: String = skill.guide_md.chars().take(2000).collect();
-        out.push_str(&format!(
+        let _ = write!(
+            out,
             "\n\n## 技能: {}\n\n描述: {}\n\n指南:\n{}\n",
             skill.name, skill.description, guide
-        ));
+        );
     }
     out
 }

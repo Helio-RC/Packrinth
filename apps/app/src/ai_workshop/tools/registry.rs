@@ -60,7 +60,7 @@ impl ToolRegistry {
 
     pub fn register(&self, tool: Arc<dyn Tool>) {
         let info = tool.info();
-        self.inner.lock().unwrap().insert(info.name.clone(), tool);
+        self.inner.lock().unwrap().insert(info.name, tool);
     }
 
     pub fn get(&self, name: &str) -> Option<Arc<dyn Tool>> {

@@ -316,7 +316,6 @@ impl InferenceEngine {
             instance_lock_manager: self.state.instance_lock_manager.clone(),
             // AI 引擎执行时无前端进度 UI，不接线 tool-progress。
             emit_progress: None,
-            ..Default::default()
         };
         match tokio::time::timeout(
             TOOL_TIMEOUT,
@@ -478,8 +477,10 @@ mod tests {
                 .join(format!("ai_workshop_test_{}", uuid::Uuid::new_v4()));
             std::fs::create_dir_all(&dir).unwrap();
 
-            let mut config = AiWorkshopConfig::default();
-            config.mock_enabled = true;
+            let config = AiWorkshopConfig {
+                mock_enabled: true,
+                ..Default::default()
+            };
 
             let config_manager =
                 ConfigManager::for_tests(config, dir.join("config"));
@@ -561,16 +562,19 @@ mod tests {
             .await
             .expect("multi turn should complete without error");
 
-        let events = events.lock().unwrap();
-        assert!(
-            events.iter().any(|e| e.done),
-            "a done event should be emitted"
-        );
-        assert!(
-            events.iter().any(|e| e.tool_calls.is_some()),
-            "tool call events should be emitted"
-        );
-        drop(events);
+        {
+            let guard = events.lock().unwrap();
+
+            assert!(
+                guard.iter().any(|e| e.done),
+                "a done event should be emitted"
+            );
+            assert!(
+                guard.iter().any(|e| e.tool_calls.is_some()),
+                "tool call events should be emitted"
+            );
+            drop(guard);
+        }
 
         let (_, messages) = harness
             .state
@@ -796,16 +800,19 @@ mod tests {
             .await
             .expect("multi turn should close the loop without error");
 
-        let events = events.lock().unwrap();
-        assert!(
-            events.iter().all(|e| e.error.is_none()),
-            "no error events should be emitted"
-        );
-        assert!(
-            events.iter().any(|e| e.tool_calls.is_some()),
-            "tool call event should be emitted"
-        );
-        drop(events);
+        {
+            let guard = events.lock().unwrap();
+
+            assert!(
+                guard.iter().all(|e| e.error.is_none()),
+                "no error events should be emitted"
+            );
+            assert!(
+                guard.iter().any(|e| e.tool_calls.is_some()),
+                "tool call event should be emitted"
+            );
+            drop(guard);
+        }
 
         assert!(
             search_calls.load(Ordering::SeqCst) >= 1,
@@ -827,8 +834,7 @@ mod tests {
             "persisted tool result should contain the mock search result"
         );
 
-        let last_assistant =
-            messages.iter().filter(|m| m.role == "assistant").last();
+        let last_assistant = messages.iter().rfind(|m| m.role == "assistant");
         assert!(
             last_assistant.is_some()
                 && !last_assistant.unwrap().content.is_empty(),
@@ -1001,16 +1007,19 @@ mod tests {
             .await
             .expect("multi turn should close the loop without error");
 
-        let events = events.lock().unwrap();
-        assert!(
-            events.iter().all(|e| e.error.is_none()),
-            "no error events should be emitted"
-        );
-        assert!(
-            events.iter().any(|e| e.done),
-            "a done event should be emitted"
-        );
-        drop(events);
+        {
+            let guard = events.lock().unwrap();
+
+            assert!(
+                guard.iter().all(|e| e.error.is_none()),
+                "no error events should be emitted"
+            );
+            assert!(
+                guard.iter().any(|e| e.done),
+                "a done event should be emitted"
+            );
+            drop(guard);
+        }
 
         assert!(
             search_calls.load(Ordering::SeqCst) >= 1,
@@ -1036,8 +1045,7 @@ mod tests {
             tool_messages.len()
         );
 
-        let last_assistant =
-            messages.iter().filter(|m| m.role == "assistant").last();
+        let last_assistant = messages.iter().rfind(|m| m.role == "assistant");
         assert!(
             last_assistant.is_some()
                 && !last_assistant.unwrap().content.is_empty(),

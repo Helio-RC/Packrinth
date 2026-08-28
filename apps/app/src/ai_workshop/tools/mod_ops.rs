@@ -1,6 +1,7 @@
 // === AI-WORKSHOP START ===
 // 模组操作原子工具：搜索 / 详情 / 安装 / 移除 / 更新 / 列出已装 / 列出实例。
 // 直接调用 theseus API 完成实际功能，供 AI 引擎与手动工具面板共用。
+use std::fmt::Write as _;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -69,12 +70,13 @@ impl Tool for SearchModsTool {
         if let Some(loader) = loader {
             let facets =
                 json!([["project_type:mod"], [format!("categories:{loader}")]]);
-            key.push_str(&format!(
+            let _ = write!(
+                key,
                 "&facets={}",
                 urlencoding::encode(&facets.to_string())
-            ));
+            );
         }
-        key.push_str(&format!("&limit={limit}"));
+        let _ = write!(key, "&limit={limit}");
 
         let results = theseus::cache::get_search_results(&key, None)
             .await

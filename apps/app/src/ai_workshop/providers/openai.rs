@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 // === AI-WORKSHOP START ===
 // OpenAI 兼容提供商（async-openai）：服务 openai / deepseek / custom 端点。
 // Ollama 亦走此实现（无鉴权）。
@@ -105,16 +106,16 @@ impl AiProvider for OpenAIProvider {
             let Some(choice) = chunk.choices.first() else {
                 continue;
             };
-            if let Some(content) = &choice.delta.content {
-                if !content.is_empty() {
-                    send(StreamEvent {
-                        delta: Some(content.clone()),
-                        tool_calls: None,
-                        usage: None,
-                        done: false,
-                        error: None,
-                    });
-                }
+            if let Some(content) = &choice.delta.content
+                && !content.is_empty()
+            {
+                send(StreamEvent {
+                    delta: Some(content.clone()),
+                    tool_calls: None,
+                    usage: None,
+                    done: false,
+                    error: None,
+                });
             }
             if let Some(calls) = &choice.delta.tool_calls {
                 for call in calls {
@@ -149,7 +150,7 @@ impl AiProvider for OpenAIProvider {
                 },
                 name: acc.name,
                 arguments: serde_json::from_str(&acc.arguments).unwrap_or_else(
-                    |_| serde_json::Value::Object(Default::default()),
+                    |_| serde_json::Value::Object(serde_json::Map::default()),
                 ),
             })
             .collect();
@@ -318,7 +319,7 @@ fn response_to_ai(response: CreateChatCompletionResponse) -> AiResponse {
                                     )
                                     .unwrap_or_else(|_| {
                                         serde_json::Value::Object(
-                                            Default::default(),
+                                            serde_json::Map::default(),
                                         )
                                     }),
                                 })

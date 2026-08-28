@@ -103,7 +103,7 @@ impl AiProvider for AnthropicProvider {
             .final_message()
             .await
             .map_err(|e| ProviderError(e.to_string()))?;
-        let ai = message_to_ai(final_message.clone());
+        let ai = message_to_ai(final_message);
         if !ai.tool_calls.is_empty() {
             send(StreamEvent {
                 delta: None,
@@ -220,7 +220,7 @@ fn to_anthropic_tool(tool: &ToolDefinition) -> Tool {
     // 其余 schema 键（title/description 等）放入 additional 展平字段。
     let mut additional = serde_json::Map::new();
     if let Some(obj) = schema.as_object() {
-        for (key, value) in obj.iter() {
+        for (key, value) in obj {
             if !matches!(key.as_str(), "type" | "properties" | "required") {
                 additional.insert(key.clone(), value.clone());
             }

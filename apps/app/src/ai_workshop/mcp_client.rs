@@ -195,7 +195,7 @@ impl McpClient {
             next_id: AtomicU64::new(1),
         });
         let this = std::sync::Arc::new(Self {
-            shared: shared.clone(),
+            shared,
             command,
             args,
             interval: std::time::Duration::from_secs(interval_secs),
@@ -223,7 +223,7 @@ impl McpClient {
             None::<tokio::process::ChildStdin>,
         ));
         let writer_slot = stdin_slot.clone();
-        let writer_task = tokio::spawn(async move {
+        let _writer_task = tokio::spawn(async move {
             let mut event_rx = event_rx;
             while let Some(message) = event_rx.recv().await {
                 let Ok(line) = serde_json::to_string(&message) else {
@@ -324,7 +324,6 @@ impl McpClient {
             reader_task.abort();
         }
         // writer 常驻；run_loop 永不退出（应用退出随进程终止）。
-        writer_task.abort();
     }
 
     async fn clear_stdin_slot(

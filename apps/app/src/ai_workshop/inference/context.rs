@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::sync::Arc;
 
 use crate::ai_workshop::AiWorkshopState;
@@ -41,30 +42,24 @@ impl InferenceContext {
             .take(max_inject)
         {
             let guide: String = skill.guide_md.chars().take(2000).collect();
-            system.push_str(&format!("\n\n## 技能: {}\n{}", skill.name, guide));
+            let _ = write!(system, "\n\n## 技能: {}\n{}", skill.name, guide);
         }
 
         // 知识检索启用时，将结果注入为 system 附加段
         let config = self.state.config_manager.config();
-        if !config.knowledge.allowed_domains.is_empty() {
-            if let Ok(results) = self
+        if !config.knowledge.allowed_domains.is_empty()
+            && let Ok(results) = self
                 .state
                 .knowledge_router
                 .search(user_message, 3, None)
                 .await
-            {
-                if !results.is_empty() {
-                    let mut knowledge = String::from("## 知识参考\n");
-                    for (index, result) in results.iter().enumerate() {
-                        knowledge.push_str(&format!(
-                            "{}. {}\n",
-                            index + 1,
-                            result
-                        ));
-                    }
-                    system.push_str(&format!("\n\n{knowledge}"));
-                }
+            && !results.is_empty()
+        {
+            let mut knowledge = String::from("## 知识参考\n");
+            for (index, result) in results.iter().enumerate() {
+                let _ = writeln!(knowledge, "{}. {}", index + 1, result);
             }
+            let _ = write!(system, "\n\n{knowledge}");
         }
         messages.push(AiMessage::system(system));
 

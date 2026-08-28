@@ -16,11 +16,10 @@ pub fn sanitize_guide_md(markdown: &str) -> Result<String, String> {
                 Event::Html(_) | Event::InlineHtml(_) => {
                     return Err("不允许嵌入 HTML 块或内联 HTML".to_string());
                 }
-                Event::Start(Tag::Link { dest_url, .. })
-                | Event::Start(Tag::Image { dest_url, .. }) => {
-                    if !is_allowed_link(&dest_url) {
-                        return Err(format!("不允许的链接协议: {dest_url}"));
-                    }
+                Event::Start(
+                    Tag::Link { dest_url, .. } | Tag::Image { dest_url, .. },
+                ) if !is_allowed_link(&dest_url) => {
+                    return Err(format!("不允许的链接协议: {dest_url}"));
                 }
                 _ => {}
             }

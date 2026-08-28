@@ -126,8 +126,8 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
                     tool_registry: tool_registry.clone(),
                     toolchain_registry: toolchain_registry.clone(),
                     skill_loader: skill_loader.clone(),
-                    knowledge_router: knowledge_router.clone(),
-                    instance_lock_manager: instance_lock_manager.clone(),
+                    knowledge_router,
+                    instance_lock_manager,
                     log_buffer: log_buffer.clone(),
                     task_registry: task_registry.clone(),
                     pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
@@ -147,7 +147,7 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
                     );
                 }
 
-                let close_task_registry = task_registry.clone();
+                let close_task_registry = task_registry;
                 app.listen("tauri://close-requested", move |_| {
                     close_task_registry.cancel_all();
                 });

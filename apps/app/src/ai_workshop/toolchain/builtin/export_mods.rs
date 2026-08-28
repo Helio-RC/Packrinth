@@ -73,7 +73,7 @@ where
             .await
             .map_err(|e| other_err(e.to_string()))?;
         packed += 1;
-        if packed % 10 == 0 || packed == total {
+        if packed.is_multiple_of(10) || packed == total {
             let percent = if total == 0 {
                 100.0
             } else {
