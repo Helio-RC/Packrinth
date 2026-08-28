@@ -7,6 +7,10 @@ description = "Packrinth — an AI-powered Minecraft modpack maker based on the 
 repository = "https://github.com/Helio-RC/Packrinth"
 license = "GPL-3.0-only"
 
+[package.metadata.cargo-shear]
+# openssl 仅为统一 macOS native-tls 路径到 vendored 特性而引入（无直接引用）
+ignored = ["openssl"]
+
 [dependencies]
 ammonia = "4"
 anthropic-sdk-rust = "0.1.1"
@@ -94,10 +98,6 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 export-app-events = ["theseus/export-ts"]
 updater = []
-
-[package.metadata.cargo-shear]
-# openssl 仅为统一 macOS native-tls 路径到 vendored 特性而引入（无直接引用）
-ignored = ["openssl"]
 
 [lints]
 workspace = true
