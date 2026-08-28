@@ -662,7 +662,9 @@ mod tests {
         {
             let mut config = repo.config().unwrap();
             config.set_str("user.name", "test").unwrap();
-            config.set_str("user.email", "test@packrinth.local").unwrap();
+            config
+                .set_str("user.email", "test@packrinth.local")
+                .unwrap();
         }
         let sig = repo.signature().unwrap();
         let parent = repo.head().ok().and_then(|h| h.peel_to_commit().ok());
