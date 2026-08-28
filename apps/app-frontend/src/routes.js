@@ -11,6 +11,13 @@ import * as Project from '@/pages/project'
 export default new createRouter({
 	history: createWebHistory(),
 	routes: [
+		// === AI-WORKSHOP START ===
+		{
+			path: '/ai-workbench',
+			name: 'AiWorkbench',
+			component: Pages.AiWorkbench,
+		},
+		// === AI-WORKSHOP END ===
 		{
 			path: '/',
 			name: 'Home',
@@ -62,6 +69,11 @@ export default new createRouter({
 			path: '/skins',
 			name: 'Skin selector',
 			component: Pages.Skins,
+		},
+		{
+			path: '/screenshots',
+			name: 'Screenshots',
+			component: Pages.Screenshots,
 		},
 		{
 			path: '/user/:user/:projectType?',
@@ -133,6 +145,11 @@ export default new createRouter({
 					path: 'files',
 					name: 'InstanceFiles',
 					component: Instance.Files,
+				},
+				{
+					path: 'screenshots',
+					name: 'InstanceScreenshots',
+					component: Instance.Screenshots,
 				},
 				{
 					path: 'logs',

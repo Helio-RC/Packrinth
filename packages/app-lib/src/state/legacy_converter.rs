@@ -60,8 +60,7 @@ where
         settings.collapsed_navigation = legacy_settings.collapsed_navigation;
         settings.advanced_rendering = legacy_settings.advanced_rendering;
         settings.native_decorations = legacy_settings.native_decorations;
-        settings.telemetry = !legacy_settings.opt_out_analytics;
-        settings.discord_rpc = !legacy_settings.disable_discord_rpc;
+        settings.telemetry = false; // 隐私优先：迁移后遥测默认关闭
         settings.developer_mode = legacy_settings.developer_mode;
         settings.extra_launch_args = legacy_settings.custom_java_args;
         settings.custom_env_vars = legacy_settings.custom_env_args;
@@ -676,8 +675,6 @@ struct LegacySettings {
     pub max_concurrent_writes: usize,
     pub collapsed_navigation: bool,
     #[serde(default)]
-    pub disable_discord_rpc: bool,
-    #[serde(default)]
     pub hide_on_process: bool,
     #[serde(default)]
     pub native_decorations: bool,
@@ -685,8 +682,6 @@ struct LegacySettings {
     pub default_page: LegacyDefaultPage,
     #[serde(default)]
     pub developer_mode: bool,
-    #[serde(default)]
-    pub opt_out_analytics: bool,
     #[serde(default)]
     pub advanced_rendering: bool,
     #[serde(default = "default_settings_dir")]

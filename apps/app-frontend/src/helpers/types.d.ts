@@ -16,6 +16,12 @@ export type GameInstance = {
 	loader_version?: string
 
 	group_ids: string[]
+	synced_options: {
+		command_history: boolean
+		multiplayer_servers: boolean
+		creative_hotbars: boolean
+		screenshots: boolean
+	}
 
 	link?: InstanceLink | null
 	shared_instance?: SharedInstanceAttachment | null
@@ -217,9 +223,7 @@ type AppSettings = {
 	sync_behavior_across_devices: boolean
 
 	telemetry: boolean
-	discord_rpc: boolean
 	developer_mode: boolean
-	personalized_ads: boolean
 
 	extra_launch_args: string[]
 	custom_env_vars: [string, string][]

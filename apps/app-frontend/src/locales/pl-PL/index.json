@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "Pokaż logi"
   },
-  "app.ads-consent.accept": {
-    "message": "Zaakceptuj wszystko"
-  },
-  "app.ads-consent.body": {
-    "message": "Reklamy pozwalają Modrinth oraz fundują wypłaty twórców. Nasi partnerzy mogą zachować lub uzyskać dostęp ciasteczek w aplikacji, żeby spersonalizować reklamy i zmierzyć wydajność."
-  },
-  "app.ads-consent.manage": {
-    "message": "Zarządzaj preferencjami"
-  },
-  "app.ads-consent.reject": {
-    "message": "Odrzuć wszystkie"
-  },
-  "app.ads-consent.title": {
-    "message": "Twoja prywatność i jak reklamy wspierają Modrinth"
-  },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Strona główna"
   },
@@ -162,7 +147,7 @@
     "message": "Ukryj nazwę"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimalizuje Modrinth App po uruchomieniu Minecraft."
+    "message": "Minimalizuje Packrinth po uruchomieniu Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimalizuj aplikację"
@@ -1082,17 +1067,8 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Zaloguj się na konto Modrinth"
   },
-  "app.nav.signed-in-as": {
-    "message": "Zalogowano jako <user>{username}</user>"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Ulepsz do Modrinth+"
-  },
   "app.navigation.home": {
     "message": "Strona główna"
-  },
-  "app.navigation.more-options": {
-    "message": "Więcej opcji"
   },
   "app.news.title": {
     "message": "Aktualności"
@@ -1149,7 +1125,7 @@
     "message": "Uruchamianie ponowne..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Zmienne środowiskowe ustawione podczas uruchamiania instancji."
@@ -1232,15 +1208,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Reklamy pozwalają na dalsze działanie Modrinth i finansują dochody dla twórców. Nasi partnerzy mogą gromadzić albo uzyskiwać dostęp do plików cookies w celu personalizacji reklam i mierzenia skuteczności."
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Pokazuj Modrinth App jako aktywność na Discord. Nie wpływa to na Rich Presence dodane do instancji przez mody. Wymaga ponownego uruchomienia aplikacji."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
   },
@@ -1285,9 +1252,6 @@
   },
   "app.settings.tabs.behavior": {
     "message": "Zachowanie"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "Domyślne opcje gry"
   },
   "app.settings.tabs.java-installations": {
     "message": "Instalacje Java"
@@ -1455,7 +1419,7 @@
     "message": "Włącz"
   },
   "app.survey.footer": {
-    "message": "Ta opinia przejdzie bezpośrednio do zespołu Modrinth i pomoże w opracowaniu przyszłych aktualizacji!"
+    "message": "Ta opinia przejdzie bezpośrednio do zespołu Packrinth i pomoże w opracowaniu przyszłych aktualizacji!"
   },
   "app.survey.no-thanks": {
     "message": "Nie, dziękuję"
@@ -1464,16 +1428,16 @@
     "message": "Weź udział w ankiecie"
   },
   "app.survey.title": {
-    "message": "Cześć, użytkowniku Modrinth!"
+    "message": "Cześć, użytkowniku Packrinth!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Wersja Modrinth App v{version} została pobrana. Załaduj ponownie, żeby zaktualizować teraz, albo automatycznie, gdy zamkniesz Modrinth App."
+    "message": "Wersja Packrinth v{version} została pobrana. Załaduj ponownie, żeby zaktualizować teraz, albo automatycznie, gdy zamkniesz Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Wersja Modrinth App v{version} jest dostępna. Pobierz aktualizację poprzez menedżer pakietów, by uzyskać najnowsze funkcje i poprawki!"
+    "message": "Wersja Packrinth v{version} jest dostępna. Pobierz aktualizację poprzez menedżer pakietów, by uzyskać najnowsze funkcje i poprawki!"
   },
   "app.update-popup.body.metered": {
-    "message": "Wersja Modrinth App v{version} jest dostępna! Skoro korzystasz z sieci taryfowej, nie pobraliśmy jej automatycznie."
+    "message": "Wersja Packrinth v{version} jest dostępna! Skoro korzystasz z sieci taryfowej, nie pobraliśmy jej automatycznie."
   },
   "app.update-popup.changelog": {
     "message": "Dziennik zmian"
@@ -1515,7 +1479,7 @@
     "message": "Uciekasz z innego launchera?"
   },
   "app.welcome-screen.title": {
-    "message": "Witaj na Modrinth"
+    "message": "Witaj na Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -1635,7 +1599,7 @@
     "message": "Anulowanie publikacji..."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Spowoduje to usunięcie przesyłanej instalacji z serwerów Modrith. Użytkownicy korzystający z niej na Modrinth App przestaną otrzymywać aktualizacje, ale twoja lokalna instalacja zostanie na tym urządzeniu."
+    "message": "Spowoduje to usunięcie przesyłanej instalacji z serwerów Modrith. Użytkownicy korzystający z niej na Packrinth przestaną otrzymywać aktualizacje, ale twoja lokalna instalacja zostanie na tym urządzeniu."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Wycofywanie udostępnionej instancji"
@@ -2024,12 +1988,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Wybierz kanał aktualizacji"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Haczyki startowe"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Własne haczyki przy uruchomieniu"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Hooki pozwalają zaawansowanym użytkownikom uruchamiać określone systemowe komendy przed i po uruchomieniu gry."
   },
@@ -2074,9 +2032,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "Wersja {loader}"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java i pamięć"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Zmienne środowiskowe"

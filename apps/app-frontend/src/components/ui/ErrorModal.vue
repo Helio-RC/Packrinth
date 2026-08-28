@@ -3,6 +3,7 @@ import {
 	CheckIcon,
 	CopyIcon,
 	DropdownIcon,
+	FolderOpenIcon,
 	HammerIcon,
 	LogInIcon,
 	UpdatedIcon,
@@ -13,8 +14,10 @@ import {
 	Button,
 	ButtonLink,
 	Collapsible,
+	defineMessages,
 	IconButton,
 	injectNotificationManager,
+	useVIntl,
 } from '@modrinth/ui'
 import { computed, ref } from 'vue'
 
@@ -25,8 +28,17 @@ import { trackEvent } from '@/helpers/analytics'
 import { login as login_flow, set_default_user } from '@/helpers/auth.js'
 import { install_existing_instance } from '@/helpers/install'
 import { cancel_directory_change } from '@/helpers/settings.ts'
+import { showAppDbBackupsFolder } from '@/helpers/utils.js'
 
 const { handleError } = injectNotificationManager()
+const { formatMessage } = useVIntl()
+
+const messages = defineMessages({
+	openBackupsFolder: {
+		id: 'app.error.state-init.open-backups-folder',
+		defaultMessage: 'Open backups folder',
+	},
+})
 
 const errorModal = ref()
 const error = ref()
@@ -76,7 +88,7 @@ defineExpose({
 			supportLink.value = 'https://support.modrinth.com'
 			metadata.value.instanceId = context.instanceId
 		} else if (source === 'state_init') {
-			title.value = 'Error initializing Modrinth App'
+			title.value = 'Error initializing Packrinth'
 			errorType.value = 'state_init'
 			supportLink.value = 'https://support.modrinth.com'
 		} else {
@@ -123,6 +135,10 @@ function retryDirectoryChange() {
 	window.location.reload()
 }
 
+async function openDbBackupsFolder() {
+	await showAppDbBackupsFolder().catch(handleError)
+}
+
 const loadingRepair = ref(false)
 async function repairInstance() {
 	loadingRepair.value = true
@@ -164,9 +180,9 @@ async function copyToClipboard(text) {
 					<template v-if="metadata.network">
 						<h3>Network issues</h3>
 						<p>
-							It looks like there were issues with the Modrinth App connecting to Microsoft's
-							servers. This is often the result of a poor connection, so we recommend trying again
-							to see if it works. If issues continue to persist, follow the steps in
+							It looks like there were issues with Packrinth connecting to Microsoft's servers. This
+							is often the result of a poor connection, so we recommend trying again to see if it
+							works. If issues continue to persist, follow the steps in
 							<a
 								href="https://support.modrinth.com/en/articles/9038231-minecraft-sign-in-issues#h_e71a5f805f"
 							>
@@ -178,9 +194,9 @@ async function copyToClipboard(text) {
 					<template v-else-if="metadata.hostsFile">
 						<h3>Network issues</h3>
 						<p>
-							The Modrinth App tried to connect to Microsoft / Xbox / Minecraft services, but the
-							remote server rejected the connection. This may indicate that these services are
-							blocked by the hosts file. Please visit
+							Packrinth tried to connect to Microsoft / Xbox / Minecraft services, but the remote
+							server rejected the connection. This may indicate that these services are blocked by
+							the hosts file. Please visit
 							<a
 								href="https://support.modrinth.com/en/articles/9038231-minecraft-sign-in-issues#h_d694a29256"
 							>
@@ -217,9 +233,8 @@ async function copyToClipboard(text) {
 					<template v-if="metadata.readOnly">
 						<h3>Change directory permissions</h3>
 						<p>
-							It looks like the Modrinth App is unable to write to the directory you selected.
-							Please adjust the permissions of the directory and try again or cancel the directory
-							change.
+							It looks like Packrinth is unable to write to the directory you selected. Please
+							adjust the permissions of the directory and try again or cancel the directory change.
 						</p>
 					</template>
 					<template v-else-if="metadata.notEnoughSpace">
@@ -231,8 +246,8 @@ async function copyToClipboard(text) {
 					</template>
 					<template v-else>
 						<p>
-							The Modrinth App is unable to migrate to the new directory you selected. Please
-							contact support for help or cancel the directory change.
+							Packrinth is unable to migrate to the new directory you selected. Please contact
+							support for help or cancel the directory change.
 						</p>
 					</template>
 
@@ -247,8 +262,8 @@ async function copyToClipboard(text) {
 				</template>
 				<template v-else-if="errorType === 'state_init'">
 					<p>
-						Modrinth App failed to load correctly. This may be because of a corrupted file, or
-						because the app is missing crucial files.
+						Packrinth failed to load correctly. This may be because of a corrupted file, or because
+						the app is missing crucial files.
 					</p>
 					<p>You may be able to fix it through one of the following ways:</p>
 					<ul>
@@ -257,7 +272,7 @@ async function copyToClipboard(text) {
 					</ul>
 				</template>
 				<template v-else-if="errorType === 'no_loader_version'">
-					<p>The Modrinth App failed to find the loader version for this instance.</p>
+					<p>Packrinth failed to find the loader version for this instance.</p>
 					<p>To resolve this, you need to repair the instance. Click the button below to do so.</p>
 					<div class="cta-button">
 						<button class="btn btn-primary" :disabled="loadingRepair" @click="repairInstance">
@@ -310,6 +325,10 @@ async function copyToClipboard(text) {
 									class="m-0 p-0 rounded-none bg-transparent text-sm font-mono break-words overflow-auto"
 								>
 									{{ debugInfo }}
+									<button class="btn" @click="openDbBackupsFolder">
+										<FolderOpenIcon aria-hidden="true" />
+										{{ formatMessage(messages.openBackupsFolder) }}
+									</button>
 								</div>
 								<IconButton
 									v-tooltip="'Copy debug info'"

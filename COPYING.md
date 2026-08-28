@@ -1,21 +1,31 @@
 # Copying Guidelines
 
-All packages in this repository are licensed under their respective licenses. For more information, refer to the LICENSE file in each package.
+Root of the repository does not carry a LICENSE file; each package/app carries its own (see `LICENSE`/`COPYING.md` in each package or app directory; the desktop app under `apps/app/` is GPL-3.0-only).
 
 For detailed information, consult each package's COPYING.md, LICENSE.txt, or LICENSE file, if available.
 
-## Modrinth Branding
+## Upstream and attribution
 
-The use of Modrinth branding elements, including but not limited to the wrench-in-labyrinth logo, the landing image, and any variations thereof, is strictly prohibited without explicit written permission from Rinth, Inc. This includes trademarks, logos, or other branding elements.
+Packrinth is an independent fork of the Modrinth App. The upstream source is [modrinth/code](https://github.com/modrinth/code), © 2020-2025 Rinth, Inc., licensed under the GNU General Public License, version 3. Upstream code retains its upstream copyright and GPL-3.0 licensing.
 
-> All rights reserved. © 2020-2025 Rinth, Inc.
+Product branding (name, window title, installer text, and UI strings) has been replaced with Packrinth. No Modrinth trademark or logo is distributed in Packrinth's released builds *except* the placeholder assets listed below, which still use upstream Modrinth artwork pending replacement before the first public release. Where upstream code or assets are retained, they remain subject to their respective upstream licenses and copyright.
 
-This includes, but may not be limited to, the following files:
+> All rights reserved. © 2020-2025 Rinth, Inc. (upstream)
+
+## Residual branding assets
+
+The following files still ship upstream Modrinth logo artwork and must be replaced or re-licensed before the first public release of Packrinth:
 
 - .idea/icon.svg
-- .github/api_cover.png
-- .github/app_cover.png
-- .github/monorepo_cover.png
-- .github/web_cover.png
+- apps/app/icons/* (including `apps/app/icons/apple.icon/`)
+- apps/app/dmg/dmg-background.png
+- apps/app-frontend/src/assets/welcome/modrinth-social-icon.png
+- apps/app-frontend/src/assets/modrinth_app.svg (unreferenced)
+- apps/app-frontend/src/assets/sad-modrinth-bot.webp (unreferenced)
+- apps/app-frontend/src/components/ui/SplashScreen.vue (inline logo SVG)
 
-If you fork this repository, you must remove all Modrinth branding assets from your fork.
+Plus the repository cover asset:
+
+- .github/assets/app_cover.png
+
+> **TODO:** Replaced or re-licensed before public distribution.

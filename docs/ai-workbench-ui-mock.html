@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modrinth AI 工作台 — 高完成度 UI 示意 (V3.3)</title>
+    <style>
+        :root {
+            --bg-base: #0b0d10;
+            --bg-panel: #121417;
+            --bg-panel-2: #181b1f;
+            --bg-elevated: #1d2126;
+            --bg-hover: #24292f;
+            --bg-active: #2a3036;
+            --bg-input: #0f1114;
+            --border-subtle: #23272c;
+            --border-default: #2e343a;
+            --border-strong: #3a4148;
+            --text-primary: #e6e9ed;
+            --text-secondary: #a8b0b8;
+            --text-muted: #6b737c;
+            --text-faint: #4a5158;
+            --accent: #1bd96a;
+            --accent-hover: #25e878;
+            --accent-dim: #0f7a3d;
+            --accent-glow: rgba(27, 217, 106, 0.15);
+            --accent-glow-strong: rgba(27, 217, 106, 0.3);
+            --danger: #e05260;
+            --danger-hover: #e86a76;
+            --danger-bg: rgba(224, 82, 96, 0.12);
+            --warning: #e5a50a;
+            --warning-bg: rgba(229, 165, 10, 0.12);
+            --info: #4a9eff;
+            --info-bg: rgba(74, 158, 255, 0.12);
+            --purple: #c678dd;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --font-sans: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.7);
+            --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-med: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            --activitybar-width: 52px;
+            --statusbar-height: 36px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+            font-size: 13px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ============ STATUS BAR (Top) ============ */
+        .statusbar-top {
+            height: var(--statusbar-height);
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .statusbar-top .left-group,
+        .statusbar-top .right-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .statusbar-top .brand {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        .statusbar-top .brand svg {
+            width: 17px;
+            height: 17px;
+        }
+        .statusbar-top .separator {
+            width: 1px;
+            height: 16px;
+            background: var(--border-default);
+        }
+        .statusbar-top .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .statusbar-top .status-item:hover {
+            background: var(--bg-hover);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-dot.online {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow-strong);
+        }
+        .status-dot.offline {
+            background: var(--text-faint);
+        }
+        .status-dot.warning {
+            background: var(--warning);
+        }
+        .token-display {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            background: var(--bg-input);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .token-display .token-value {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ============ MAIN LAYOUT ============ */
+        .app-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* ============ ACTIVITY BAR ============ */
+        .activitybar {
+            width: var(--activitybar-width);
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 4px;
+            flex-shrink: 0;
+            z-index: 50;
+            transition: order 0.3s;
+        }
+        .activitybar.ab-right {
+            border-right: none;
+            border-left: 1px solid var(--border-subtle);
+        }
+        .activitybar .ab-item {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all var(--transition-fast);
+            position: relative;
+            border: none;
+            background: transparent;
+        }
+        .activitybar .ab-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+        .activitybar .ab-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+        .activitybar .ab-item.active::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+        .activitybar .ab-item svg {
+            width: 19px;
+            height: 19px;
+        }
+        .activitybar .ab-spacer {
+            flex: 1;
+        }
+        .activitybar .ab-tooltip {
+            position: absolute;
+            left: 46px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            padding: 3px 9px;
+            font-size: 10px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-fast);
+            z-index: 100;
+        }
+        .activitybar .ab-item:hover .ab-tooltip {
+            opacity: 1;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            width: 260px;
+            min-width: 180px;
+            max-width: 500px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 40;
+        }
+        .sidebar.collapsed {
+            width: 0 !important;
+            min-width: 0;
+            border-right: none;
+            overflow: hidden;
+        }
+        .sidebar-resizer {
+            position: absolute;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            z-index: 60;
+        }
+        .sidebar-resizer:hover,
+        .sidebar-resizer.dragging {
+            background: var(--accent-glow);
+        }
+        .sidebar-header {
+            padding: 12px 14px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .sidebar-header .sh-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .sidebar-header .sh-action {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            transition: color var(--transition-fast);
+        }
+        .sidebar-header .sh-action:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        /* Sidebar content */
+        .chat-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .chat-history-item {
+            padding: 9px 11px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border: 1px solid transparent;
+        }
+        .chat-history-item:hover {
+            background: var(--bg-hover);
+        }
+        .chat-history-item.active {
+            background: var(--bg-elevated);
+            border-color: var(--border-default);
+        }
+        .chat-history-item .ch-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-history-item .ch-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .instance-node {
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-secondary);
+            transition: background var(--transition-fast);
+        }
+        .instance-node:hover {
+            background: var(--bg-hover);
+        }
+        .instance-node.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+        .instance-node .inst-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .console-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .console-section {
+            background: var(--bg-panel-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 11px 13px;
+        }
+        .console-section .cs-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+        .stat-card {
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            text-align: center;
+        }
+        .stat-card .stat-value {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+        .stat-card .stat-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .toggle-switch {
+            width: 34px;
+            height: 18px;
+            border-radius: 9px;
+            background: var(--border-strong);
+            cursor: pointer;
+            position: relative;
+            transition: background var(--transition-fast);
+            flex-shrink: 0;
+            border: none;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform var(--transition-fast);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .toggle-switch.on {
+            background: var(--accent);
+        }
+        .toggle-switch.on::after {
+            transform: translateX(16px);
+        }
+
+        /* Tools list in sidebar */
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .tool-item {
+            padding: 9px 11px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .tool-item:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-subtle);
+        }
+        .tool-item.active {
+            background: var(--accent-glow);
+            border-color: var(--accent-dim);
+            color: var(--accent);
+        }
+        .tool-item .tool-badge {
+            font-size: 8px;
+            padding: 1px 5px;
+            border-radius: 6px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            color: var(--text-muted);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .tool-item .tool-badge.readonly {
+            color: var(--info);
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+        .tool-item .tool-badge.write {
+            color: var(--warning);
+            border-color: rgba(229, 165, 10, 0.3);
+        }
+
+        /* Prompt pack items */
+        .ppack-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .ppack-item {
+            background: var(--bg-panel-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 9px 11px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ppack-item:hover {
+            border-color: var(--border-default);
+            background: var(--bg-elevated);
+        }
+        .ppack-item.enabled {
+            border-color: var(--accent-dim);
+            background: var(--accent-glow);
+        }
+        .ppack-item .pp-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .ppack-item .pp-badge {
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            color: var(--text-muted);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .ppack-item.enabled .pp-badge {
+            border-color: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* ============ MAIN AREA ============ */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--bg-base);
+            position: relative;
+            z-index: 30;
+        }
+        .main-split {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            position: relative;
+        }
+        .chat-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--bg-base);
+            position: relative;
+        }
+        .preview-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+        .split-divider {
+            width: 4px;
+            cursor: col-resize;
+            background: transparent;
+            position: relative;
+            flex-shrink: 0;
+            z-index: 60;
+            transition: background var(--transition-fast);
+        }
+        .split-divider:hover,
+        .split-divider.dragging {
+            background: var(--accent-glow);
+        }
+
+        /* Chat messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .chat-msg {
+            display: flex;
+            gap: 10px;
+            max-width: 90%;
+            animation: fadeInUp 0.25s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .chat-msg .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .chat-msg.user .avatar {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid var(--accent-dim);
+        }
+        .chat-msg.ai .avatar {
+            background: var(--info-bg);
+            color: var(--info);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+        .chat-msg .bubble {
+            background: var(--bg-panel-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 10px 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            word-wrap: break-word;
+        }
+        .chat-msg.user .bubble {
+            background: var(--accent-glow);
+            border-color: var(--accent-dim);
+        }
+        .chat-msg .bubble code {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            background: var(--bg-input);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+        .chat-msg .bubble strong {
+            color: var(--text-primary);
+        }
+
+        /* Tool card */
+        .tool-card {
+            background: var(--bg-panel-2);
+            border: 1px solid var(--accent-dim);
+            border-radius: var(--radius-md);
+            padding: 11px 13px;
+            margin: 6px 0;
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+        .tool-card .tc-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 7px;
+        }
+        .tool-card .tc-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+        .tool-card .tc-params {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-secondary);
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 7px 9px;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .tool-card .tc-actions {
+            display: flex;
+            gap: 7px;
+        }
+        .tool-card .tc-btn {
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+        }
+        .tool-card .tc-btn.confirm {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        .tool-card .tc-btn.confirm:hover {
+            background: var(--accent-hover);
+        }
+        .tool-card .tc-btn.reject {
+            background: transparent;
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        .tool-card .tc-btn.reject:hover {
+            background: var(--danger-bg);
+        }
+
+        /* Chat input */
+        .chat-input-area {
+            border-top: 1px solid var(--border-subtle);
+            padding: 10px 14px;
+            background: var(--bg-panel);
+            flex-shrink: 0;
+        }
+        .chat-input-wrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: 8px 12px;
+            transition: border-color var(--transition-fast);
+        }
+        .chat-input-wrap:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .chat-input-wrap textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 12px;
+            resize: none;
+            outline: none;
+            min-height: 22px;
+            max-height: 100px;
+            line-height: 1.5;
+        }
+        .chat-input-wrap textarea::placeholder {
+            color: var(--text-faint);
+        }
+        .chat-input-wrap .send-btn {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+        }
+        .chat-input-wrap .send-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+        .chat-input-hint {
+            font-size: 9px;
+            color: var(--text-faint);
+            margin-top: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input-hint kbd {
+            background: var(--bg-elevated);
+            padding: 1px 5px;
+            border-radius: 3px;
+            border: 1px solid var(--border-default);
+            font-family: var(--font-mono);
+            font-size: 8px;
+            color: var(--text-muted);
+        }
+
+        /* Command palette */
+        .command-palette {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 420px;
+            max-width: 90%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 200;
+            display: none;
+            overflow: hidden;
+            animation: slideDown 0.15s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .command-palette.open {
+            display: block;
+        }
+        .command-palette .cp-input {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-default);
+        }
+        .command-palette .cp-input input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            font-family: var(--font-sans);
+        }
+        .command-palette .cp-list {
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        .command-palette .cp-item {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            transition: background var(--transition-fast);
+        }
+        .command-palette .cp-item:hover,
+        .command-palette .cp-item.selected {
+            background: var(--accent-glow);
+        }
+        .command-palette .cp-item .cp-tag {
+            font-size: 8px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        /* Preview panel */
+        .preview-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .preview-header .ph-tab {
+            font-size: 10px;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+            background: none;
+        }
+        .preview-header .ph-tab:hover {
+            color: var(--text-secondary);
+            background: var(--bg-hover);
+        }
+        .preview-header .ph-tab.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+            border-color: var(--accent-dim);
+        }
+        .preview-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        .preview-content .json-key {
+            color: var(--info);
+        }
+        .preview-content .json-string {
+            color: var(--accent);
+        }
+        .preview-content .json-number {
+            color: var(--warning);
+        }
+        .preview-content .json-bool {
+            color: var(--purple);
+        }
+        .preview-content .json-bracket {
+            color: var(--text-muted);
+        }
+        .preview-content .diff-added {
+            background: rgba(27, 217, 106, 0.2);
+            color: var(--accent);
+        }
+        .preview-content .diff-removed {
+            background: rgba(224, 82, 96, 0.2);
+            color: var(--danger);
+        }
+
+        /* ============ BOTTOM PANEL ============ */
+        .bottom-panel {
+            height: 200px;
+            min-height: 50px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 35;
+        }
+        .bottom-panel.collapsed {
+            height: 32px;
+            min-height: 32px;
+        }
+        .bottom-panel.collapsed .bp-content {
+            display: none;
+        }
+        .bottom-panel .bp-resizer {
+            position: absolute;
+            top: -3px;
+            left: 0;
+            right: 0;
+            height: 6px;
+            cursor: row-resize;
+            z-index: 60;
+        }
+        .bottom-panel .bp-resizer:hover,
+        .bottom-panel .bp-resizer.dragging {
+            background: var(--accent-glow);
+        }
+        .bottom-panel .bp-header {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+            gap: 3px;
+        }
+        .bottom-panel .bp-tab {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background: none;
+        }
+        .bottom-panel .bp-tab:hover {
+            color: var(--text-secondary);
+        }
+        .bottom-panel .bp-tab.active {
+            color: var(--accent);
+            background: var(--bg-elevated);
+            border-bottom: 2px solid var(--accent);
+        }
+        .bottom-panel .bp-tab .bp-count {
+            font-size: 8px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 1px 5px;
+            color: var(--text-muted);
+        }
+        .bottom-panel .bp-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        .log-line {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .log-line .log-time {
+            color: var(--text-faint);
+            flex-shrink: 0;
+        }
+        .log-line .log-level {
+            flex-shrink: 0;
+            font-weight: 600;
+            width: 36px;
+        }
+        .log-line .log-level.INFO {
+            color: var(--info);
+        }
+        .log-line .log-level.WARN {
+            color: var(--warning);
+        }
+        .log-line .log-level.ERROR {
+            color: var(--danger);
+        }
+        .log-line .log-level.DEBUG {
+            color: var(--text-muted);
+        }
+
+        /* ============ TOOL EXECUTION MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.15s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            width: 420px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-box .modal-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box .form-group {
+            margin-bottom: 12px;
+        }
+        .modal-box .form-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .modal-box .form-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            padding: 7px 10px;
+            color: var(--text-primary);
+            font-size: 11px;
+            font-family: var(--font-mono);
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+        .modal-box .form-input:focus {
+            border-color: var(--accent);
+        }
+        .modal-box .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: flex-end;
+        }
+        .modal-box .btn-primary {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 7px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal-box .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-default);
+            padding: 7px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* ============ TOAST ============ */
+        .toast {
+            position: fixed;
+            bottom: 220px;
+            right: 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--accent-dim);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-size: 11px;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-lg);
+            z-index: 400;
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 300px;
+            gap: 8px;
+            align-items: center;
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .toast.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ TOP STATUS BAR ============ -->
+    <header class="statusbar-top">
+        <div class="left-group">
+            <div class="brand">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg>
+                <span>AI 工作台</span>
+            </div>
+            <span class="separator"></span>
+            <div class="status-item"><span>实例：</span><strong style="color:var(--text-primary);">我的整合包 v1.2</strong></div>
+            <div class="status-item"><span>MC 1.20.1 · Forge</span></div>
+        </div>
+        <div class="right-group">
+            <div class="status-item" id="aiStatusItem">
+                <span class="status-dot warning" id="aiStatusDot"></span>
+                <span id="aiStatusText">未配置 AI 提供商</span>
+            </div>
+            <span class="separator"></span>
+            <div class="token-display" title="本次会话 Token 消耗">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span>Token</span>
+                <span class="token-value" id="tokenCounter">0</span>
+                <span style="color:var(--text-faint);">/ 4,000</span>
+            </div>
+            <button class="status-item" id="resetLayoutBtn" title="重置布局" style="border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;">⟲ 重置布局</button>
+        </div>
+    </header>
+
+    <!-- ============ MAIN LAYOUT ============ -->
+    <div class="app-layout" id="appLayout">
+
+        <!-- Activity Bar -->
+        <nav class="activitybar" id="activityBar">
+            <button class="ab-item active" data-panel="chat" title="对话">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span class="ab-tooltip">对话</span>
+            </button>
+            <button class="ab-item" data-panel="files" title="文件">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span class="ab-tooltip">实例文件</span>
+            </button>
+            <button class="ab-item" data-panel="tools" title="手动工具">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <span class="ab-tooltip">手动工具面板</span>
+            </button>
+            <button class="ab-item" data-panel="knowledge" title="知识库">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span class="ab-tooltip">知识库</span>
+            </button>
+            <button class="ab-item" data-panel="promptpacks" title="提示包">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+                <span class="ab-tooltip">提示包</span>
+            </button>
+            <button class="ab-item" data-panel="console" title="控制台">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                <span class="ab-tooltip">控制台</span>
+            </button>
+            <div class="ab-spacer"></div>
+            <button class="ab-item" data-panel="settings" title="设置">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span class="ab-tooltip">设置</span>
+            </button>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-resizer" id="sidebarResizer"></div>
+
+            <!-- Chat Panel -->
+            <div class="sidebar-panel" id="panel-chat" style="display:flex;flex-direction:column;height:100%;">
+                <div class="sidebar-header">会话历史
+                    <div class="sh-actions">
+                        <button class="sh-action" id="newChatBtn" title="新对话"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                    </div>
+                </div>
+                <div class="sidebar-content">
+                    <div class="chat-history-list">
+                        <div class="chat-history-item active"><div class="ch-title">安装 JEI 并配置物品管理器</div><div class="ch-meta"><span>10 分钟前</span><span>3 条</span></div></div>
+                        <div class="chat-history-item"><div class="ch-title">创建 FTB 配方：合金炉</div><div class="ch-meta"><span>2 小时前</span><span>7 条</span></div></div>
+                        <div class="chat-history-item"><div class="ch-title">排查启动崩溃</div><div class="ch-meta"><span>昨天</span><span>5 条</span></div></div>
+                        <div class="chat-history-item"><div class="ch-title">KubeJS 自定义物品</div><div class="ch-meta"><span>昨天</span><span>4 条</span></div></div>
+                        <div class="chat-history-item"><div class="ch-title">优化加载性能</div><div class="ch-meta"><span>3 天前</span><span>6 条</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Panel -->
+            <div class="sidebar-panel" id="panel-files" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">实例文件</div>
+                <div class="sidebar-content">
+                    <div class="instance-node active">📁 我的整合包 v1.2 <span class="inst-badge">ACTIVE</span></div>
+                    <div class="instance-node">📁 测试实例 <span class="inst-badge">IDLE</span></div>
+                    <div class="instance-node">📁 远古 1.12.2 <span class="inst-badge">IDLE</span></div>
+                    <div style="margin-top:10px;padding:10px;border:1px dashed var(--border-default);border-radius:var(--radius-md);font-size:10px;color:var(--text-muted);text-align:center;">+ 新建实例</div>
+                </div>
+            </div>
+
+            <!-- Tools Panel (手动工具) -->
+            <div class="sidebar-panel" id="panel-tools" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">手动工具面板 <span style="font-size:9px;color:var(--text-muted);font-weight:400;">与 AI 共用同一后端</span></div>
+                <div class="sidebar-content">
+                    <div class="tools-list" id="toolsList">
+                        <div class="tool-item active" data-tool="search_mods">🔍 搜索模组 <span class="tool-badge readonly">只读</span></div>
+                        <div class="tool-item" data-tool="install_mod">📦 安装模组 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="remove_mod">🗑️ 删除模组 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="update_mod">🔄 更新模组 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="list_installed_mods">📋 列出已装模组 <span class="tool-badge readonly">只读</span></div>
+                        <div class="tool-item" data-tool="read_config">📄 读取配置 <span class="tool-badge readonly">只读</span></div>
+                        <div class="tool-item" data-tool="write_config">✏️ 写入配置 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="generate_kubejs_script">⚙️ 生成KubeJS脚本 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="git_commit">📝 Git提交 <span class="tool-badge write">写入</span></div>
+                        <div class="tool-item" data-tool="git_status">📊 Git状态 <span class="tool-badge readonly">只读</span></div>
+                        <div class="tool-item" data-tool="search_knowledge">📚 检索知识库 <span class="tool-badge readonly">只读</span></div>
+                        <div class="tool-item" data-tool="analyze_crash">🔍 分析崩溃 <span class="tool-badge readonly">只读</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Panel -->
+            <div class="sidebar-panel" id="panel-knowledge" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">知识库</div>
+                <div class="sidebar-content">
+                    <div class="console-panel">
+                        <div class="console-section"><div class="cs-title">索引状态</div>
+                            <div class="stat-grid">
+                                <div class="stat-card"><span class="stat-value">1,832</span><span class="stat-label">文档</span></div>
+                                <div class="stat-card"><span class="stat-value">24.6 MB</span><span class="stat-label">索引</span></div>
+                            </div>
+                        </div>
+                        <div class="console-section"><div class="cs-title">数据源</div>
+                            <div class="toggle-group">
+                                <div class="toggle-row"><span>modrinth.com</span><button class="toggle-switch on"></button></div>
+                                <div class="toggle-row"><span>mcmod.cn</span><button class="toggle-switch on"></button></div>
+                                <div class="toggle-row"><span>FTB Wiki</span><button class="toggle-switch"></button></div>
+                                <div class="toggle-row"><span>Minecraft Wiki</span><button class="toggle-switch on"></button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt Packs Panel -->
+            <div class="sidebar-panel" id="panel-promptpacks" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">提示增强包</div>
+                <div class="sidebar-content">
+                    <div class="ppack-list">
+                        <div class="ppack-item enabled"><span class="pp-name">FTB 配方指南</span><span class="pp-badge">已启用</span></div>
+                        <div class="ppack-item"><span class="pp-name">KubeJS 进阶</span><span class="pp-badge">禁用</span></div>
+                        <div class="ppack-item"><span class="pp-name">Create 机械动力</span><span class="pp-badge">禁用</span></div>
+                        <div class="ppack-item"><span class="pp-name">CraftTweaker 配方</span><span class="pp-badge">禁用</span></div>
+                        <div class="ppack-item"><span class="pp-name">Botania 植物魔法</span><span class="pp-badge">禁用</span></div>
+                    </div>
+                    <div style="margin-top:10px;padding:9px;background:var(--warning-bg);border:1px solid rgba(229,165,10,0.3);border-radius:var(--radius-md);font-size:10px;color:var(--warning);line-height:1.4;">⚠️ 提示包来自外部文件，启用前请确认来源可信</div>
+                </div>
+            </div>
+
+            <!-- Console Panel -->
+            <div class="sidebar-panel" id="panel-console" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">控制台</div>
+                <div class="sidebar-content">
+                    <div class="console-panel">
+                        <div class="console-section"><div class="cs-title">实例概况</div>
+                            <div class="stat-grid">
+                                <div class="stat-card"><span class="stat-value">127</span><span class="stat-label">模组</span></div>
+                                <div class="stat-card"><span class="stat-value">3.2 GB</span><span class="stat-label">磁盘</span></div>
+                                <div class="stat-card"><span class="stat-value">4.1 GB</span><span class="stat-label">内存</span></div>
+                                <div class="stat-card"><span class="stat-value">main</span><span class="stat-label">Git</span></div>
+                            </div>
+                        </div>
+                        <div class="console-section"><div class="cs-title">核心开关</div>
+                            <div class="toggle-group">
+                                <div class="toggle-row"><span>AI 主开关</span><button class="toggle-switch on" data-toggle="ai"></button></div>
+                                <div class="toggle-row"><span>Mock 模式</span><button class="toggle-switch" data-toggle="mock"></button></div>
+                                <div class="toggle-row"><span>自动排障</span><button class="toggle-switch on" data-toggle="autofix"></button></div>
+                                <div class="toggle-row"><span>日志等级</span><span style="font-size:10px;color:var(--accent);">INFO</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="sidebar-panel" id="panel-settings" style="display:none;flex-direction:column;height:100%;">
+                <div class="sidebar-header">设置</div>
+                <div class="sidebar-content">
+                    <div class="console-panel">
+                        <div class="console-section"><div class="cs-title">AI 提供商</div>
+                            <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">选择并配置后，点击「测试连接」验证</div>
+                            <div class="toggle-group" id="providerList">
+                                <div class="toggle-row"><span>OpenAI</span><button class="toggle-switch" data-provider="openai"></button></div>
+                                <div class="toggle-row"><span>Anthropic</span><button class="toggle-switch" data-provider="anthropic"></button></div>
+                                <div class="toggle-row"><span>DeepSeek</span><button class="toggle-switch" data-provider="deepseek"></button></div>
+                                <div class="toggle-row"><span>Ollama (本地)</span><button class="toggle-switch" data-provider="ollama"></button></div>
+                                <div class="toggle-row"><span>自定义 API</span><button class="toggle-switch" data-provider="custom"></button></div>
+                            </div>
+                            <div style="margin-top:8px;font-size:9px;color:var(--text-faint);">未配置任何提供商时，AI 功能不可用</div>
+                        </div>
+                        <div class="console-section"><div class="cs-title">Token 限制</div>
+                            <div class="toggle-row"><span>单次对话上限</span><span style="font-family:var(--font-mono);font-size:10px;">4,000</span></div>
+                            <div class="toggle-row"><span>最大工具轮次</span><span style="font-family:var(--font-mono);font-size:10px;">5</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="main-area">
+            <!-- Command Palette -->
+            <div class="command-palette" id="commandPalette">
+                <div class="cp-input"><input type="text" id="cpInput" placeholder="输入命令或搜索..." autocomplete="off"></div>
+                <div class="cp-list" id="cpList">
+                    <div class="cp-item selected">/install &lt;mod&gt; — 安装模组<span class="cp-tag">MOD</span></div>
+                    <div class="cp-item">/config &lt;mod&gt; — 修改配置<span class="cp-tag">CONFIG</span></div>
+                    <div class="cp-item">/search &lt;query&gt; — 搜索知识库<span class="cp-tag">SEARCH</span></div>
+                    <div class="cp-item">/git commit — 提交变更<span class="cp-tag">GIT</span></div>
+                    <div class="cp-item">/tool install_mod — 手动执行工具<span class="cp-tag">TOOL</span></div>
+                    <div class="cp-item">/promptpack list — 查看提示包<span class="cp-tag">PP</span></div>
+                </div>
+            </div>
+
+            <div class="main-split" id="mainSplit">
+                <!-- Chat Panel -->
+                <div class="chat-panel" id="chatPanel">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg ai">
+                            <div class="avatar">AI</div>
+                            <div class="bubble">你好！我是 Modrinth AI 工作台助手。<br>当前尚未配置 AI 提供商，请先前往 <code>设置</code> 面板启用并配置。<br><br>你也可以使用左侧的 <code>手动工具面板</code> 直接操作，无需 AI。<span class="msg-time" style="font-size:9px;color:var(--text-faint);display:block;margin-top:4px;">刚刚</span></div>
+                        </div>
+                        <div class="chat-msg user">
+                            <div class="avatar">你</div>
+                            <div class="bubble">帮我装个 JEI，然后加个合金炉配方<span class="msg-time" style="font-size:9px;color:var(--text-faint);display:block;margin-top:4px;">刚刚</span></div>
+                        </div>
+                        <div class="chat-msg ai">
+                            <div class="avatar">AI</div>
+                            <div class="bubble">好的，我会分两步执行。请确认以下操作：
+                                <div class="tool-card" id="toolCard1">
+                                    <div class="tc-header"><span style="font-size:14px;">🛠️</span><span class="tc-name">install_mod</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted);">写入操作 · 需确认</span></div>
+                                    <div class="tc-params">{"mod_id":"jei","instance_id":"my-pack-v12","loader":"forge","version":"15.2.0"}</div>
+                                    <div class="tc-actions"><button class="tc-btn confirm" id="confirmInstall">✓ 确认安装</button><button class="tc-btn reject" id="rejectInstall">✗ 拒绝</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="chat-input-wrap">
+                            <textarea id="chatInput" rows="1" placeholder="输入消息，或按 / 打开命令面板..."></textarea>
+                            <button class="send-btn" id="sendBtn" title="发送"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                        </div>
+                        <div class="chat-input-hint"><span><kbd>/</kbd> 命令</span><span><kbd>Enter</kbd> 发送</span><span><kbd>Shift+Enter</kbd> 换行</span><span style="margin-left:auto;color:var(--text-faint);" id="chatProviderHint">提供商：未配置</span></div>
+                    </div>
+                </div>
+
+                <!-- Split Divider -->
+                <div class="split-divider" id="splitDivider"></div>
+
+                <!-- Preview Panel -->
+                <div class="preview-panel" id="previewPanel">
+                    <div class="preview-header">
+                        <button class="ph-tab active">配置预览</button>
+                        <button class="ph-tab">Diff</button>
+                        <button class="ph-tab">文件树</button>
+                        <span style="margin-left:auto;font-size:9px;color:var(--text-faint);">config/jei.cfg</span>
+                    </div>
+                    <div class="preview-content" id="previewContent">
+                        <span class="json-bracket">{</span><br>
+                        &nbsp;&nbsp;<span class="json-key">"mod_id"</span><span class="json-bracket">:</span> <span class="json-string">"jei"</span><span class="json-bracket">,</span><br>
+                        &nbsp;&nbsp;<span class="json-key">"enabled"</span><span class="json-bracket">:</span> <span class="json-bool">true</span><span class="json-bracket">,</span><br>
+                        &nbsp;&nbsp;<span class="json-key">"display_mode"</span><span class="json-bracket">:</span> <span class="json-string">"cheat_mode"</span><span class="json-bracket">,</span><br>
+                        &nbsp;&nbsp;<span class="json-key">"search_box"</span><span class="json-bracket">:</span> <span class="json-bracket">{</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"show_mod_name"</span><span class="json-bracket">:</span> <span class="json-bool">true</span><span class="json-bracket">,</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"show_tooltips"</span><span class="json-bracket">:</span> <span class="json-bool">true</span><br>
+                        &nbsp;&nbsp;<span class="json-bracket">}</span><span class="json-bracket">,</span><br>
+                        &nbsp;&nbsp;<span class="json-key">"recipe_filter"</span><span class="json-bracket">:</span> <span class="json-bracket">[</span><span class="json-string">"minecraft"</span><span class="json-bracket">,</span> <span class="json-string">"forge"</span><span class="json-bracket">]</span><br>
+                        <span class="json-bracket">}</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============ BOTTOM PANEL ============ -->
+    <footer class="bottom-panel" id="bottomPanel">
+        <div class="bp-resizer" id="bpResizer"></div>
+        <div class="bp-header">
+            <button class="bp-tab active" data-bptab="logs">日志 <span class="bp-count">24</span></button>
+            <button class="bp-tab" data-bptab="tooloutput">工具输出 <span class="bp-count">2</span></button>
+            <button class="bp-tab" data-bptab="troubleshoot">排障报告</button>
+            <button class="bp-tab" style="margin-left:auto;" id="toggleBottomPanel" title="折叠/展开"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+        </div>
+        <div class="bp-content" id="bpContent">
+            <div class="log-line"><span class="log-time">14:23:01</span><span class="log-level INFO">INFO</span><span class="log-msg">[ai_workshop] 初始化完成，未检测到 AI 提供商配置</span></div>
+            <div class="log-line"><span class="log-time">14:23:04</span><span class="log-level INFO">INFO</span><span class="log-msg">[theseus] 加载实例 "my-pack-v12"，模组：127</span></div>
+            <div class="log-line"><span class="log-time">14:23:08</span><span class="log-level INFO">INFO</span><span class="log-msg">[ai_workshop] 知识库索引：1,832 文档</span></div>
+            <div class="log-line"><span class="log-time">14:23:15</span><span class="log-level DEBUG">DEBUG</span><span class="log-msg">[inference] 等待用户确认 tool_call #1 (install_mod)</span></div>
+            <div class="log-line"><span class="log-time">14:23:20</span><span class="log-level INFO">INFO</span><span class="log-msg">[promptpack] 提示包：FTB 配方指南 (priority=5)</span></div>
+            <div class="log-line"><span class="log-time">14:23:30</span><span class="log-level INFO">INFO</span><span class="log-msg">[git_ops] 3 个未暂存变更</span></div>
+        </div>
+    </footer>
+
+    <!-- ============ TOOL EXECUTION MODAL ============ -->
+    <div class="modal-overlay" id="toolModal">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">🛠️ 执行工具</div>
+            <div id="modalForm"></div>
+            <div class="form-actions">
+                <button class="btn-secondary" id="modalCancel">取消</button>
+                <button class="btn-primary" id="modalExecute">执行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TOAST ============ -->
+    <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMessage">操作成功</span></div>
+
+    <script>
+        (function() {
+            // ===== State =====
+            let tokenCount = 0;
+            let activePanel = 'chat';
+            let bottomCollapsed = false;
+            let isMockMode = false;
+            let hasConfirmedInstall = false;
+            let selectedTool = 'search_mods';
+            let activeProvider = null;
+
+            // ===== DOM Refs =====
+            const activityBar = document.getElementById('activityBar');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarPanels = document.querySelectorAll('.sidebar-panel');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const commandPalette = document.getElementById('commandPalette');
+            const cpInput = document.getElementById('cpInput');
+            const cpList = document.getElementById('cpList');
+            const bottomPanel = document.getElementById('bottomPanel');
+            const bpContent = document.getElementById('bpContent');
+            const toggleBottomPanel = document.getElementById('toggleBottomPanel');
+            const tokenCounter = document.getElementById('tokenCounter');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            const aiStatusDot = document.getElementById('aiStatusDot');
+            const aiStatusText = document.getElementById('aiStatusText');
+            const chatProviderHint = document.getElementById('chatProviderHint');
+            const toolModal = document.getElementById('toolModal');
+            const modalForm = document.getElementById('modalForm');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalCancel = document.getElementById('modalCancel');
+            const modalExecute = document.getElementById('modalExecute');
+            const toolsList = document.getElementById('toolsList');
+            const splitDivider = document.getElementById('splitDivider');
+            const chatPanel = document.getElementById('chatPanel');
+            const previewPanel = document.getElementById('previewPanel');
+            const sidebarResizer = document.getElementById('sidebarResizer');
+            const bpResizer = document.getElementById('bpResizer');
+
+            // ===== Tool Definitions (模拟) =====
+            const toolDefinitions = {
+                search_mods: { name: 'search_mods', label: '搜索模组', readonly: true,
+                    params: [{ key: 'query', label: '搜索关键词', type: 'text', placeholder: '例如: JEI' },
+                        { key: 'limit', label: '结果数量', type: 'number', value: '10' },
+                        { key: 'loader', label: 'Loader', type: 'text', placeholder: 'forge (可选)' }],
+                    execute: (params) => `找到 3 个匹配模组:\n1. JEI (jei) - v15.2.0\n2. Just Enough Resources (jer) - v1.4.0\n3. Just Enough Professions (jep) - v3.0.1` },
+                install_mod: { name: 'install_mod', label: '安装模组', readonly: false,
+                    params: [{ key: 'mod_id', label: '模组 ID', type: 'text', placeholder: '例如: jei' },
+                        { key: 'instance_id', label: '实例 ID', type: 'text', value: 'my-pack-v12' },
+                        { key: 'version', label: '版本 (可选)', type: 'text', placeholder: '例如: 15.2.0' }],
+                    execute: (params) => `✅ 已安装 ${params.mod_id || '(未知)'} 到实例 ${params.instance_id || '(未知)'}` },
+                remove_mod: { name: 'remove_mod', label: '删除模组', readonly: false,
+                    params: [{ key: 'mod_id', label: '模组 ID', type: 'text' },
+                        { key: 'instance_id', label: '实例 ID', type: 'text', value: 'my-pack-v12' },
+                        { key: 'keep_config', label: '保留配置', type: 'text', value: 'true' }],
+                    execute: (params) => `🗑️ 已删除 ${params.mod_id} (保留配置: ${params.keep_config})` },
+                read_config: { name: 'read_config', label: '读取配置', readonly: true,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' },
+                        { key: 'mod_id', label: '模组 ID', type: 'text', placeholder: 'jei' },
+                        { key: 'config_path', label: '配置路径', type: 'text', placeholder: 'config/jei.cfg' }],
+                    execute: () => `{"mod_id":"jei","enabled":true,"display_mode":"cheat_mode"}` },
+                write_config: { name: 'write_config', label: '写入配置', readonly: false,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' },
+                        { key: 'mod_id', label: '模组 ID', type: 'text', placeholder: 'jei' },
+                        { key: 'config_path', label: '配置路径', type: 'text', placeholder: 'config/jei.cfg' },
+                        { key: 'value', label: '配置值 (JSON)', type: 'text', placeholder: '{"enabled":true}' }],
+                    execute: (params) => `✏️ 已写入配置到 ${params.config_path || '(未知路径)'}` },
+                list_installed_mods: { name: 'list_installed_mods', label: '列出已装模组', readonly: true,
+                    params: [{ key: 'instance_id', label: '实例 ID', type: 'text', value: 'my-pack-v12' }],
+                    execute: () => `已安装 127 个模组:\nJEI (jei) v15.2.0\nOptiFine v1.20.1_HD_U_I5\nCreate v0.5.1f\n... (省略 124 个)` },
+                generate_kubejs_script: { name: 'generate_kubejs_script', label: '生成KubeJS脚本', readonly: false,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' },
+                        { key: 'script_type', label: '脚本类型', type: 'text', placeholder: 'recipe / event / item' },
+                        { key: 'content', label: '内容 (JSON)', type: 'text', placeholder: '{"output":"minecraft:diamond"}' }],
+                    execute: () => `⚙️ 已生成 KubeJS 脚本 → kubejs/server_scripts/generated.js` },
+                git_status: { name: 'git_status', label: 'Git 状态', readonly: true,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' }],
+                    execute: () => `分支: main\n未暂存变更: 3 个文件\n- config/jei.cfg\n- mods/jei-15.2.0.jar\n- kubejs/scripts.js` },
+                git_commit: { name: 'git_commit', label: 'Git 提交', readonly: false,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' },
+                        { key: 'message', label: '提交信息', type: 'text', placeholder: 'feat: add JEI mod' }],
+                    execute: (params) => `📝 已提交: "${params.message || '(无信息)'}" (3 files changed)` },
+                search_knowledge: { name: 'search_knowledge', label: '检索知识库', readonly: true,
+                    params: [{ key: 'query', label: '查询', type: 'text', placeholder: '合金炉配方' },
+                        { key: 'top_k', label: 'Top K', type: 'number', value: '3' }],
+                    execute: () => `知识库检索结果 (BM25):\n1. [FTB] 合金炉配方指南 (相关度 0.87)\n2. [Create] 机械动力配方教程 (0.72)\n3. [KubeJS] 自定义配方示例 (0.65)` },
+                analyze_crash: { name: 'analyze_crash', label: '分析崩溃', readonly: true,
+                    params: [{ key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' }],
+                    execute: () => `🔍 崩溃分析:\n- 错误: NoClassDefFoundError\n- 可能原因: 模组版本不兼容\n- 建议: 更新或移除冲突模组` },
+                update_mod: { name: 'update_mod', label: '更新模组', readonly: false,
+                    params: [{ key: 'mod_id', label: '模组 ID', type: 'text' },
+                        { key: 'instance_id', label: '实例', type: 'text', value: 'my-pack-v12' }],
+                    execute: (params) => `🔄 已更新 ${params.mod_id} 到最新版本` },
+            };
+
+            // ===== Activity Bar Navigation =====
+            activityBar.addEventListener('click', function(e) {
+                const item = e.target.closest('.ab-item');
+                if (!item || !item.dataset.panel) return;
+                activePanel = item.dataset.panel;
+                activityBar.querySelectorAll('.ab-item').forEach(btn => btn.classList.remove('active'));
+                item.classList.add('active');
+                sidebarPanels.forEach(panel => { panel.style.display = 'none'; });
+                const target = document.getElementById('panel-' + activePanel);
+                if (target) {
+                    target.style.display = 'flex';
+                    target.style.flexDirection = 'column';
+                    target.style.height = '100%';
+                }
+                if (sidebar.classList.contains('collapsed')) sidebar.classList.remove('collapsed');
+            });
+
+            // ===== Sidebar Resizer =====
+            let isResizingSidebar = false;
+            sidebarResizer.addEventListener('mousedown', (e) => { e.preventDefault();
+                isResizingSidebar = true;
+                sidebarResizer.classList.add('dragging'); });
+            document.addEventListener('mousemove', (e) => {
+                if (isResizingSidebar) {
+                    const appLayout = document.getElementById('appLayout');
+                    const rect = appLayout.getBoundingClientRect();
+                    const abWidth = 52;
+                    const newWidth = e.clientX - rect.left - abWidth;
+                    if (newWidth >= 180 && newWidth <= 500) sidebar.style.width = newWidth + 'px';
+                }
+            });
+            document.addEventListener('mouseup', () => { isResizingSidebar = false;
+                sidebarResizer.classList.remove('dragging'); });
+
+            // ===== Split Divider =====
+            let isDraggingSplit = false;
+            splitDivider.addEventListener('mousedown', (e) => { e.preventDefault();
+                isDraggingSplit = true;
+                splitDivider.classList.add('dragging'); });
+            document.addEventListener('mousemove', (e) => {
+                if (isDraggingSplit) {
+                    const mainSplit = document.getElementById('mainSplit');
+                    const rect = mainSplit.getBoundingClientRect();
+                    const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0.2), 0.8);
+                    chatPanel.style.flex = String(ratio * 5);
+                    previewPanel.style.flex = String((1 - ratio) * 5);
+                }
+            });
+            document.addEventListener('mouseup', () => { isDraggingSplit = false;
+                splitDivider.classList.remove('dragging'); });
+
+            // ===== Bottom Panel Resizer =====
+            let isResizingBottom = false;
+            bpResizer.addEventListener('mousedown', (e) => { e.preventDefault();
+                isResizingBottom = true;
+                bpResizer.classList.add('dragging'); });
+            document.addEventListener('mousemove', (e) => {
+                if (isResizingBottom) {
+                    const appLayout = document.getElementById('appLayout');
+                    const rect = appLayout.getBoundingClientRect();
+                    const newHeight = rect.bottom - e.clientY;
+                    if (newHeight >= 50 && newHeight <= 500) bottomPanel.style.height = newHeight + 'px';
+                }
+            });
+            document.addEventListener('mouseup', () => { isResizingBottom = false;
+                bpResizer.classList.remove('dragging'); });
+
+            // ===== Bottom Panel Toggle =====
+            toggleBottomPanel.addEventListener('click', () => {
+                bottomCollapsed = !bottomCollapsed;
+                bottomPanel.classList.toggle('collapsed', bottomCollapsed);
+                toggleBottomPanel.innerHTML = bottomCollapsed ?
+                    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' :
+                    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>';
+            });
+
+            // ===== Bottom Panel Tabs =====
+            document.querySelectorAll('.bp-tab[data-bptab]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    if (this.id === 'toggleBottomPanel') return;
+                    document.querySelectorAll('.bp-tab[data-bptab]').forEach(t => t.classList.remove(
+                        'active'));
+                    this.classList.add('active');
+                    const tabName = this.dataset.bptab;
+                    if (tabName === 'logs') {
+                        bpContent.innerHTML = `<div class="log-line"><span class="log-time">14:23:01</span><span class="log-level INFO">INFO</span><span class="log-msg">[ai_workshop] 初始化完成</span></div>
+                            <div class="log-line"><span class="log-time">14:23:15</span><span class="log-level DEBUG">DEBUG</span><span class="log-msg">[inference] 等待用户确认 tool_call #1</span></div>
+                            <div class="log-line"><span class="log-time">14:23:20</span><span class="log-level INFO">INFO</span><span class="log-msg">[promptpack] 提示包：FTB 配方指南</span></div>
+                            <div class="log-line"><span class="log-time">14:23:30</span><span class="log-level INFO">INFO</span><span class="log-msg">[git_ops] 3 个未暂存变更</span></div>`;
+                    } else if (tabName === 'tooloutput') {
+                        bpContent.innerHTML = `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);"><div style="color:var(--accent);margin-bottom:4px;">▸ install_mod</div><div style="color:var(--text-muted);">状态：等待用户确认</div></div>`;
+                    } else if (tabName === 'troubleshoot') {
+                        bpContent.innerHTML = `<div style="font-size:11px;color:var(--text-secondary);line-height:1.8;"><div style="color:var(--accent);font-weight:600;margin-bottom:6px;">🔍 排障报告</div><div>没有检测到活跃的崩溃记录。</div><div style="color:var(--text-muted);">上次崩溃：3 天前 · 已解决</div></div>`;
+                    }
+                });
+            });
+
+            // ===== Tools List =====
+            toolsList.addEventListener('click', function(e) {
+                const item = e.target.closest('.tool-item');
+                if (!item) return;
+                toolsList.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
+                item.classList.add('active');
+                selectedTool = item.dataset.tool;
+                openToolModal(selectedTool);
+            });
+
+            // ===== Tool Modal =====
+            function openToolModal(toolName) {
+                const def = toolDefinitions[toolName];
+                if (!def) return;
+                modalTitle.textContent = (def.readonly ? '👁️ ' : '🛠️ ') + def.label;
+                let html = '';
+                def.params.forEach(p => {
+                    const val = p.value || '';
+                    html += `<div class="form-group"><div class="form-label">${p.label}</div><input class="form-input" data-key="${p.key}" type="text" value="${val}" placeholder="${p.placeholder || ''}"></div>`;
+                });
+                modalForm.innerHTML = html;
+                toolModal.classList.add('open');
+            }
+
+            modalCancel.addEventListener('click', () => toolModal.classList.remove('open'));
+            modalExecute.addEventListener('click', () => {
+                const def = toolDefinitions[selectedTool];
+                if (!def) return;
+                const inputs = modalForm.querySelectorAll('.form-input');
+                const params = {};
+                inputs.forEach(inp => { params[inp.dataset.key] = inp.value; });
+                const result = def.execute(params);
+                // Show result in bottom panel tool output
+                bpContent.innerHTML = `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);"><div style="color:var(--accent);margin-bottom:6px;">▸ ${def.name}</div><div style="white-space:pre-wrap;word-break:break-all;">${result}</div></div>`;
+                // Switch to tool output tab
+                document.querySelectorAll('.bp-tab[data-bptab]').forEach(t => t.classList.remove('active'));
+                document.querySelector('.bp-tab[data-bptab="tooloutput"]').classList.add('active');
+                if (bottomCollapsed) { bottomPanel.classList.remove('collapsed');
+                    bottomCollapsed = false; }
+                toolModal.classList.remove('open');
+                showToast(def.readonly ? '✅ 工具执行完成（只读操作）' : '✅ 工具执行完成', 'success');
+            });
+
+            // ===== Toggle Switches =====
+            document.querySelectorAll('.toggle-switch').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('on');
+                    const toggleId = this.dataset.toggle;
+                    const provider = this.dataset.provider;
+                    if (provider) {
+                        if (this.classList.contains('on')) {
+                            activeProvider = provider;
+                            aiStatusDot.className = 'status-dot online';
+                            aiStatusText.textContent = `AI 已连接 · ${provider}`;
+                            chatProviderHint.textContent = `提供商：${provider}`;
+                            showToast(`✅ 已选择 ${provider}，请配置 API Key 后测试连接`, 'success');
+                        } else {
+                            if (activeProvider === provider) {
+                                activeProvider = null;
+                                aiStatusDot.className = 'status-dot warning';
+                                aiStatusText.textContent = '未配置 AI 提供商';
+                                chatProviderHint.textContent = '提供商：未配置';
+                                showToast('⚠️ 已断开 AI 提供商', 'warning');
+                            }
+                        }
+                    }
+                    if (toggleId === 'mock') {
+                        isMockMode = this.classList.contains('on');
+                        showToast(isMockMode ? '🧪 Mock 模式已启用' : '🧪 Mock 模式已关闭', isMockMode ? 'warning' :
+                            'success');
+                    }
+                    if (toggleId === 'ai') {
+                        const isOn = this.classList.contains('on');
+                        showToast(isOn ? 'AI 功能已启用' : 'AI 功能已禁用', isOn ? 'success' : 'warning');
+                    }
+                });
+            });
+
+            // ===== Command Palette =====
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === '/' && this.value === '') {
+                    e.preventDefault();
+                    commandPalette.classList.add('open');
+                    cpInput.focus();
+                }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault();
+                    sendMessage(); }
+                if (e.key === 'Escape') commandPalette.classList.remove('open');
+            });
+            document.addEventListener('click', function(e) {
+                if (!commandPalette.contains(e.target) && !chatInput.contains(e.target)) commandPalette
+                    .classList.remove('open');
+            });
+            cpList.addEventListener('click', function(e) {
+                const item = e.target.closest('.cp-item');
+                if (item) {
+                    const cmdText = item.textContent.trim().split('—')[0].trim();
+                    chatInput.value = cmdText + ' ';
+                    chatInput.focus();
+                    commandPalette.classList.remove('open');
+                }
+            });
+            cpInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const sel = cpList.querySelector('.cp-item.selected');
+                    if (sel) { chatInput.value = sel.textContent.trim().split('—')[0].trim() + ' ';
+                        chatInput.focus();
+                        commandPalette.classList.remove('open'); }
+                }
+                if (e.key === 'Escape') commandPalette.classList.remove('open');
+            });
+
+            // ===== Chat =====
+            function addUserMessage(text) {
+                const div = document.createElement('div');
+                div.className = 'chat-msg user';
+                div.innerHTML =
+                    `<div class="avatar">你</div><div class="bubble">${escapeHtml(text)}<span style="font-size:9px;color:var(--text-faint);display:block;margin-top:4px;">刚刚</span></div>`;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function addAIMessage(text) {
+                const div = document.createElement('div');
+                div.className = 'chat-msg ai';
+                div.innerHTML =
+                    `<div class="avatar">AI</div><div class="bubble">${escapeHtml(text).replace(/\n/g, '<br>')}<span style="font-size:9px;color:var(--text-faint);display:block;margin-top:4px;">刚刚</span></div>`;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function sendMessage() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+                addUserMessage(text);
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                setTimeout(() => {
+                    if (!activeProvider && !isMockMode) {
+                        addAIMessage('⚠️ 尚未配置 AI 提供商。请前往 <code>设置</code> 面板启用并配置，或使用左侧 <code>手动工具面板</code> 直接操作。');
+                    } else if (text.includes('JEI') || text.includes('安装')) {
+                        if (!hasConfirmedInstall) {
+                            const div = document.createElement('div');
+                            div.className = 'chat-msg ai';
+                            div.innerHTML =
+                                `<div class="avatar">AI</div><div class="bubble">好的，我来安装 JEI 模组。请确认：<div class="tool-card"><div class="tc-header"><span style="font-size:14px;">🛠️</span><span class="tc-name">install_mod</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted);">写入 · 需确认</span></div><div class="tc-params">{"mod_id":"jei","instance_id":"my-pack-v12","loader":"forge"}</div><div class="tc-actions"><button class="tc-btn confirm tc-confirm-btn">✓ 确认</button><button class="tc-btn reject tc-reject-btn">✗ 拒绝</button></div></div></div>`;
+                            chatMessages.appendChild(div);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            div.querySelector('.tc-confirm-btn').addEventListener('click', function() {
+                                this.textContent = '⏳ 安装中...';
+                                this.disabled = true;
+                                setTimeout(() => { hasConfirmedInstall = true;
+                                    const card = this.closest('.tool-card');
+                                    card.style.borderColor = 'var(--accent)';
+                                    card.querySelector('.tc-actions').innerHTML =
+                                        '<span style="color:var(--accent);font-size:10px;">✅ 已安装 JEI 15.2.0</span>';
+                                    addAIMessage('JEI 安装成功！');
+                                    updateTokenCount(120);
+                                    showToast('✅ JEI 已安装', 'success'); }, 600);
+                            });
+                            div.querySelector('.tc-reject-btn').addEventListener('click', function() {
+                                this.disabled = true;
+                                this.textContent = '已拒绝';
+                                const card = this.closest('.tool-card');
+                                card.style.borderColor = 'var(--danger)';
+                                card.querySelector('.tc-actions').innerHTML =
+                                    '<span style="color:var(--danger);font-size:10px;">✗ 已取消</span>';
+                                addAIMessage('好的，已取消安装。');
+                                showToast('已拒绝安装', 'warning');
+                            });
+                        } else {
+                            addAIMessage('JEI 已安装。接下来要做什么？');
+                        }
+                    } else if (text.includes('配方') || text.includes('合金炉')) {
+                        addAIMessage('好的，我来创建合金炉配方：\n- 输入：铁锭 ×4 + 碳 ×1\n- 输出：强化铁锭 ×1\n- 时间：200 ticks\n\n请确认是否创建？');
+                    } else {
+                        addAIMessage('我已收到你的消息。可以帮你：\n- 安装/删除模组\n- 修改配置\n- 创建配方\n- 排查问题');
+                    }
+                    updateTokenCount(30 + Math.floor(Math.random() * 30));
+                }, 350 + Math.random() * 250);
+            }
+
+            function updateTokenCount(amt) {
+                tokenCount += amt;
+                tokenCounter.textContent = tokenCount.toLocaleString();
+                if (tokenCount > 3500) tokenCounter.style.color = 'var(--warning)';
+                if (tokenCount > 4000) { tokenCounter.style.color = 'var(--danger)';
+                    showToast('⚠️ Token 达到上限', 'warning'); }
+            }
+
+            function escapeHtml(text) { const d = document.createElement('div');
+                d.textContent = text; return d.innerHTML; }
+
+            function showToast(msg, type) {
+                toastMessage.textContent = msg;
+                toastIcon.textContent = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : type === 'error' ?
+                    '❌' : 'ℹ️';
+                toast.classList.add('show');
+                clearTimeout(toast._t);
+                toast._t = setTimeout(() => toast.classList.remove('show'), 2800);
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('input', function() { this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
+
+            // ===== New Chat =====
+            document.getElementById('newChatBtn').addEventListener('click', function() {
+                chatMessages.innerHTML = '';
+                addAIMessage('新对话已开始。输入 `/` 查看命令，或使用左侧手动工具面板。');
+                tokenCount = 0;
+                tokenCounter.textContent = '0';
+                tokenCounter.style.color = 'var(--accent)';
+                hasConfirmedInstall = false;
+                showToast('🆕 已创建新对话', 'success');
+            });
+
+            // ===== Reset Layout =====
+            document.getElementById('resetLayoutBtn').addEventListener('click', function() {
+                sidebar.style.width = '260px';
+                chatPanel.style.flex = '3';
+                previewPanel.style.flex = '2';
+                bottomPanel.style.height = '200px';
+                bottomPanel.classList.remove('collapsed');
+                bottomCollapsed = false;
+                showToast('⟲ 布局已重置', 'success');
+            });
+
+            // ===== Initial Setup =====
+            sidebarPanels.forEach(p => { if (p.id !== 'panel-chat') p.style.display = 'none'; });
+            console.log('✅ Modrinth AI 工作台 UI (V3.3) 已加载');
+            console.log('   - 可调整布局（侧边栏/分栏/底部面板）');
+            console.log('   - 手动工具面板（与 AI 共用后端）');
+            console.log('   - 无默认 AI 提供商，用户自选');
+        })();
+    </script>
+</body>
+</html>

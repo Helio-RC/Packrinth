@@ -5,9 +5,6 @@
   "action.continue": {
     "message": "Continuar"
   },
-  "admin.billing.error.not-found": {
-    "message": "Usuario no encontrado"
-  },
   "ads-consent.accept": {
     "message": "Aceptar todo"
   },
@@ -1027,9 +1024,6 @@
   },
   "conversation-thread.action.approve-with-reply": {
     "message": "Aprovar con respuesta"
-  },
-  "conversation-thread.action.close-thread": {
-    "message": "Cerrar hilo"
   },
   "conversation-thread.action.close-with-reply": {
     "message": "Cerrar con respuesta"
@@ -2651,9 +2645,6 @@
   "layout.action.file-lookup": {
     "message": "Buscar archivo"
   },
-  "layout.action.lookup-by-email": {
-    "message": "Buscar por correo electrónico"
-  },
   "layout.action.manage-affiliates": {
     "message": "Gestionar enlaces de afiliado"
   },
@@ -4027,9 +4018,6 @@
   },
   "project.settings.general.url.title": {
     "message": "URL"
-  },
-  "project.settings.head-title": {
-    "message": "⚙️ {section} - {project}"
   },
   "project.settings.monetization.description": {
     "message": "Los proyectos en Modrinth están inscritos automáticamente en el <rewards-program-link>Rewards Program</rewards-program-link>. Si usted no quiere (o no puede por razones legales) obtener ingresos de este proyecto, puede desactivarlo aquí."

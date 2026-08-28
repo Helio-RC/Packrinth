@@ -128,21 +128,6 @@
   "app.action-bar.view-logs": {
     "message": "Pregledaj dnevnike"
   },
-  "app.ads-consent.accept": {
-    "message": "Prihvati sve"
-  },
-  "app.ads-consent.body": {
-    "message": "Reklame omogućavaju da Modrinth radi i finansiraju isplate kreatorima. Naši partneri mogu da čuvaju i koriste kolačiće u aplikaciji da bi personalizovali reklame i merili performanse."
-  },
-  "app.ads-consent.manage": {
-    "message": "Upravljaj podešavanjima"
-  },
-  "app.ads-consent.reject": {
-    "message": "Odbij sve"
-  },
-  "app.ads-consent.title": {
-    "message": "Tvoja bezbednost i kako reklame pomažu Modrinth-u"
-  },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Početna stranica"
   },
@@ -156,7 +141,7 @@
     "message": "Sakrij ime"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Smanji Modrinth App kada se Minecraft pokrene."
+    "message": "Smanji Packrinth kada se Minecraft pokrene."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Smanji aplikaciju"
@@ -621,13 +606,13 @@
     "message": "Selektor skina"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Preuzimanje Modrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Modrinth aplikaciju."
+    "message": "Preuzimanje Packrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Packrinth aplikaciju."
   },
   "app.update-popup.body.linux": {
-    "message": "Dostupna je Modrinth aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
+    "message": "Dostupna je Packrinth aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
+    "message": "Packrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
   },
   "app.update-popup.changelog": {
     "message": "Spisak promena"
@@ -848,12 +833,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Izaberi kanal ažuiranja"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Hookovi pokreta"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Prilagođeni hookovi za lansiranje"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Hookovi omogućavaju naprednim korisnicima da pokreću određene sistemske komande pre i posle pokretanja igre."
   },
@@ -892,9 +871,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "Verzija {loader}"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java i radna memorija"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Prilagođene promenljive okruženja"

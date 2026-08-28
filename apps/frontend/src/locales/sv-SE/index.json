@@ -5,9 +5,6 @@
   "action.continue": {
     "message": "Fortsätt"
   },
-  "admin.billing.error.not-found": {
-    "message": "Användaren hittades inte"
-  },
   "ads-consent.accept": {
     "message": "Godkänn alla"
   },
@@ -961,9 +958,6 @@
   },
   "conversation-thread.action.approve-with-reply": {
     "message": "Godkänn med svar"
-  },
-  "conversation-thread.action.close-thread": {
-    "message": "Stäng tråd"
   },
   "conversation-thread.action.close-with-reply": {
     "message": "Stäng med svar"
@@ -2462,9 +2456,6 @@
   "layout.action.file-lookup": {
     "message": "Sök efter fil"
   },
-  "layout.action.lookup-by-email": {
-    "message": "Sök efter e-post"
-  },
   "layout.action.manage-affiliates": {
     "message": "Hantera affiliatelänk"
   },
@@ -3484,9 +3475,6 @@
   },
   "project.settings.general.url.title": {
     "message": "URL"
-  },
-  "project.settings.head-title": {
-    "message": "⚙️ {section} – {project}"
   },
   "project.settings.permissions.attention-needed.title": {
     "message": "Okänt externt innehåll"

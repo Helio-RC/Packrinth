@@ -1,23 +1,49 @@
-name: Modrinth App build
+name: Packrinth App build
 on:
-  push:
+  pull_request:
     branches:
       - main
-    tags:
-      - 'v*'
     paths:
       - .github/workflows/theseus-build.yml
       - 'apps/app/**'
       - 'apps/app-frontend/**'
       - 'packages/app-lib/**'
-      - 'packages/app-macros/**'
+      - 'packages/api-client/**'
+      - 'packages/ariadne/**'
       - 'packages/assets/**'
+      - 'packages/async-minecraft-ping/**'
+      - 'packages/blog/**'
+      - 'packages/daedalus/**'
+      - 'packages/modrinth-content-management/**'
+      - 'packages/path-util/**'
+      - 'packages/serde-binhum/**'
+      - 'packages/tooling-config/**'
       - 'packages/ui/**'
       - 'packages/utils/**'
   workflow_dispatch:
     inputs:
+      branch:
+        description: |
+          Ref (branch or tag) to build. Defaults to the ref this workflow runs from.
+          For a release, use a `v*` tag, e.g. `v0.5.0` (the tag is the source of truth for the version).
+        type: string
+        required: false
+        default: ''
+      tag-type:
+        description: Build type - `release` builds with the release config and triggers the release workflow; `develop` builds with the dev config.
+        type: choice
+        options:
+          - develop
+          - release
+        default: develop
+        required: false
+      release-tag-suffix:
+        description: Version suffix for pre-release builds, e.g. `-beta.1` or `-canary.1` (must start with `-` or `.`).
+        type: string
+        required: false
+        default: ''
       sign-windows-binaries:
-        description: Sign Windows binaries
+        description: Sign Windows binaries (only applied when signing credentials are configured)
         type: boolean
         default: false
         required: false
@@ -30,36 +56,42 @@ on:
           - prod-with-staging-archon
         default: prod
         required: false
-      app-version-override:
-        description: Temporary app version override for updater testing
-        type: string
-        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/prod' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  PRODUCT_NAME: Packrinth
 
 jobs:
   build:
     name: Build
+    outputs:
+      app-version: ${{ steps.version.outputs.app-version }}
+      signed: ${{ steps.signing.outputs.signed }}
     env:
-      VITE_STRIPE_PUBLISHABLE_KEY: pk_live_51JbFxJJygY5LJFfKLVVldb10HlLt24p421OWRsTOWc5sXYFOnFUXWieSc6HD3PHo25ktx8db1WcHr36XGFvZFVUz00V9ixrCs5
       RUSTC_WRAPPER: 'sccache'
+      TAG_TYPE: ${{ inputs.tag-type || 'develop' }}
+      TAG_SUFFIX: ${{ inputs.release-tag-suffix }}
+      BUILD_ENVIRONMENT: ${{ inputs.environment || 'prod' }}
+      BASE_TAG: ${{ inputs.branch || 'main' }}
+      RELEASE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release' }}
     strategy:
       fail-fast: false
       matrix:
         platform:
           [
-            namespace-profile-medium-amd64-macos,
-            namespace-profile-medium-amd64-windows,
-            namespace-profile-medium-amd64,
+            macos-latest,
+            windows-latest,
+            ubuntu-latest,
           ]
         include:
-          - platform: namespace-profile-medium-amd64-macos
+          - platform: macos-latest
             artifact-target-name: universal-apple-darwin
-          - platform: namespace-profile-medium-amd64-windows
+          - platform: windows-latest
             artifact-target-name: x86_64-pc-windows-msvc
-          - platform: namespace-profile-medium-amd64
+          - platform: ubuntu-latest
             artifact-target-name: x86_64-unknown-linux-gnu
 
     runs-on: ${{ matrix.platform }}
@@ -69,6 +101,38 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          ref: ${{ inputs.branch || '' }}
+
+      - name: Configure signing
+        id: signing
+        shell: bash
+        env:
+          SIGN_WINDOWS_BINARIES: ${{ inputs.sign-windows-binaries }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          DIGICERT_ONE_SIGNER_API_KEY: ${{ secrets.DIGICERT_ONE_SIGNER_API_KEY }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        run: |
+          SIGNED="no"
+          BUNDLES="nsis"
+          if [ "${TAG_TYPE}" = "release" ] || [ "${SIGN_WINDOWS_BINARIES}" = "true" ]; then
+            if [ -n "${DIGICERT_ONE_SIGNER_API_KEY}" ]; then
+              SIGNED="yes"
+            fi
+          fi
+          if [ -n "${APPLE_CERTIFICATE}" ] && [ "$SIGNED" = "yes" ]; then
+            echo "ENABLE_CODE_SIGNING=true" >> "$GITHUB_ENV"
+          else
+            echo "ENABLE_CODE_SIGNING=false" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${TAURI_PRIVATE_KEY}" ] && [ "$SIGNED" = "yes" ]; then
+            BUNDLES="nsis,updater"
+          fi
+          if [ "$SIGNED" = "no" ]; then
+            echo "Signing credentials missing or not requested - continuing unsigned"
+          fi
+          echo "signed=$SIGNED" >> "$GITHUB_OUTPUT"
+          echo "SIGNED=$SIGNED" >> "$GITHUB_ENV"
+          echo "bundle-targets=$BUNDLES" >> "$GITHUB_ENV"
 
       - name: Setup Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 # v1.17.0
@@ -83,6 +147,17 @@ jobs:
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696 # v0.0.10
 
+      - name: Cache Rust build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -91,15 +166,16 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Set up caches
-        uses: namespacelabs/nscloud-cache-action@c5f8dab7560444c4bf8dbc64f1b203431873c547 # v1.6.1
-        with:
-          cache: |
-            rust
-            pnpm
+      - name: Configure pnpm store
+        run: pnpm config set store-dir "${{ runner.temp }}/pnpm-store"
 
-      - name: Configure sccache
-        run: nsc cache sccache setup --cache_name default >> "$GITHUB_ENV"
+      - name: Cache pnpm store
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Generate tauri-dev.conf.json
         shell: bash
@@ -107,9 +183,9 @@ jobs:
           GIT_HASH=$(git rev-parse --short HEAD)
           cat > apps/app/tauri-dev.conf.json <<EOF
           {
-            "productName": "Modrinth App (dev-${GIT_HASH})",
-            "mainBinaryName": "Modrinth App (dev-${GIT_HASH})",
-            "identifier": "ModrinthApp-dev-${GIT_HASH}",
+            "productName": "${{ env.PRODUCT_NAME }} (dev-${GIT_HASH})",
+            "mainBinaryName": "${{ env.PRODUCT_NAME }} (dev-${GIT_HASH})",
+            "identifier": "${{ env.PRODUCT_NAME }}App-dev-${GIT_HASH}",
             "bundle": {
               "fileAssociations": []
             }
@@ -120,7 +196,7 @@ jobs:
         if: contains(matrix.artifact-target-name, 'linux')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libdbus-1-dev
 
       - name: Setup Java
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
@@ -138,40 +214,52 @@ jobs:
           chmod: 0755
 
       - name: Set application version and environment
+        id: version
         shell: bash
         run: |
-          APP_VERSION="${{ inputs.app-version-override }}"
-          if [ -z "$APP_VERSION" ]; then
+          if [ -n "$TAG_SUFFIX" ]; then
+            APP_VERSION="$(git describe --tags --always)${TAG_SUFFIX}"
+          else
             APP_VERSION="$(git describe --tags --always | sed -E 's/-([0-9]+)-(g[0-9a-fA-F]+)$/-canary+\1.\2/')"
           fi
-          BUILD_ENVIRONMENT="${{ inputs.environment || 'prod' }}"
+          APP_VERSION="${APP_VERSION#v}"
           echo "Setting application version to $APP_VERSION"
           echo "Using environment $BUILD_ENVIRONMENT"
-          dasel put -f apps/app/Cargo.toml -t string -v "${APP_VERSION#v}" 'package.version'
-          dasel put -f packages/app-lib/Cargo.toml -t string -v "${APP_VERSION#v}" 'package.version'
-          dasel put -f apps/app-frontend/package.json -t string -v "${APP_VERSION#v}" 'version'
+          dasel put -f apps/app/Cargo.toml -t string -v "$APP_VERSION" 'package.version'
+          dasel put -f packages/app-lib/Cargo.toml -t string -v "$APP_VERSION" 'package.version'
+          dasel put -f apps/app-frontend/package.json -t string -v "$APP_VERSION" 'version'
 
+          echo "app-version=$APP_VERSION" >> "$GITHUB_OUTPUT"
           cp "packages/app-lib/.env.${BUILD_ENVIRONMENT}" packages/app-lib/.env
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Set up Windows code signing
-        if: contains(matrix.artifact-target-name, 'windows')
+        if: contains(matrix.artifact-target-name, 'windows') && env.SIGNED == 'yes'
+        shell: bash
+        run: choco install jsign --ignore-dependencies # GitHub runners come with a global Java installation already
+
+      - name: Disable signing and updater artifacts for unsigned builds
+        if: env.SIGNED != 'yes'
         shell: bash
         run: |
-          if [ '${{ startsWith(github.ref, 'refs/tags/v') || inputs.sign-windows-binaries }}' = 'true' ]; then
-            choco install jsign --ignore-dependencies # GitHub runners come with a global Java installation already
-          else
-            dasel delete -f apps/app/tauri-release.conf.json 'bundle.windows.signCommand'
-          fi
+          dasel delete -f apps/app/tauri-release.conf.json 'bundle.windows.signCommand' || true
+          dasel delete -f apps/app/tauri-release.conf.json 'bundle.createUpdaterArtifacts' || true
+          dasel delete -f apps/app/tauri-release.conf.json 'build.features' || true
+          echo "Removed signing config and updater features; building unsigned"
 
       - name: Build macOS app
-        run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
+        run: |
+          if [ "${{ env.SIGNED }}" != "yes" ]; then
+            # 未签名构建：彻底清除签名相关环境变量（空字符串也会触发密钥链导入）
+            unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_TEAM_ID APPLE_PASSWORD TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+          fi
+          ${{ env.RELEASE_BUILD && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json' }}
         if: contains(matrix.artifact-target-name, 'darwin')
         env:
           TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
-          ENABLE_CODE_SIGNING: ${{ secrets.APPLE_CERTIFICATE }}
+          ENABLE_CODE_SIGNING: ${{ env.ENABLE_CODE_SIGNING }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
@@ -182,7 +270,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
       - name: Build Linux app
-        run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json' }}
+        run: ${{ env.RELEASE_BUILD && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json' }}
         if: contains(matrix.artifact-target-name, 'linux')
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -193,7 +281,7 @@ jobs:
           [System.Convert]::FromBase64String("$env:DIGICERT_ONE_SIGNER_CLIENT_CERTIFICATE_BASE64") | Set-Content -Path signer-client-cert.p12 -AsByteStream
           $env:DIGICERT_ONE_SIGNER_CREDENTIALS = "$env:DIGICERT_ONE_SIGNER_API_KEY|$PWD\signer-client-cert.p12|$env:DIGICERT_ONE_SIGNER_CLIENT_CERTIFICATE_PASSWORD"
           $env:JAVA_HOME = "$env:JAVA_HOME_17_X64"
-          ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json --verbose --bundles "nsis,updater"' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json --verbose --bundles "nsis,updater"' }}
+          ${{ (env.RELEASE_BUILD && env.SIGNED == 'yes') && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json --verbose --bundles "nsis,updater"' || (env.RELEASE_BUILD && env.SIGNED != 'yes') && 'pnpm --filter=@modrinth/app run tauri build --config tauri-release.conf.json --verbose --bundles "nsis"' || 'pnpm --filter=@modrinth/app run tauri build --config tauri-dev.conf.json --verbose --bundles "nsis"' }}
           Remove-Item -Path signer-client-cert.p12 -ErrorAction SilentlyContinue
         if: contains(matrix.artifact-target-name, 'windows')
         env:
@@ -208,16 +296,25 @@ jobs:
         with:
           name: App bundle (${{ matrix.artifact-target-name }})
           path: |
-            target/release/bundle/appimage/Modrinth App_*.AppImage*
-            target/release/bundle/deb/Modrinth App_*.deb*
-            target/release/bundle/rpm/Modrinth App-*.rpm*
-            target/release/bundle/appimage/Modrinth App (dev-*)_*.AppImage*
-            target/release/bundle/deb/Modrinth App (dev-*)_*.deb*
-            target/release/bundle/rpm/Modrinth App (dev-*)-*.rpm*
-            target/universal-apple-darwin/release/bundle/macos/Modrinth App.app.tar.gz*
-            target/universal-apple-darwin/release/bundle/macos/Modrinth App (dev-*)*.app.tar.gz
-            target/universal-apple-darwin/release/bundle/dmg/Modrinth App (dev-*)*.dmg
-            target/universal-apple-darwin/release/bundle/dmg/Modrinth App_*.dmg*
-            target/release/bundle/nsis/Modrinth App_*-setup.exe*
-            target/release/bundle/nsis/Modrinth App (dev-*)_*-setup.exe*
-            target/release/bundle/nsis/Modrinth App_*-setup.nsis.zip*
+            target/release/bundle/appimage/${{ env.PRODUCT_NAME }}_*.AppImage*
+            target/release/bundle/deb/${{ env.PRODUCT_NAME }}_*.deb*
+            target/release/bundle/rpm/${{ env.PRODUCT_NAME }}-*.rpm*
+            target/release/bundle/appimage/${{ env.PRODUCT_NAME }} (dev-*)_*.AppImage*
+            target/release/bundle/deb/${{ env.PRODUCT_NAME }} (dev-*)_*.deb*
+            target/release/bundle/rpm/${{ env.PRODUCT_NAME }} (dev-*)-*.rpm*
+            target/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz*
+            target/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }} (dev-*)*.app.tar.gz
+            target/universal-apple-darwin/release/bundle/dmg/${{ env.PRODUCT_NAME }} (dev-*)*.dmg
+            target/universal-apple-darwin/release/bundle/dmg/${{ env.PRODUCT_NAME }}_*.dmg*
+            target/release/bundle/nsis/${{ env.PRODUCT_NAME }}_*-setup.exe*
+            target/release/bundle/nsis/${{ env.PRODUCT_NAME }} (dev-*)_*-setup.exe*
+            target/release/bundle/nsis/${{ env.PRODUCT_NAME }}_*-setup.nsis.zip*
+
+      - name: Dispatch release workflow
+        if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run "Packrinth App release" --ref "${{ github.ref }}" \
+            -f "version=${{ steps.version.outputs.app-version }}" \
+            -f "build-run-id=${{ github.run_id }}"

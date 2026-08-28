@@ -2628,16 +2628,16 @@
     "defaultMessage": "Houd de bestanden geupdate wanneer de server verandert"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Krijg de Modrinth App"
+    "defaultMessage": "Krijg de Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "De Modrinth App zal automatisch openen..."
+    "defaultMessage": "De Packrinth zal automatisch openen..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Bezig met de Modrinth App openen"
+    "defaultMessage": "Bezig met de Packrinth openen"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Waarom de Modrinth App gebruiken"
+    "defaultMessage": "Waarom de Packrinth gebruiken"
   },
   "notification.error.title": {
     "defaultMessage": "Er is een fout opgetreden"
@@ -4599,7 +4599,7 @@
     "defaultMessage": "Nieuwe server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Installeer mods, nodig vrienden uit en speel samen – allemaal via de Modrinth app."
+    "defaultMessage": "Installeer mods, nodig vrienden uit en speel samen – allemaal via de Packrinth app."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Kies je favoriete mods en wij regelen de rest."

@@ -5,8 +5,8 @@ import {
 	defineMessages,
 	IconButton,
 	injectNotificationManager,
+	Input,
 	Slider,
-	StyledInput,
 	Toggle,
 	useVIntl,
 } from '@modrinth/ui'
@@ -34,7 +34,7 @@ const messages = defineMessages({
 	appDirectoryDescription: {
 		id: 'app.settings.resource-management.app-directory.description',
 		defaultMessage:
-			'Where Modrinth App stores instances and other files. Changes take effect after restarting the app.',
+			'Where Packrinth stores instances and other files. Changes take effect after restarting the app.',
 	},
 	selectAppDirectory: {
 		id: 'app.settings.resource-management.app-directory.select',
@@ -176,7 +176,7 @@ async function findLauncherDir() {
 			<h2 class="m-0 text-lg font-semibold text-contrast">
 				{{ formatMessage(messages.appDirectoryTitle) }}
 			</h2>
-			<StyledInput
+			<Input
 				id="appDir"
 				v-model="settings.custom_dir"
 				:icon="BoxIcon"
@@ -193,7 +193,7 @@ async function findLauncherDir() {
 						<FolderSearchIcon aria-hidden="true" />
 					</IconButton>
 				</template>
-			</StyledInput>
+			</Input>
 			<p class="m-0 leading-tight text-secondary">
 				{{ formatMessage(messages.appDirectoryDescription) }}
 			</p>

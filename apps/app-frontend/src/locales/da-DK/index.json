@@ -125,18 +125,6 @@
   "app.action-bar.view-logs": {
     "message": "Vis logs"
   },
-  "app.ads-consent.accept": {
-    "message": "Tillad alle"
-  },
-  "app.ads-consent.body": {
-    "message": "Reklamer gør Modrinth muligt og finansiere skaber udbetalinger. Vores partnere må gemme og tilgå cookies i appen for at personliggøre reklamer og måle effektivitet."
-  },
-  "app.ads-consent.reject": {
-    "message": "Afvis alle"
-  },
-  "app.ads-consent.title": {
-    "message": "Dit privatliv og hvordan reklamer hjælper Modrinth"
-  },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Hjem"
   },
@@ -639,13 +627,13 @@
     "message": "Slå til"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} er færdig med at download. Genindlæs for at opdatere nu, eller automatisk når du lukker Modrinth App."
+    "message": "Packrinth v{version} er færdig med at download. Genindlæs for at opdatere nu, eller automatisk når du lukker Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} er nu tilgængelig. Brug din pakke-manager til at opdatere for de nyeste features og fejlrettelser!"
+    "message": "Packrinth v{version} er nu tilgængelig. Brug din pakke-manager til at opdatere for de nyeste features og fejlrettelser!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} er nu tilgængelig! Siden du er på et begrænset netværk, vi downloadede den ikke automatisk."
+    "message": "Packrinth v{version} er nu tilgængelig! Siden du er på et begrænset netværk, vi downloadede den ikke automatisk."
   },
   "app.update-popup.changelog": {
     "message": "Ændringslog"
@@ -881,12 +869,6 @@
   "instance.settings.tabs.general.update-channel.beta": {
     "message": "Beta"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Startkommandoer"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Brugerfinansieret startkommandoer"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Startkommandoer giver avancerede brugere mulighed for at køre bestemte systemkommandoer før og efter spillet startes."
   },
@@ -925,9 +907,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "{loader} version"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java og hukommelse"
   },
   "instance.settings.tabs.java.enter-java-arguments": {
     "message": "Indskriv Java argumenter..."

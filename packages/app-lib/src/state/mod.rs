@@ -3,7 +3,7 @@ use crate::util::fetch::{FetchSemaphore, IoSemaphore};
 use dashmap::DashMap;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
-use tokio::sync::{Mutex, OnceCell, OwnedMutexGuard, Semaphore};
+use tokio::sync::{Mutex, MutexGuard, OnceCell, OwnedMutexGuard, Semaphore};
 
 use crate::state::instances::watcher::FileWatcher;
 use sqlx::SqlitePool;
@@ -29,9 +29,6 @@ pub use self::process::*;
 
 mod java_globals;
 pub use self::java_globals::*;
-
-mod discord;
-pub use self::discord::*;
 
 mod minecraft_auth;
 pub use self::minecraft_auth::*;
@@ -77,11 +74,12 @@ pub struct State {
     pub(crate) install_db_semaphore: Semaphore,
     /// Serializes filesystem reconciliation and content mutations per instance.
     instance_content_locks: DashMap<String, Arc<Mutex<()>>>,
+    /// Serializes screenshot filesystem reconciliation per instance.
+    instance_screenshot_locks: DashMap<String, Arc<Mutex<()>>>,
     /// Serializes shared instance attachment and recipient mutations per instance.
     shared_instance_locks: DashMap<String, Arc<Mutex<()>>>,
-
-    /// Discord RPC
-    pub discord_rpc: DiscordGuard,
+    /// Serializes canonical synced-option mutations and checkpoint updates.
+    synced_options_lock: Mutex<()>,
 
     /// Process manager
     pub process_manager: ProcessManager,
@@ -103,6 +101,10 @@ pub struct State {
 }
 
 impl State {
+    pub(crate) async fn lock_synced_options(&self) -> MutexGuard<'_, ()> {
+        self.synced_options_lock.lock().await
+    }
+
     pub(crate) async fn lock_instance_content(
         &self,
         instance_id: &str,
@@ -129,8 +131,22 @@ impl State {
         lock.lock_owned().await
     }
 
+    pub(crate) async fn lock_instance_screenshots(
+        &self,
+        instance_id: &str,
+    ) -> OwnedMutexGuard<()> {
+        let lock = self
+            .instance_screenshot_locks
+            .entry(instance_id.to_string())
+            .or_insert_with(|| Arc::new(Mutex::new(())))
+            .clone();
+
+        lock.lock_owned().await
+    }
+
     pub(crate) fn remove_instance_locks(&self, instance_id: &str) {
         let _ = self.instance_content_locks.remove(instance_id);
+        let _ = self.instance_screenshot_locks.remove(instance_id);
         let _ = self.shared_instance_locks.remove(instance_id);
     }
 
@@ -153,19 +169,34 @@ impl State {
             )
             .await;
 
+            if let Err(error) =
+                crate::api::instance::monitor_persisted_processes().await
+            {
+                tracing::error!(
+                    "Failed to monitor persisted Minecraft processes: {error}"
+                );
+            }
+
+            if let Err(error) =
+                crate::api::instance::reconcile_all_synced_options().await
+            {
+                tracing::error!(
+                    "Failed to reconcile instance synced options during startup: {error}"
+                );
+            }
+
             if let Err(e) = crate::api::instance::migrate_legacy_icons().await {
                 tracing::error!("Error migrating legacy instance icons: {e}");
             }
 
             let res = tokio::try_join!(
-                state.discord_rpc.clear_to_default(true),
                 instances::refresh_all_instances(),
                 Settings::migrate(&state.pool),
                 ModrinthCredentials::refresh_all(),
             );
 
             if let Err(e) = res {
-                tracing::error!("Error running discord RPC: {e}");
+                tracing::error!("Error initializing instance state: {e}");
             }
 
             let _ = state
@@ -237,8 +268,6 @@ impl State {
         let directories =
             DirectoryInfo::init(settings.custom_dir, &app_identifier).await?;
 
-        let discord_rpc = DiscordGuard::init()?;
-
         tracing::info!("Initializing file watcher");
         let file_watcher = instances::watcher::init_watcher().await?;
 
@@ -254,8 +283,9 @@ impl State {
             install_job_semaphore: Semaphore::new(MAX_CONCURRENT_INSTALL_JOBS),
             install_db_semaphore: Semaphore::new(1),
             instance_content_locks: DashMap::new(),
+            instance_screenshot_locks: DashMap::new(),
             shared_instance_locks: DashMap::new(),
-            discord_rpc,
+            synced_options_lock: Mutex::new(()),
             process_manager,
             friends_socket,
             restart_after_pending_update: AtomicBool::new(false),

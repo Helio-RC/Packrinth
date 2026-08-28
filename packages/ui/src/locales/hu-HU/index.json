@@ -2475,16 +2475,16 @@
     "defaultMessage": "Tartsd naprakészen a fájlokat, amikor a szerver változik"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Szerezd meg a Modrinth Appot"
+    "defaultMessage": "Szerezd meg a Packrinthot"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "A Modrinth App automatikusan megnyílik..."
+    "defaultMessage": "A Packrinth automatikusan megnyílik..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "A Modrinth App megnyitása"
+    "defaultMessage": "A Packrinth megnyitása"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Miért használd a Modrinth Appot?"
+    "defaultMessage": "Miért használd a Packrinthot?"
   },
   "notification.error.title": {
     "defaultMessage": "Hiba történt"
@@ -4149,7 +4149,7 @@
     "defaultMessage": "Új szerver"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Telepíts modokat, hívd meg a barátaidat, és játsszatok együtt, mindezt a Modrinth Appban."
+    "defaultMessage": "Telepíts modokat, hívd meg a barátaidat, és játsszatok együtt, mindezt a Packrinthban."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Válaszd ki a kedvenc modjaidat, a többit bízd ránk!"

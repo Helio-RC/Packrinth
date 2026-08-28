@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "Naplók megtekintése"
   },
-  "app.ads-consent.accept": {
-    "message": "Összes elfogadása"
-  },
-  "app.ads-consent.body": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából."
-  },
-  "app.ads-consent.manage": {
-    "message": "Beállítások kezelése"
-  },
-  "app.ads-consent.reject": {
-    "message": "Összes elutasítása"
-  },
-  "app.ads-consent.title": {
-    "message": "Adataid védelme és a hirdetések szerepe a Modrinth működésében"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "A könyvtári játékprofilok megjelenítése egy összetett, soros elrendezésben."
   },
@@ -174,7 +159,7 @@
     "message": "„Folytasd itt” a világokat és a játékprofilokat is"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "A Modrinth App bezáródik a Minecraft indításakor"
+    "message": "A Packrinth bezáródik a Minecraft indításakor"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Alkalmazás bezárása"
@@ -327,16 +312,16 @@
     "message": "Játékprofil megtekintése"
   },
   "app.hosting.update-required.description": {
-    "message": "Frissítened kell, hogy használhasd a Modrinth Hostingot a Modrinth Appon keresztül"
+    "message": "Frissítened kell, hogy használhasd a Packrinth Hostingot a Packrinthon keresztül"
   },
   "app.hosting.update-required.download": {
     "message": "Letöltés a frissítéshez"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Izgatott Modrinth bot"
+    "message": "Izgatott Packrinth bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Frissítés szükséges a Modrinth Apphoz"
+    "message": "Frissítés szükséges a Packrinthhoz"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Nem sikerült véletlenszerű ikonokat rendelni a játékprofilokhoz."
@@ -983,12 +968,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Bejelentkezés egy Modrinth-fiókba"
   },
-  "app.nav.signed-in-as": {
-    "message": "Bejelentkezve mint <user>{username}</user>"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Frissíts a Modrinth+-ra"
-  },
   "app.news.title": {
     "message": "Hírek"
   },
@@ -1047,7 +1026,7 @@
     "message": "Újraindítás..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "A példány indításakor beállított környezeti változók."
@@ -1139,17 +1118,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából. Alább leiratkozhatsz erről, illetve beállíthatod a preferenciáidat."
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "A Modrinth App megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
-    "message": "A Modrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
+    "message": "A Packrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
@@ -1188,7 +1158,7 @@
     "message": "Alkalmazáskönyvtár tallózása"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "A Modrinth App ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
+    "message": "A Packrinth ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Új alkalmazáskönyvtár kiválasztása"
@@ -1216,9 +1186,6 @@
   },
   "app.settings.tabs.behavior": {
     "message": "Működés"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "A játék alapbeállításai"
   },
   "app.settings.tabs.java-installations": {
     "message": "Telepített Java példányok"
@@ -1383,10 +1350,10 @@
     "message": "Bekapcsolás"
   },
   "app.survey.body": {
-    "message": "Megosztanád velünk a tapasztalataidat a Modrinth App használatáról néhány kérdés megválaszolásával?"
+    "message": "Megosztanád velünk a tapasztalataidat a Packrinth használatáról néhány kérdés megválaszolásával?"
   },
   "app.survey.footer": {
-    "message": "A visszajelzésed közvetlenül a Modrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
+    "message": "A visszajelzésed közvetlenül a Packrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
   },
   "app.survey.no-thanks": {
     "message": "Nem, köszönöm"
@@ -1395,16 +1362,16 @@
     "message": "Kérdőív kitöltése"
   },
   "app.survey.title": {
-    "message": "Hali, Modrinth-felhasználó!"
+    "message": "Hali, Packrinth-felhasználó!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "A Modrinth App v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
+    "message": "A Packrinth v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
   },
   "app.update-popup.body.linux": {
-    "message": "A Modrinth App v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
+    "message": "A Packrinth v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
   },
   "app.update-popup.body.metered": {
-    "message": "A Modrinth App v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
+    "message": "A Packrinth v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
   },
   "app.update-popup.changelog": {
     "message": "Változásnapló"
@@ -1431,7 +1398,7 @@
     "message": "Telepítés a példányba"
   },
   "app.welcome-screen.title": {
-    "message": "Üdvözlünk a Modrinthon"
+    "message": "Üdvözlünk a Packrinthon"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "pelda.modrinth.gg"
@@ -1578,7 +1545,7 @@
     "message": "Megosztott példány leválasztása"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Modrinth Appban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
+    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Packrinthban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Visszavonod a megosztott példány megosztását"
@@ -1820,12 +1787,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Frissítési csatorna kiválasztása"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Indítási horgok"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Saját indítási horgok"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "A horgok lehetővé teszik a haladó felhasználók számára, hogy bizonyos rendszerparancsokat futtassanak a játék elindítása előtt és után."
   },
@@ -1879,9 +1840,6 @@
   },
   "instance.settings.tabs.installation.locked": {
     "message": "A telepítési beállítások nem érhetők el, amíg ez a példány zárolva van."
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java és memória"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Egyéni környezeti változók"

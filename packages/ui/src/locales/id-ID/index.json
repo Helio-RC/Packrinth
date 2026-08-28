@@ -1440,16 +1440,16 @@
     "defaultMessage": "Berkas-berkas selalu diperbarui ketika server berubah"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Dapatkan Modrinth App"
+    "defaultMessage": "Dapatkan Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App akan buka secara otomatis..."
+    "defaultMessage": "Packrinth akan buka secara otomatis..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Membuka Modrinth App"
+    "defaultMessage": "Membuka Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Mengapa harus Modrinth App?"
+    "defaultMessage": "Mengapa harus Packrinth?"
   },
   "notification.error.title": {
     "defaultMessage": "Terjadi kesalahan"
@@ -2952,4 +2952,3 @@
     "defaultMessage": "Anda memiliki perubahan yang belum tersimpan."
   }
 }
-

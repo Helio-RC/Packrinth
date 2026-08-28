@@ -2784,16 +2784,16 @@
     "defaultMessage": "Mantenha os arquivos atualizados quando o servidor mudar"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Baixe o Modrinth App"
+    "defaultMessage": "Baixe o Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "O Modrinth App vai abrir automaticamente..."
+    "defaultMessage": "O Packrinth vai abrir automaticamente..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Abrindo o Modrinth App"
+    "defaultMessage": "Abrindo o Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Por que usar o Modrinth App"
+    "defaultMessage": "Por que usar o Packrinth"
   },
   "notification.error.title": {
     "defaultMessage": "Ocorreu um erro"
@@ -4941,7 +4941,7 @@
     "defaultMessage": "Novo servidor"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Instale mods, convide amigos e joguem juntos, tudo pelo Modrinth App."
+    "defaultMessage": "Instale mods, convide amigos e joguem juntos, tudo pelo Packrinth."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Escolha seus mods favoritos e nós cuidamos do resto."
@@ -6429,4 +6429,3 @@
     "defaultMessage": "Tipo"
   }
 }
-

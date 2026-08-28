@@ -189,13 +189,13 @@
     "message": "ניהול משאבים"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} סיימה את תהליך ההורדה. יש לרענן כדי לעדכן עכשיו, או באופן אוטומטי בעת סגירת האפליקציה."
+    "message": "Packrinth v{version} סיימה את תהליך ההורדה. יש לרענן כדי לעדכן עכשיו, או באופן אוטומטי בעת סגירת האפליקציה."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} זמין. יש להשתמש במנהל חבילות שלך כדי לעדכן בשביל התכונות החדשות ותיקונים!"
+    "message": "Packrinth v{version} זמין. יש להשתמש במנהל חבילות שלך כדי לעדכן בשביל התכונות החדשות ותיקונים!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} זמינה עכשיו! בגלל החיבור לפי שימוש, לא הורדנו אותה אוטומטית."
+    "message": "Packrinth v{version} זמינה עכשיו! בגלל החיבור לפי שימוש, לא הורדנו אותה אוטומטית."
   },
   "app.update-popup.changelog": {
     "message": "יומן שינויים"
@@ -389,12 +389,6 @@
   "instance.settings.tabs.general.name": {
     "message": "שם"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "פעולות בעת הפעלה"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "פעולות בעת הפעלה מותאמות אישית"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "פעולות בעת הפעלה מאפשרות למשתמשים מתקדמים להריץ פקודות מערכת מסוימות לפני ואחרי שהמשחק מופעל."
   },
@@ -433,9 +427,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "{loader} גרסה"
-  },
-  "instance.settings.tabs.java": {
-    "message": "ג'אווה וזיכרון"
   },
   "instance.settings.tabs.java.environment-variables": {
     "message": "משתני סביבה"

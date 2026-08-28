@@ -1134,16 +1134,16 @@
     "defaultMessage": "Hold filer oppdatert når serveren endres"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Skaff Modrinth App-en"
+    "defaultMessage": "Skaff Packrinth-en"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App-en kommer til å åpne seg automatisk..."
+    "defaultMessage": "Packrinth-en kommer til å åpne seg automatisk..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Åpner Modrinth App-en"
+    "defaultMessage": "Åpner Packrinth-en"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Hvorfor bruke modrinth App-en"
+    "defaultMessage": "Hvorfor bruke Packrinth App-en"
   },
   "notification.error.title": {
     "defaultMessage": "En feil oppstod"
@@ -2745,4 +2745,3 @@
     "defaultMessage": "Du har ulagrede endringer."
   }
 }
-

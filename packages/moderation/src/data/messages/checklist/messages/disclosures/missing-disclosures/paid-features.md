@@ -1,1 +1,0 @@
-- Features locked behind a paywall, donation, or other monetary exchange.

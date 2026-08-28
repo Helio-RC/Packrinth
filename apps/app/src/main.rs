@@ -12,6 +12,9 @@ use tauri_plugin_fs::FsExt;
 use theseus::prelude::*;
 
 mod api;
+// === AI-WORKSHOP START ===
+mod ai_workshop;
+// === AI-WORKSHOP END ===
 mod error;
 
 #[cfg(target_os = "macos")]
@@ -140,9 +143,16 @@ fn main() {
 
     let _log_guard = theseus::start_logger(&tauri_context.config().identifier);
 
-    tracing::info!("Initialized tracing subscriber. Loading Modrinth App!");
+    tracing::info!("Initialized tracing subscriber. Loading Packrinth!");
 
     let mut builder = tauri::Builder::default();
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder
+            .menu(|app| macos::menu::create(app))
+            .on_menu_event(macos::menu::handle_event);
+    }
 
     #[cfg(feature = "updater")]
     {
@@ -260,9 +270,12 @@ fn main() {
         .plugin(api::utils::init())
         .plugin(api::cache::init())
         .plugin(api::files::init())
-        .plugin(api::ads::init())
         .plugin(api::friends::init())
         .plugin(api::worlds::init())
+        // === AI-WORKSHOP START ===
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(api::ai_workshop::init())
+        // === AI-WORKSHOP END ===
         .manage(PendingUpdateData::default())
         .invoke_handler(tauri::generate_handler![
             initialize_state,
@@ -397,7 +410,7 @@ fn main() {
                     DialogBuilder::message()
                         .set_level(MessageLevel::Error)
                         .set_title("Initialization error")
-                        .set_text("Your Microsoft Edge WebView2 installation is corrupt.\n\nMicrosoft Edge WebView2 is required to run Modrinth App.\n\nLearn how to repair it at https://support.modrinth.com/en/articles/8797765-corrupted-microsoft-edge-webview2-installation")
+                        .set_text("Your Microsoft Edge WebView2 installation is corrupt.\n\nMicrosoft Edge WebView2 is required to run Packrinth.\n\nLearn how to repair it at https://support.modrinth.com/en/articles/8797765-corrupted-microsoft-edge-webview2-installation")
                         .alert()
                         .show()
                         .unwrap();

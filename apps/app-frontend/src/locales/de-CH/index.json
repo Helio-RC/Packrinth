@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "Protokolle anzeigen"
   },
-  "app.ads-consent.accept": {
-    "message": "Alle akzeptieren"
-  },
-  "app.ads-consent.body": {
-    "message": "Werbung ermöglicht Modrinth und finanziert die Auszahlungen an die Ersteller. Unsere Partner speichern möglicherweise Cookies in der App oder greifen auf diese zu, um Werbung zu personalisieren und die Leistung zu messen."
-  },
-  "app.ads-consent.manage": {
-    "message": "Einstellungen verwalten"
-  },
-  "app.ads-consent.reject": {
-    "message": "Alle ablehnen"
-  },
-  "app.ads-consent.title": {
-    "message": "Deine Privatsphäre und wie Werbung Modrinth unterstützt"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "Bibliotheksinstanzen in einem kompakten Zeilenlayout anzeigen."
   },
@@ -174,7 +159,7 @@
     "message": "Mit Welten oder Instanzen loslegen"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimiere die Modrinth App, wenn Minecraft startet."
+    "message": "Minimiere die Packrinth, wenn Minecraft startet."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "App minimieren"
@@ -339,16 +324,16 @@
     "message": "Instanz anzeigen"
   },
   "app.hosting.update-required.description": {
-    "message": "Du musst aktualisieren, um Modrinth Hosting durch die Modrinth App zu verwenden"
+    "message": "Du musst aktualisieren, um Packrinth Hosting durch die Packrinth zu verwenden"
   },
   "app.hosting.update-required.download": {
     "message": "Zum Aktualisieren herunterladen"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Begeisterter Modrinth-Bot"
+    "message": "Begeisterter Packrinth-Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Update der Modrinth App erforderlich"
+    "message": "Update der Packrinth erforderlich"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Es konnten keine zufälligen Symbole auf Instanzen angewendet werden."
@@ -363,7 +348,7 @@
     "message": "Schließen"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Erstelle direkt in der Modrinth-App benutzerdefinierte Icons für deine Instanzen. Kombiniere Hintergründe mit Symbolen aus Minecraft und beliebten Mods!"
+    "message": "Erstelle direkt in der Packrinth-App benutzerdefinierte Icons für deine Instanzen. Kombiniere Hintergründe mit Symbolen aus Minecraft und beliebten Mods!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# Instanz hat} other {# Instanzen haben}} noch kein Icon. Möchtest du, dass wir {count, plural, one {dieser ein zufälliges Icon} other {diesen zufällige Icons}} zuweisen, um loszulegen?"
@@ -1232,12 +1217,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Bei einem Modrinth-Konto anmelden"
   },
-  "app.nav.signed-in-as": {
-    "message": "Angemeldet als <user>{username}</user>"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Auf Modrinth+ upgraden"
-  },
   "app.navigation.go-back": {
     "message": "Zurück"
   },
@@ -1246,9 +1225,6 @@
   },
   "app.navigation.home": {
     "message": "Start"
-  },
-  "app.navigation.more-options": {
-    "message": "Weitere Optionen"
   },
   "app.navigation.next-image": {
     "message": "Nächstes Bild"
@@ -1314,7 +1290,7 @@
     "message": "Wird neu gestartet..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Umgebungsvariablen, die beim Starten einer Instanz gesetzt werden."
@@ -1406,17 +1382,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Werbung ermöglicht Modrinth und finanziert die Auszahlungen an die Ersteller. Unsere Partner speichern möglicherweise Cookies in der App oder greifen auf diese zu, um Werbung zu personalisieren und die Leistung zu messen. Du kannst dies unten deaktivieren oder deine Einstellungen verwalten."
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Zeige Modrinth App als deine aktuelle Aktivität auf Discord. Dies betrifft nicht Rich Presence die von Mods zu Instanzen hinzugefügt wird. Benötigt einen Neustart der App."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth sammelt anonymisierte Analyse- und Nutzungsdaten, um unsere Nutzererfahrung zu verbessern und deine Erfahrung anzupassen. Wenn du diese Option deaktivierst, entscheidest du dich dagegen und deine Daten werden nicht mehr gesammelt."
+    "message": "Packrinth sammelt anonymisierte Analyse- und Nutzungsdaten, um unsere Nutzererfahrung zu verbessern und deine Erfahrung anzupassen. Wenn du diese Option deaktivierst, entscheidest du dich dagegen und deine Daten werden nicht mehr gesammelt."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetrie"
@@ -1455,7 +1422,7 @@
     "message": "Nach einem App-Verzeichnis suchen"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Wo Modrinth App Instanzen und andere Dateien speichert. Änderungen werden nach dem Neustarten der App angewendet."
+    "message": "Wo Packrinth Instanzen und andere Dateien speichert. Änderungen werden nach dem Neustarten der App angewendet."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Neues App-Verzeichnis auswählen"
@@ -1483,9 +1450,6 @@
   },
   "app.settings.tabs.behavior": {
     "message": "Verhalten"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "Standard-Spieloptionen"
   },
   "app.settings.tabs.java-installations": {
     "message": "Java Installationen"
@@ -1665,10 +1629,10 @@
     "message": "Aktivieren"
   },
   "app.survey.body": {
-    "message": "Könntest du ein paar Fragen über deine Erfahrung mit Modrinth App beantworten?"
+    "message": "Könntest du ein paar Fragen über deine Erfahrung mit Packrinth beantworten?"
   },
   "app.survey.footer": {
-    "message": "Das Feedback geht direkt an das Modrinth-Team und wird helfen, zukünftige Updates zu gestalten!"
+    "message": "Das Feedback geht direkt an das Packrinth-Team und wird helfen, zukünftige Updates zu gestalten!"
   },
   "app.survey.no-thanks": {
     "message": "Nein danke"
@@ -1677,16 +1641,16 @@
     "message": "An Umfrage teilnehmen"
   },
   "app.survey.title": {
-    "message": "Hey, Modrinth Nutzer!"
+    "message": "Hey, Packrinth Nutzer!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} wurde heruntergeladen. Lade die App neu um jetzt zu aktualisieren, oder automatisch nach dem schliessen der Modrinth App."
+    "message": "Packrinth v{version} wurde heruntergeladen. Lade die App neu um jetzt zu aktualisieren, oder automatisch nach dem schliessen der Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} ist verfügbar. Benutze deinen Paketmanager zum aktualisieren, um die neusten Features und Bugfixes zu erhalten!"
+    "message": "Packrinth v{version} ist verfügbar. Benutze deinen Paketmanager zum aktualisieren, um die neusten Features und Bugfixes zu erhalten!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} ist jetzt verfügbar! Da du in einem begrenzten Netzwerk bist, haben wir es nicht automatisch heruntergeladen."
+    "message": "Packrinth v{version} ist jetzt verfügbar! Da du in einem begrenzten Netzwerk bist, haben wir es nicht automatisch heruntergeladen."
   },
   "app.update-popup.changelog": {
     "message": "Änderungen"
@@ -1731,7 +1695,7 @@
     "message": "Drücke <shortcut>N</shortcut>, um schnell eine Instanz zu erstellen"
   },
   "app.welcome-screen.title": {
-    "message": "Willkommen bei Modrinth"
+    "message": "Willkommen bei Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -2309,12 +2273,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Update-Kanal auswählen"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Start Hooks"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Benutzerdefinierte Start Hooks"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Hooks ermöglichen es erfahrenen Benutzern, bestimmte Systembefehle vor und nach dem Start des Spiels auszuführen."
   },
@@ -2377,9 +2335,6 @@
   },
   "instance.settings.tabs.installation.locked": {
     "message": "Installationseinstellungen sind nicht verfügbar, solange diese Instanz gesperrt ist."
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java und Arbeitsspeicher"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Benutzerdefinierte Umgebungsvariablen"

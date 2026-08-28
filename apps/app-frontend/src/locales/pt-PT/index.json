@@ -128,21 +128,6 @@
   "app.action-bar.view-logs": {
     "message": "Ver logs"
   },
-  "app.ads-consent.accept": {
-    "message": "Aceitar tudo"
-  },
-  "app.ads-consent.body": {
-    "message": "Os anúncios tornam o Modrinth possível e financiam os pagamentos aos criadores. Os nossos parceiros podem armazenar ou aceder a cookies na aplicação para personalizar anúncios e medir o desempenho."
-  },
-  "app.ads-consent.manage": {
-    "message": "Gerir preferências"
-  },
-  "app.ads-consent.reject": {
-    "message": "Rejeitar tudo"
-  },
-  "app.ads-consent.title": {
-    "message": "A sua privacidade e como os anúncios são financiados pela Modrinth"
-  },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Início"
   },
@@ -156,7 +141,7 @@
     "message": "Ocultar nametag"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimizar a Modrinth App quando o Minecraft iniciar."
+    "message": "Minimizar a Packrinth quando o Minecraft iniciar."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimizar app"
@@ -524,9 +509,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Os anúncios tornam o Modrinth possível e financiam os pagamentos aos criadores. Os nossos parceiros podem armazenar ou aceder a cookies na aplicação para personalizar anúncios e medir o desempenho."
-  },
   "app.settings.tabs.appearance": {
     "message": "Aparência"
   },
@@ -594,13 +576,13 @@
     "message": "Modrinth"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} acabou de ser transferida. Recarrega para atualizar agora, ou automaticamente quando fechares a Modrinth App."
+    "message": "Packrinth v{version} acabou de ser transferida. Recarrega para atualizar agora, ou automaticamente quando fechares a Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} está disponível. Usa o teu gestor de pacotes para atualizar e receber as correções e recursos mais recentes!"
+    "message": "Packrinth v{version} está disponível. Usa o teu gestor de pacotes para atualizar e receber as correções e recursos mais recentes!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} está disponível! Como estás numa rede com tráfego limitado, não a transferimos automaticamente."
+    "message": "Packrinth v{version} está disponível! Como estás numa rede com tráfego limitado, não a transferimos automaticamente."
   },
   "app.update-popup.changelog": {
     "message": "Lista de alterações"
@@ -806,12 +788,6 @@
   "instance.settings.tabs.general.update-channel.beta": {
     "message": "Beta"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Ganchos de inicio"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Ganchos de inicio personalizados"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Ganchos permitem a utilizadores avançados executarem certos comandos de sistema antes e após abrir o jogo."
   },
@@ -868,9 +844,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "Versão {loader}"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java e memória"
   },
   "instance.settings.tabs.java.environment-variables": {
     "message": "Variáveis de ambiente"

@@ -498,13 +498,13 @@
     "message": "Ota käyttöön"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Modrinth Appin."
+    "message": "Packrinth versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Packrinthin."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App versio {version} on saatavilla. Käytä paketinhallintasi ja päivitä käyttääksesi uusimpia ominaisuuksia ja korjauksia!"
+    "message": "Packrinth versio {version} on saatavilla. Käytä paketinhallintasi ja päivitä käyttääksesi uusimpia ominaisuuksia ja korjauksia!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
+    "message": "Packrinth versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
   },
   "app.update-popup.changelog": {
     "message": "Muutosloki"
@@ -728,12 +728,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Valitse päivitys kanava"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Aloitustoiminnot"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Mukautetut aloitustoiminnot"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Koukut antavat edistyneiden käyttäjien suorittaa tiettyjä järjestelmä komentoja pelin käynnistystä ennen ja sen jälkeen."
   },
@@ -772,9 +766,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "{loader} versio"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java ja muisti"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Mukautetut ympäristö muuttujat"

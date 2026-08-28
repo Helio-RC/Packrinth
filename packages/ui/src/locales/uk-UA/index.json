@@ -1904,9 +1904,6 @@
   "icon-select.select": {
     "defaultMessage": "Вибрати значок"
   },
-  "input.search": {
-    "defaultMessage": "Пошук"
-  },
   "input.search-version.placeholder": {
     "defaultMessage": "Знайти версію…"
   },
@@ -2745,16 +2742,16 @@
     "defaultMessage": "Зберігання файлів оновленими, попри зміни сервера"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Отримати Modrinth App"
+    "defaultMessage": "Отримати Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App відкриється автоматично…"
+    "defaultMessage": "Packrinth відкриється автоматично…"
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Відкриття Modrinth App"
+    "defaultMessage": "Відкриття Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Навіщо використовувати Modrinth App"
+    "defaultMessage": "Навіщо використовувати Packrinth"
   },
   "notification.error.title": {
     "defaultMessage": "Виникла помилка"
@@ -4908,7 +4905,7 @@
     "defaultMessage": "Новий сервер"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Установлюйте моди, запрошуйте друзів і грайте разом із Modrinth App."
+    "defaultMessage": "Установлюйте моди, запрошуйте друзів і грайте разом із Packrinth."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Виберіть свої улюблені моди, а ми подбаємо про решту."

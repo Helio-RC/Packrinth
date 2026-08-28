@@ -1988,9 +1988,6 @@
   "icon-select.select": {
     "defaultMessage": "Seleccionar icono"
   },
-  "input.search": {
-    "defaultMessage": "Buscar"
-  },
   "input.search-version.placeholder": {
     "defaultMessage": "Buscar versión..."
   },
@@ -2823,16 +2820,16 @@
     "defaultMessage": "Mantén los archivos actualizados cuando cambia el servidor"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Obtén la aplicación Modrinth"
+    "defaultMessage": "Obtén la aplicación Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "La aplicación Modrinth se abrirá automáticamente..."
+    "defaultMessage": "La aplicación Packrinth se abrirá automáticamente..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Abriendo la aplicación Modrinth"
+    "defaultMessage": "Abriendo la aplicación Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "¿Por qué usar la aplicación Modrinth?"
+    "defaultMessage": "¿Por qué usar la aplicación Packrinth?"
   },
   "notification.error.title": {
     "defaultMessage": "Ha ocurrido un error"
@@ -4929,7 +4926,7 @@
     "defaultMessage": "Nuevo servidor"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Instala mods, invita amigos, y jueguen todos juntos desde la Modrinth App."
+    "defaultMessage": "Instala mods, invita amigos, y jueguen todos juntos desde la Packrinth."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Elige tus mods favoritos y nosotros nos encargamos del resto."

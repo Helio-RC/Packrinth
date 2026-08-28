@@ -12,7 +12,7 @@
 		"MODRINTH_API_BASE_URL",
 		"SHARED_INSTANCES_API_BASE_URL",
 		"MODRINTH_ARCHON_BASE_URL",
-		"VITE_STRIPE_PUBLISHABLE_KEY"
+		"DEV"
 	],
 	"tasks": {
 		"build": {
@@ -80,14 +80,11 @@
 				"scripts/coverage-i18n.ts",
 				"scripts/i18n-icu-contract.ts",
 				"apps/app-frontend/src/**/*.vue",
-				"apps/app-frontend/src/locales/**/*.json",
-				"apps/frontend/src/**/*.vue",
-				"apps/frontend/src/locales/**/*.json",
-				"packages/moderation/src/**/*.vue",
-				"packages/moderation/src/locales/**/*.json",
-				"packages/ui/src/**/*.vue",
-				"packages/ui/src/locales/**/*.json"
-			],
+			"apps/app-frontend/src/locales/**/*.json",
+			"apps/app-frontend/src/locales-packrinth/**/*.json",
+			"packages/ui/src/**/*.vue",
+			"packages/ui/src/locales/**/*.json"
+		],
 			"outputs": [
 				"packages/ui/src/layouts/wrapped/settings/language-settings/language-settings-coverage.generated.ts"
 			]
@@ -102,8 +99,6 @@
 		"test": {
 			"env": [
 				"SQLX_OFFLINE",
-				"DATABASE_URL",
-				"REDIS_*",
 				"CARGO_*",
 				"RUST_*",
 				"RUSTFLAGS",
@@ -122,12 +117,13 @@
 			"cache": false
 		},
 		"intl:extract": {},
+		"intl:extract-packrinth": {},
 		"intl:prune-local": {
 			"cache": false,
-			"dependsOn": ["intl:extract"]
+			"dependsOn": ["intl:extract", "intl:extract-packrinth"]
 		},
 		"prepr": {
-			"dependsOn": ["^prepr", "fix", "intl:extract", "intl:prune-local"]
+			"dependsOn": ["^prepr", "fix", "intl:extract", "intl:extract-packrinth", "intl:prune-local"]
 		}
 	}
 }

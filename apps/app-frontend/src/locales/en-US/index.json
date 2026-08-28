@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "View logs"
   },
-  "app.ads-consent.accept": {
-    "message": "Accept all"
-  },
-  "app.ads-consent.body": {
-    "message": "Ads make Modrinth possible and fund creator payouts. Our partners may store or access cookies in the app to personalize ads and measure performance."
-  },
-  "app.ads-consent.manage": {
-    "message": "Manage preferences"
-  },
-  "app.ads-consent.reject": {
-    "message": "Reject all"
-  },
-  "app.ads-consent.title": {
-    "message": "Your privacy and how ads support Modrinth"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "Display library instances in a compact row layout."
   },
@@ -174,7 +159,7 @@
     "message": "Jump into worlds or instances"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimize Modrinth App when Minecraft starts."
+    "message": "Minimize Packrinth when Minecraft starts."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimize app"
@@ -260,6 +245,9 @@
   "app.browse.hide-installed-modpacks": {
     "message": "Hide already installed"
   },
+  "app.browse.project-actions.label": {
+    "message": "Project actions"
+  },
   "app.browse.project-type.data-packs": {
     "message": "Data Packs"
   },
@@ -286,6 +274,9 @@
   },
   "app.content-install.no-compatible-versions": {
     "message": "No available versions match {compatibilityLabel}. Select a version to install anyway. Dependencies will not be installed automatically."
+  },
+  "app.error.state-init.open-backups-folder": {
+    "message": "Open backups folder"
   },
   "app.export-modal.description-placeholder": {
     "message": "Enter modpack description..."
@@ -314,6 +305,9 @@
   "app.export-modal.version-number-placeholder": {
     "message": "1.0.0"
   },
+  "app.home.jump-back-in.actions.label": {
+    "message": "Instance actions"
+  },
   "app.home.jump-back-in.instance-locked": {
     "message": "This instance has been locked"
   },
@@ -339,16 +333,16 @@
     "message": "View instance"
   },
   "app.hosting.update-required.description": {
-    "message": "You need to update to use Modrinth Hosting through the Modrinth App"
+    "message": "You need to update to use Modrinth Hosting through Packrinth"
   },
   "app.hosting.update-required.download": {
     "message": "Download to update"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Excited Modrinth Bot"
+    "message": "Excited Packrinth Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App update required"
+    "message": "Packrinth update required"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Failed to apply random icons to instances."
@@ -363,7 +357,7 @@
     "message": "Close"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Create custom icons for your instances right in the Modrinth App. Mix and match backgrounds with symbols from Minecraft and popular mods!"
+    "message": "Create custom icons for your instances right in Packrinth. Mix and match backgrounds with symbols from Minecraft and popular mods!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# instance doesn’t} other {# instances don’t}} have icons yet. Want us to give {count, plural, one {it} other {them}} random ones to get started?"
@@ -463,6 +457,9 @@
   },
   "app.instance.action.stop": {
     "message": "Stop"
+  },
+  "app.instance.actions.label": {
+    "message": "Instance actions"
   },
   "app.instance.add-server.add": {
     "message": "Add"
@@ -746,6 +743,9 @@
   "app.instance.tab.logs": {
     "message": "Logs"
   },
+  "app.instance.tab.screenshots": {
+    "message": "Screenshots"
+  },
   "app.instance.tab.share": {
     "message": "Share"
   },
@@ -793,6 +793,9 @@
   },
   "app.instance.worlds.remove-server-modal.remove-button": {
     "message": "Remove server"
+  },
+  "app.instance.worlds.remove-server-modal.synced-removal-notice": {
+    "message": "This server will also be removed from {count, plural, one {# other instance} other {# other instances}} because it’s synced."
   },
   "app.instance.worlds.remove-server-modal.title": {
     "message": "Remove server"
@@ -851,6 +854,9 @@
   "app.java-selector.test-installation": {
     "message": "Test Java installation"
   },
+  "app.library.actions.label": {
+    "message": "Library actions"
+  },
   "app.library.context-menu.create-instance": {
     "message": "New instance"
   },
@@ -898,6 +904,9 @@
   },
   "app.library.group-by.none": {
     "message": "No grouping"
+  },
+  "app.library.group.actions.label": {
+    "message": "Group actions"
   },
   "app.library.group.collapse": {
     "message": "Collapse group"
@@ -1021,6 +1030,9 @@
   },
   "app.library.instance.action.view-instance": {
     "message": "View instance"
+  },
+  "app.library.instance.actions.label": {
+    "message": "Instance actions"
   },
   "app.library.instance.deselect": {
     "message": "Deselect instance"
@@ -1217,11 +1229,17 @@
   "app.modal.update-to-play.update-required-description": {
     "message": "An update is required to play {name}. Please update to latest version to launch the game."
   },
+  "app.nav.add-account": {
+    "message": "Add account"
+  },
   "app.nav.create-new-instance": {
     "message": "Create new instance"
   },
   "app.nav.home": {
     "message": "Home"
+  },
+  "app.nav.loading-profile": {
+    "message": "Loading profile..."
   },
   "app.nav.modrinth-account": {
     "message": "Modrinth account"
@@ -1229,14 +1247,20 @@
   "app.nav.modrinth-hosting": {
     "message": "Modrinth Hosting"
   },
+  "app.nav.remove-account": {
+    "message": "Remove account"
+  },
+  "app.nav.screenshots": {
+    "message": "Screenshots"
+  },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Sign in to a Modrinth account"
+    "message": "Sign into Modrinth"
   },
-  "app.nav.signed-in-as": {
-    "message": "Signed in as <user>{username}</user>"
+  "app.nav.switch-account": {
+    "message": "Switch account"
   },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Upgrade to Modrinth+"
+  "app.nav.view-profile": {
+    "message": "View profile"
   },
   "app.navigation.go-back": {
     "message": "Go back"
@@ -1246,9 +1270,6 @@
   },
   "app.navigation.home": {
     "message": "Home"
-  },
-  "app.navigation.more-options": {
-    "message": "More options"
   },
   "app.navigation.next-image": {
     "message": "Next image"
@@ -1261,6 +1282,9 @@
   },
   "app.notification.warning": {
     "message": "Warning"
+  },
+  "app.project.actions.label": {
+    "message": "Project actions"
   },
   "app.project.coming-soon": {
     "message": "Coming soon"
@@ -1304,17 +1328,179 @@
   "app.project.versions.already-installed": {
     "message": "Already installed"
   },
+  "app.quick-instance-switcher.actions.label": {
+    "message": "Instance actions"
+  },
   "app.quick-instance-switcher.drag-show-tooltip": {
     "message": "Drag to show recent instances"
   },
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Drag to resize"
   },
+  "app.quick-instance-switcher.instance-locked": {
+    "message": "This instance has been locked"
+  },
+  "app.quick-instance-switcher.view-instance": {
+    "message": "View instance"
+  },
   "app.restarting": {
     "message": "Restarting..."
   },
+  "app.screenshots.copied": {
+    "message": "Copied"
+  },
+  "app.screenshots.copy": {
+    "message": "Copy image"
+  },
+  "app.screenshots.delete-description": {
+    "message": "Permanently delete {name}? This action cannot be undone."
+  },
+  "app.screenshots.delete-success": {
+    "message": "Screenshot deleted"
+  },
+  "app.screenshots.delete-title": {
+    "message": "Delete screenshot"
+  },
+  "app.screenshots.deselect": {
+    "message": "Deselect {name}"
+  },
+  "app.screenshots.edit": {
+    "message": "Edit screenshot"
+  },
+  "app.screenshots.empty-description": {
+    "message": "Screenshots you take in-game will appear here."
+  },
+  "app.screenshots.empty-heading": {
+    "message": "No screenshots yet"
+  },
+  "app.screenshots.error-heading": {
+    "message": "Failed to load screenshots"
+  },
+  "app.screenshots.go-to-instance": {
+    "message": "Go to instance"
+  },
+  "app.screenshots.group-by": {
+    "message": "Group by"
+  },
+  "app.screenshots.group.all-screenshots": {
+    "message": "All screenshots"
+  },
+  "app.screenshots.group.collapse": {
+    "message": "Collapse group"
+  },
+  "app.screenshots.group.custom": {
+    "message": "Custom group"
+  },
+  "app.screenshots.group.date": {
+    "message": "Date"
+  },
+  "app.screenshots.group.delete": {
+    "message": "Delete group"
+  },
+  "app.screenshots.group.delete-description": {
+    "message": "Screenshots in this group will become ungrouped."
+  },
+  "app.screenshots.group.edit": {
+    "message": "Edit group name"
+  },
+  "app.screenshots.group.empty": {
+    "message": "Drag and drop to add screenshots."
+  },
+  "app.screenshots.group.expand": {
+    "message": "Expand group"
+  },
+  "app.screenshots.group.instance": {
+    "message": "Instance"
+  },
+  "app.screenshots.group.new": {
+    "message": "New group"
+  },
+  "app.screenshots.group.none": {
+    "message": "No grouping"
+  },
+  "app.screenshots.group.this-month": {
+    "message": "This month"
+  },
+  "app.screenshots.group.this-week": {
+    "message": "This week"
+  },
+  "app.screenshots.group.today": {
+    "message": "Today"
+  },
+  "app.screenshots.group.ungrouped": {
+    "message": "Ungrouped"
+  },
+  "app.screenshots.group.yesterday": {
+    "message": "Yesterday"
+  },
+  "app.screenshots.heading": {
+    "message": "Screenshots"
+  },
+  "app.screenshots.more-actions": {
+    "message": "More actions"
+  },
+  "app.screenshots.no-results-description": {
+    "message": "Try a different search or filter."
+  },
+  "app.screenshots.no-results-heading": {
+    "message": "No matching screenshots"
+  },
+  "app.screenshots.preview.instance-and-date": {
+    "message": "{instance} · {date}"
+  },
+  "app.screenshots.search": {
+    "message": "Search"
+  },
+  "app.screenshots.select": {
+    "message": "Select {name}"
+  },
+  "app.screenshots.selection.aria-label": {
+    "message": "Selected screenshots"
+  },
+  "app.screenshots.selection.delete-description": {
+    "message": "Delete {count, plural, one {# screenshot} other {# screenshots}}? This action cannot be undone."
+  },
+  "app.screenshots.selection.delete-success": {
+    "message": "{count, plural, one {# screenshot deleted} other {# screenshots deleted}}"
+  },
+  "app.screenshots.selection.delete-title": {
+    "message": "Delete selected screenshots"
+  },
+  "app.screenshots.selection.export-zip": {
+    "message": "Export ZIP"
+  },
+  "app.screenshots.selection.global-export-filename": {
+    "message": "Modrinth screenshots.zip"
+  },
+  "app.screenshots.selection.instance-export-filename": {
+    "message": "{instance} screenshots.zip"
+  },
+  "app.screenshots.selection.remove-from-group": {
+    "message": "Remove from group"
+  },
+  "app.screenshots.selection.selected-count": {
+    "message": "{count} selected"
+  },
+  "app.screenshots.selection.zip-archive": {
+    "message": "ZIP archive"
+  },
+  "app.screenshots.show-in-folder": {
+    "message": "Show in folder"
+  },
+  "app.screenshots.sort-by": {
+    "message": "Sort by"
+  },
+  "app.screenshots.sort.name": {
+    "message": "Name"
+  },
+  "app.screenshots.sort.newest": {
+    "message": "Newest"
+  },
+  "app.screenshots.sort.oldest": {
+    "message": "Oldest"
+  },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Environment variables set when launching an instance."
@@ -1340,6 +1526,9 @@
   "app.settings.default-instance-options.height.title": {
     "message": "Height"
   },
+  "app.settings.default-instance-options.java-and-memory.title": {
+    "message": "Java and memory"
+  },
   "app.settings.default-instance-options.java-arguments.description": {
     "message": "Arguments passed to Java when launching an instance."
   },
@@ -1348,6 +1537,9 @@
   },
   "app.settings.default-instance-options.java-arguments.title": {
     "message": "Java arguments"
+  },
+  "app.settings.default-instance-options.launch-hooks.title": {
+    "message": "Launch hooks"
   },
   "app.settings.default-instance-options.memory-allocation.description": {
     "message": "Maximum memory available to each instance."
@@ -1382,6 +1574,9 @@
   "app.settings.default-instance-options.width.title": {
     "message": "Width"
   },
+  "app.settings.default-instance-options.window.title": {
+    "message": "Window"
+  },
   "app.settings.default-instance-options.wrapper-hook.description": {
     "message": "Command used to wrap the Minecraft launch process."
   },
@@ -1406,17 +1601,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Ads make Modrinth possible and fund creator payouts. Our partners may store or access cookies in the app to personalize ads and measure performance. You can opt out or manage your preferences below."
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Show Modrinth App as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected."
+    "message": "Packrinth collects anonymized analytics and usage data to improve our user experience and customize your experience. By disabling this option, you opt out and your data will no longer be collected."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetry"
@@ -1455,7 +1641,7 @@
     "message": "Browse for an app directory"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Where Modrinth App stores instances and other files. Changes take effect after restarting the app."
+    "message": "Where Packrinth stores instances and other files. Changes take effect after restarting the app."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Select a new app directory"
@@ -1475,17 +1661,62 @@
   "app.settings.resource-management.maximum-concurrent-writes.title": {
     "message": "Maximum concurrent writes"
   },
+  "app.settings.sidebar.label.ai": {
+    "message": "AI"
+  },
   "app.settings.sidebar.label.instances": {
     "message": "Instances"
+  },
+  "app.settings.synced-options.command-history": {
+    "message": "Command history"
+  },
+  "app.settings.synced-options.command-history.description": {
+    "message": "Sync command history across your instances."
+  },
+  "app.settings.synced-options.command-history.editor-title": {
+    "message": "Edit command history"
+  },
+  "app.settings.synced-options.creative-hotbars": {
+    "message": "Saved creative hotbars"
+  },
+  "app.settings.synced-options.creative-hotbars.description": {
+    "message": "Sync saved creative hotbars across your instances."
+  },
+  "app.settings.synced-options.multiplayer-servers": {
+    "message": "Multiplayer servers"
+  },
+  "app.settings.synced-options.multiplayer-servers.address": {
+    "message": "Server address"
+  },
+  "app.settings.synced-options.multiplayer-servers.description": {
+    "message": "Sync multiplayer servers across your instances."
+  },
+  "app.settings.synced-options.multiplayer-servers.editor-title": {
+    "message": "Edit synced servers"
+  },
+  "app.settings.synced-options.multiplayer-servers.empty": {
+    "message": "No user-added servers are currently synced."
+  },
+  "app.settings.synced-options.multiplayer-servers.name": {
+    "message": "Server name"
+  },
+  "app.settings.synced-options.multiplayer-servers.none-synced-yet": {
+    "message": "No servers synced yet"
+  },
+  "app.settings.synced-options.screenshots": {
+    "message": "Screenshots"
+  },
+  "app.settings.synced-options.screenshots.description": {
+    "message": "View screenshots from your instances in one place."
+  },
+  "app.settings.tabs.ai-workshop": {
+    "message": "AI workspace"
   },
   "app.settings.tabs.appearance": {
     "message": "Appearance"
   },
   "app.settings.tabs.behavior": {
     "message": "Behavior"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "Default game options"
   },
   "app.settings.tabs.java-installations": {
     "message": "Java installations"
@@ -1498,6 +1729,9 @@
   },
   "app.settings.tabs.resource-management": {
     "message": "Resource management"
+  },
+  "app.settings.tabs.synced-options": {
+    "message": "Synced settings"
   },
   "app.sidebar.playing-as": {
     "message": "Playing as"
@@ -1665,10 +1899,10 @@
     "message": "Toggle on"
   },
   "app.survey.body": {
-    "message": "Would you mind answering a few questions about your experience with Modrinth App?"
+    "message": "Would you mind answering a few questions about your experience with Packrinth?"
   },
   "app.survey.footer": {
-    "message": "This feedback will go directly to the Modrinth team and help guide future updates!"
+    "message": "This feedback will go directly to the Packrinth team and help guide future updates!"
   },
   "app.survey.no-thanks": {
     "message": "No thanks"
@@ -1677,16 +1911,16 @@
     "message": "Take survey"
   },
   "app.survey.title": {
-    "message": "Hey there Modrinth user!"
+    "message": "Hey there Packrinth user!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} has finished downloading. Reload to update now, or automatically when you close Modrinth App."
+    "message": "Packrinth v{version} has finished downloading. Reload to update now, or automatically when you close Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} is available. Use your package manager to update for the latest features and fixes!"
+    "message": "Packrinth v{version} is available. Use your package manager to update for the latest features and fixes!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} is available now! Since you're on a metered network, we didn't automatically download it."
+    "message": "Packrinth v{version} is available now! Since you're on a metered network, we didn't automatically download it."
   },
   "app.update-popup.changelog": {
     "message": "Changelog"
@@ -1731,7 +1965,7 @@
     "message": "Press <shortcut>N</shortcut> to quick create an instance"
   },
   "app.welcome-screen.title": {
-    "message": "Welcome to Modrinth"
+    "message": "Welcome to Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -1808,6 +2042,9 @@
   "friends.add-friends-to-share": {
     "message": "<link>Add friends</link> to see what they're playing!"
   },
+  "friends.friend.actions.label": {
+    "message": "Friend actions"
+  },
   "friends.friend.cancel-request": {
     "message": "Cancel request"
   },
@@ -1881,7 +2118,7 @@
     "message": "Unlink shared instance"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "This deletes the shared instance from Modrinth's servers. People using it in the Modrinth App will stop receiving updates, but your local instance and its content will stay on this device."
+    "message": "This deletes the shared instance from Modrinth's servers. People using it in Packrinth will stop receiving updates, but your local instance and its content will stay on this device."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Unpublishing shared instance"
@@ -2309,12 +2546,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Select update channel"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Launch hooks"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Custom launch hooks"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Hooks allow advanced users to run certain system commands before and after launching the game."
   },
@@ -2378,20 +2609,17 @@
   "instance.settings.tabs.installation.locked": {
     "message": "Installation settings are unavailable while this instance is locked."
   },
-  "instance.settings.tabs.java": {
-    "message": "Java and memory"
-  },
   "instance.settings.tabs.java.custom-environment-variables": {
-    "message": "Custom environment variables"
+    "message": "Use custom environment variables for this instance."
   },
   "instance.settings.tabs.java.custom-java-arguments": {
-    "message": "Custom Java arguments"
+    "message": "Use custom Java arguments for this instance."
   },
   "instance.settings.tabs.java.custom-java-installation": {
-    "message": "Custom Java installation"
+    "message": "Use a custom Java installation for this instance."
   },
   "instance.settings.tabs.java.custom-memory-allocation": {
-    "message": "Custom memory allocation"
+    "message": "Use a custom memory allocation for this instance."
   },
   "instance.settings.tabs.java.enter-environment-variables": {
     "message": "Enter environmental variables..."
@@ -2417,14 +2645,74 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/path/to/java"
   },
+  "instance.settings.tabs.settings-overrides": {
+    "message": "Sync overrides"
+  },
   "instance.settings.tabs.sharing": {
     "message": "Sharing"
+  },
+  "instance.settings.tabs.synced-options.command-history": {
+    "message": "Command history"
+  },
+  "instance.settings.tabs.synced-options.command-history.disabled-in-app": {
+    "message": "Command history syncing is turned off in app settings."
+  },
+  "instance.settings.tabs.synced-options.command-history.exclude-description": {
+    "message": "Exclude this instance from command history syncing."
+  },
+  "instance.settings.tabs.synced-options.creative-hotbars": {
+    "message": "Saved creative hotbars"
+  },
+  "instance.settings.tabs.synced-options.creative-hotbars.disabled-in-app": {
+    "message": "Saved creative hotbar syncing is turned off in app settings."
+  },
+  "instance.settings.tabs.synced-options.creative-hotbars.exclude-description": {
+    "message": "Exclude this instance from saved creative hotbar syncing."
+  },
+  "instance.settings.tabs.synced-options.hotbars-conflict.backup-description": {
+    "message": "The version being replaced will be backed up before anything changes."
+  },
+  "instance.settings.tabs.synced-options.hotbars-conflict.description": {
+    "message": "{instance} and your synced version have different creative hotbars. Choose which one to use across your instances."
+  },
+  "instance.settings.tabs.synced-options.hotbars-conflict.title": {
+    "message": "Choose creative hotbars"
+  },
+  "instance.settings.tabs.synced-options.hotbars-conflict.use-instance": {
+    "message": "Overwrite others"
+  },
+  "instance.settings.tabs.synced-options.hotbars-conflict.use-synced": {
+    "message": "Use synced"
+  },
+  "instance.settings.tabs.synced-options.multiplayer-servers": {
+    "message": "Multiplayer servers"
+  },
+  "instance.settings.tabs.synced-options.multiplayer-servers.disabled-in-app": {
+    "message": "Multiplayer server syncing is turned off in app settings."
+  },
+  "instance.settings.tabs.synced-options.multiplayer-servers.exclude-description": {
+    "message": "Exclude this instance from multiplayer server syncing."
+  },
+  "instance.settings.tabs.synced-options.open-app-settings": {
+    "message": "Open synced settings"
+  },
+  "instance.settings.tabs.synced-options.screenshots": {
+    "message": "Screenshots"
+  },
+  "instance.settings.tabs.synced-options.screenshots.disabled-in-app": {
+    "message": "Screenshots are turned off in app settings."
+  },
+  "instance.settings.tabs.synced-options.screenshots.exclude-description": {
+    "message": "Exclude this instance’s screenshots from the Screenshots page."
+  },
+  "instance.settings.tabs.synced-options.shared-settings.description": {
+    "message": "Game settings can be shared between instances. Choose what to share in app settings."
   },
   "instance.settings.tabs.window": {
     "message": "Window"
   },
   "instance.settings.tabs.window.custom-window-settings": {
-    "message": "Custom window settings"
+    "message": "Use custom window settings for this instance."
   },
   "instance.settings.tabs.window.fullscreen": {
     "message": "Fullscreen"
@@ -2510,6 +2798,9 @@
   "instance.worlds.a_minecraft_server": {
     "message": "A Minecraft Server"
   },
+  "instance.worlds.actions.label": {
+    "message": "World actions"
+  },
   "instance.worlds.cant_connect": {
     "message": "Can't connect to server"
   },
@@ -2518,6 +2809,21 @@
   },
   "instance.worlds.create_shortcut": {
     "message": "Create shortcut"
+  },
+  "instance.worlds.desync-server.description": {
+    "message": "Do you want to keep this server in other synced instances, or remove it from them?"
+  },
+  "instance.worlds.desync-server.keep": {
+    "message": "Keep"
+  },
+  "instance.worlds.desync-server.remove": {
+    "message": "Remove"
+  },
+  "instance.worlds.desync-server.title": {
+    "message": "Desync server"
+  },
+  "instance.worlds.desync_server": {
+    "message": "Desync"
   },
   "instance.worlds.dont_show_on_home": {
     "message": "Don't show on Home"
@@ -2551,6 +2857,9 @@
   },
   "instance.worlds.play_instance": {
     "message": "Play instance"
+  },
+  "instance.worlds.play_world": {
+    "message": "Play world"
   },
   "instance.worlds.shortcut-created": {
     "message": "Shortcut created"

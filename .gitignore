@@ -73,9 +73,16 @@ generated
 # app testing dir
 app-playground-data/*
 
+# generated blog feed (compile.ts output)
+packages/blog/public/feed/
+
 .astro
 .claude/
 .letta
+
+# agent scratch/planning artifacts
+.superpowers/
+/docs/superpowers/
 
 # labrinth demo fixtures
 apps/labrinth/fixtures/demo
@@ -95,3 +102,6 @@ apps/frontend/src/public/robots.txt
 /test_result.md
 
 packages/tooling-config/script-utils/import-sort.js
+
+# CI-generated tauri dev config
+apps/app/tauri-dev.conf.json

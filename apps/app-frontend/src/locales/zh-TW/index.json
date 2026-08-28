@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "查看紀錄"
   },
-  "app.ads-consent.accept": {
-    "message": "全部接受"
-  },
-  "app.ads-consent.body": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。"
-  },
-  "app.ads-consent.manage": {
-    "message": "管理偏好設定"
-  },
-  "app.ads-consent.reject": {
-    "message": "全部拒絕"
-  },
-  "app.ads-consent.title": {
-    "message": "關於你的隱私，以及廣告如何幫助 Modrinth"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "以密集的橫列版面顯示遊戲庫實例。"
   },
@@ -174,7 +159,7 @@
     "message": "繼續遊玩世界或實例"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "當 Minecraft 啟動時將 Modrinth App 最小化。"
+    "message": "當 Minecraft 啟動時將 Packrinth 最小化。"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "最小化應用程式"
@@ -339,16 +324,16 @@
     "message": "查看實例"
   },
   "app.hosting.update-required.description": {
-    "message": "你需要更新才能透過 Modrinth App 使用 Modrinth Hosting"
+    "message": "你需要更新才能透過 Packrinth 使用 Packrinth Hosting"
   },
   "app.hosting.update-required.download": {
     "message": "下載即可更新"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "興奮的 Modrinth 機器人"
+    "message": "興奮的 Packrinth 機器人"
   },
   "app.hosting.update-required.title": {
-    "message": "需要更新 Modrinth App"
+    "message": "需要更新 Packrinth"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "無法將隨機圖示套用到實例。"
@@ -363,7 +348,7 @@
     "message": "關閉"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "直接在 Modrinth App 中為你的實例建立自訂圖示。自由搭配 Minecraft 及熱門模組中的圖案與背景！"
+    "message": "直接在 Packrinth 中為你的實例建立自訂圖示。自由搭配 Minecraft 及熱門模組中的圖案與背景！"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "你有 {count, plural, other {# 個實例}}還沒有圖示。要我們先幫你的{count, plural, other {實例}}隨機產生圖示嗎？"
@@ -1232,12 +1217,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "登入 Modrinth 帳號"
   },
-  "app.nav.signed-in-as": {
-    "message": "以 <user>{username}</user> 登入"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "升級至 Modrinth+"
-  },
   "app.navigation.go-back": {
     "message": "上一頁"
   },
@@ -1246,9 +1225,6 @@
   },
   "app.navigation.home": {
     "message": "首頁"
-  },
-  "app.navigation.more-options": {
-    "message": "更多選項"
   },
   "app.navigation.next-image": {
     "message": "下一張圖片"
@@ -1314,7 +1290,7 @@
     "message": "正在重新啟動..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Packrinth {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "啟動實例時設定的環境變數。"
@@ -1406,17 +1382,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。你可以在下方選擇退出或管理偏好設定。"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "在 Discord 上將 Modrinth App 顯示為目前活動。這不會影響模組為實例新增的豐富狀態。需要重新啟動應用程式。"
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord 豐富狀態"
-  },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
+    "message": "Packrinth 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
   },
   "app.settings.privacy.telemetry.title": {
     "message": "遙測"
@@ -1455,7 +1422,7 @@
     "message": "瀏覽應用程式資料夾"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App 儲存實例及其他檔案的位置。變更將於重新啟動應用程式後生效。"
+    "message": "Packrinth 儲存實例及其他檔案的位置。變更將於重新啟動應用程式後生效。"
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "選擇新的應用程式資料夾"
@@ -1483,9 +1450,6 @@
   },
   "app.settings.tabs.behavior": {
     "message": "行為"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "預設遊戲選項"
   },
   "app.settings.tabs.java-installations": {
     "message": "Java 安裝"
@@ -1665,10 +1629,10 @@
     "message": "開啟"
   },
   "app.survey.body": {
-    "message": "你方便回答幾個關於 Modrinth App 使用體驗的問題嗎？"
+    "message": "你方便回答幾個關於 Packrinth 使用體驗的問題嗎？"
   },
   "app.survey.footer": {
-    "message": "你的回覆將直接傳送給 Modrinth 團隊，作為未來更新方向的指引！"
+    "message": "你的回覆將直接傳送給 Packrinth 團隊，作為未來更新方向的指引！"
   },
   "app.survey.no-thanks": {
     "message": "不用了，謝謝"
@@ -1677,16 +1641,16 @@
     "message": "填寫問卷調查"
   },
   "app.survey.title": {
-    "message": "你好啊，Modrinth 使用者！"
+    "message": "你好啊，Packrinth 使用者！"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} 已完成下載！立即重新載入以更新，或在關閉 Modrinth App 時自動更新。"
+    "message": "Packrinth v{version} 已完成下載！立即重新載入以更新，或在關閉 Packrinth 時自動更新。"
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} 現已推出。請使用軟體包管理員進行更新，以取得最新的功能與修正！"
+    "message": "Packrinth v{version} 現已推出。請使用軟體包管理員進行更新，以取得最新的功能與修正！"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} 現已推出！由於你目前使用的是計量付費網路，我們並未自動下載更新。"
+    "message": "Packrinth v{version} 現已推出！由於你目前使用的是計量付費網路，我們並未自動下載更新。"
   },
   "app.update-popup.changelog": {
     "message": "更新日誌"
@@ -1731,7 +1695,7 @@
     "message": "按 <shortcut>N</shortcut> 快速建立實例"
   },
   "app.welcome-screen.title": {
-    "message": "歡迎使用 Modrinth"
+    "message": "歡迎使用 Packrinth"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -1881,7 +1845,7 @@
     "message": "取消連結共用實例"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "這會從 Modrinth 的伺服器刪除共用實例。在 Modrinth App 使用該實例的使用者將不再收到更新，但本機實例及其內容仍會保留在此裝置上。"
+    "message": "這會從 Modrinth 的伺服器刪除共用實例。在 Packrinth 使用該實例的使用者將不再收到更新，但本機實例及其內容仍會保留在此裝置上。"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "即將取消發布共用實例"
@@ -2309,12 +2273,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "選擇更新通道"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "啟動掛勾"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "自訂啟動掛勾"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "掛勾讓進階使用者能在遊戲啟動前和啟動後執行特定的系統指令。"
   },
@@ -2377,9 +2335,6 @@
   },
   "instance.settings.tabs.installation.locked": {
     "message": "實例被鎖定時無法使用安裝設定選項。"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java 和記憶體"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "自訂環境變數"

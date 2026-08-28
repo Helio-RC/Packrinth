@@ -2580,16 +2580,16 @@
     "defaultMessage": "Ažuriraj datoteke kada se server promeni"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Instaliraj Modrinth aplikaciju"
+    "defaultMessage": "Instaliraj Packrinth aplikaciju"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth aplikacija će se automatski otvoriti..."
+    "defaultMessage": "Packrinth aplikacija će se automatski otvoriti..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Otvaranje Modrinth aplikacije"
+    "defaultMessage": "Otvaranje Packrinth aplikacije"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Zašto koristiti Modrinth aplikaciju"
+    "defaultMessage": "Zašto koristiti Packrinth aplikaciju"
   },
   "notification.error.title": {
     "defaultMessage": "Došlo je do greške"
@@ -4374,7 +4374,7 @@
     "defaultMessage": "Novi server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Instaliraj modove, pozvi prijatelje, i igraj skupa ave u Modrinth aplikaciji."
+    "defaultMessage": "Instaliraj modove, pozvi prijatelje, i igraj skupa ave u Packrinth aplikaciji."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Izaberi svoje omiljene modove, a mi ćemo se pobrinuti za ostalo."
@@ -5658,4 +5658,3 @@
     "defaultMessage": "Tip"
   }
 }
-

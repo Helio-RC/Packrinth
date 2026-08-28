@@ -1,8 +1,17 @@
-name: Modrinth App release
+name: Packrinth App release
 on:
-  workflow_run:
-    workflows: ['Modrinth App build']
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release (the build must have been run from the matching `v*` tag), e.g. `0.5.0` or `0.5.0-beta.1`
+        type: string
+        required: true
+        default: ''
+      build-run-id:
+        description: Build workflow run ID to download artifacts from (see the last successful "Packrinth App build" run), e.g. `1245789510`
+        type: string
+        required: true
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -10,50 +19,65 @@ concurrency:
 
 jobs:
   release:
-    name: Release Modrinth App
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      startsWith(github.event.workflow_run.head_branch, 'v')
-    runs-on: namespace-profile-medium-amd64
+    name: Release Packrinth App
+    runs-on: ubuntu-latest
     env:
-      VERSION_TAG: ${{ github.event.workflow_run.head_branch }}
+      VERSION_TAG: ${{ inputs.version }}
+      BUILD_RUN_ID: ${{ inputs.build-run-id }}
+      PRODUCT_NAME: Packrinth
       LINUX_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-unknown-linux-gnu)
       WINDOWS_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-pc-windows-msvc)
       MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME: App bundle (universal-apple-darwin)
-      LAUNCHER_FILES_BUCKET_BASE_URL: https://launcher-files.modrinth.com
+      # Repo variable: base URL of the update file server, e.g. https://updates.example.com
+      # (see docs/repo-config.md; leave unset until the update server is configured)
+      LAUNCHER_FILES_BUCKET_BASE_URL: ${{ vars.LAUNCHER_FILES_BUCKET_BASE_URL || '' }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ inputs.version }}
 
-      - name: Verify ref is a tag
+      - name: Verify version tag exists
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_SHA: ${{ github.sha }}
         run: |
-          tag_sha=$(gh api "repos/${{ github.repository }}/git/refs/tags/${VERSION_TAG}" --jq '.object.sha' 2>/dev/null || true)
+          tag_sha=$(gh api "repos/${{ github.repository }}/git/refs/tags/v${VERSION_TAG}" --jq '.object.sha' 2>/dev/null || true)
           if [ -z "$tag_sha" ]; then
-            echo "::error::${VERSION_TAG} is not a git tag in this repo"
+            echo "::error::v${VERSION_TAG} is not a git tag in this repo"
             exit 1
           fi
           if [ "$tag_sha" != "$HEAD_SHA" ]; then
             commit_sha=$(gh api "repos/${{ github.repository }}/git/tags/${tag_sha}" --jq '.object.sha' 2>/dev/null || echo "$tag_sha")
             if [ "$commit_sha" != "$HEAD_SHA" ]; then
-              echo "::error::Tag ${VERSION_TAG} (${commit_sha}) does not match build head_sha (${HEAD_SHA})"
+              echo "::error::Tag v${VERSION_TAG} (${commit_sha}) does not match this run (${HEAD_SHA})"
               exit 1
             fi
           fi
-          echo "Verified ${VERSION_TAG} is a tag pointing at ${HEAD_SHA}"
+          echo "Verified v${VERSION_TAG} points at ${HEAD_SHA}"
 
-      - name: Download Modrinth App artifacts
+      - name: Download Packrinth App artifacts
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           workflow: theseus-build.yml
+          run_id: ${{ inputs.build-run-id }}
           workflow_conclusion: success
-          event: push
-          branch: ${{ env.VERSION_TAG }}
           use_unzip: true
+
+      - name: Locate update signatures
+        id: sigs
+        shell: bash
+        run: |
+          MACOS_SIG="${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz.sig"
+          LINUX_SIG="${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/${{ env.PRODUCT_NAME }}_${VERSION_TAG}_amd64.AppImage.tar.gz.sig"
+          WINDOWS_SIG="${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/${{ env.PRODUCT_NAME }}_${VERSION_TAG}_x64-setup.nsis.zip.sig"
+          if [ -f "$MACOS_SIG" ] && [ -f "$LINUX_SIG" ] && [ -f "$WINDOWS_SIG" ]; then
+            echo "have-signatures=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "have-signatures=no" >> "$GITHUB_OUTPUT"
+            echo "::warning::Update signatures not found (unsigned build); the updater manifest will be skipped"
+          fi
 
       - name: Extract app changelog
         env:
@@ -64,15 +88,16 @@ jobs:
           LAST_GITHUB_RELEASE_PUBLISHED_AT="$LAST_GITHUB_RELEASE_PUBLISHED_AT" npx --yes tsx scripts/build-theseus-release-notes.ts
 
       - name: Generate version manifest
+        if: steps.sigs.outputs.have-signatures == 'yes'
         run: |
           # Reference: https://tauri.app/plugin/updater/#server-support
           jq -nc \
-            --arg versionTag "${VERSION_TAG#v}" \
+            --arg versionTag "${VERSION_TAG}" \
             --rawfile releaseNotes release-notes.md \
-            --rawfile macOsAarch64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Modrinth App.app.tar.gz.sig" \
-            --rawfile macOsX64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Modrinth App.app.tar.gz.sig" \
-            --rawfile linuxX64UpdateArtifactSignature "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Modrinth App_${VERSION_TAG#v}_amd64.AppImage.tar.gz.sig" \
-            --rawfile windowsX64UpdateArtifactSignature "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Modrinth App_${VERSION_TAG#v}_x64-setup.nsis.zip.sig" \
+            --rawfile macOsAarch64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz.sig" \
+            --rawfile macOsX64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/${{ env.PRODUCT_NAME }}.app.tar.gz.sig" \
+            --rawfile linuxX64UpdateArtifactSignature "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/${{ env.PRODUCT_NAME }}_${VERSION_TAG}_amd64.AppImage.tar.gz.sig" \
+            --rawfile windowsX64UpdateArtifactSignature "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/${{ env.PRODUCT_NAME }}_${VERSION_TAG}_x64-setup.nsis.zip.sig" \
           '{
             "version": $versionTag,
             "notes": $releaseNotes,
@@ -80,27 +105,27 @@ jobs:
             "platforms": {
               "darwin-aarch64": {
                 "signature": $macOsAarch64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App.app.tar.gz")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App_" + $versionTag + "_universal.dmg")"]
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}.app.tar.gz")",
+                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_universal.dmg")"]
               },
               "darwin-x86_64": {
                 "signature": $macOsX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App.app.tar.gz")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App_" + $versionTag + "_universal.dmg")"]
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}.app.tar.gz")",
+                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_universal.dmg")"]
               },
               "linux-x86_64": {
                 "signature": $linuxX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.AppImage.tar.gz")",
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_amd64.AppImage.tar.gz")",
                 "install_urls": [
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.deb")",
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.AppImage")",
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App-" + $versionTag + "-1.x86_64.rpm")"
+                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_amd64.deb")",
+                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_amd64.AppImage")",
+                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("${{ env.PRODUCT_NAME }}-" + $versionTag + "-1.x86_64.rpm")"
                 ]
               },
               "windows-x86_64": {
                 "signature": $windowsX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("Modrinth App_" + $versionTag + "_x64-setup.nsis.zip")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("Modrinth App_" + $versionTag + "_x64-setup.exe")"]
+                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_x64-setup.nsis.zip")",
+                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("${{ env.PRODUCT_NAME }}_" + $versionTag + "_x64-setup.exe")"]
               }
             }
           }' > updates.json
@@ -109,12 +134,13 @@ jobs:
           cat updates.json
 
       - name: Upload release artifacts
+        if: steps.sigs.outputs.have-signatures == 'yes'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY }}
-          AWS_BUCKET: ${{ secrets.LAUNCHER_FILES_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.LAUNCHER_FILES_BUCKET_REGION }}
-          AWS_ENDPOINT_URL: ${{ secrets.LAUNCHER_FILES_BUCKET_ENDPOINT_URL }}
+          AWS_BUCKET: ${{ vars.LAUNCHER_FILES_BUCKET_NAME }}
+          AWS_REGION: ${{ vars.LAUNCHER_FILES_BUCKET_REGION }}
+          AWS_ENDPOINT_URL: ${{ vars.LAUNCHER_FILES_BUCKET_ENDPOINT_URL }}
           AWS_PAGER: ''
           # Work around incompatible checksum behavior with some S3-like object storage providers,
           # such as Cloudflare R2. See:
@@ -126,22 +152,24 @@ jobs:
           for macosBundleType in 'macos' 'dmg'; do
             aws s3 cp --recursive \
               "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/${macosBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/macos"
+              "s3://${AWS_BUCKET}/versions/${VERSION_TAG}/macos"
           done
 
           for linuxBundleType in 'appimage' 'deb' 'rpm'; do
             aws s3 cp --recursive \
               "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/${linuxBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/linux"
+              "s3://${AWS_BUCKET}/versions/${VERSION_TAG}/linux"
           done
 
           for windowsBundleType in 'nsis'; do
             aws s3 cp --recursive \
               "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/${windowsBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/windows"
+              "s3://${AWS_BUCKET}/versions/${VERSION_TAG}/windows"
           done
 
-          aws s3 cp updates.json "s3://${AWS_BUCKET}"
+          if [ -f updates.json ]; then
+            aws s3 cp updates.json "s3://${AWS_BUCKET}"
+          fi
 
       - name: Create GitHub release
         env:
@@ -149,11 +177,37 @@ jobs:
         run: |
           VERSION="${VERSION_TAG#v}"
 
-          gh release create "$VERSION_TAG" \
-            --title "Modrinth App ${VERSION}" \
-            --notes-file release-notes.md \
-            "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Modrinth App_${VERSION}_x64-setup.exe" \
-            "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/dmg/Modrinth App_${VERSION}_universal.dmg" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Modrinth App_${VERSION}_amd64.AppImage" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/deb/Modrinth App_${VERSION}_amd64.deb" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/rpm/Modrinth App-${VERSION}-1.x86_64.rpm"
+          RELEASE_ARTIFACTS=()
+          for artifact in \
+            "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Packrinth_${VERSION}_x64-setup.exe" \
+            "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/dmg/Packrinth_${VERSION}_universal.dmg" \
+            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Packrinth_${VERSION}_amd64.AppImage" \
+            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/deb/Packrinth_${VERSION}_amd64.deb" \
+            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/rpm/Packrinth-${VERSION}-1.x86_64.rpm"; do
+            if [ -f "$artifact" ]; then
+              RELEASE_ARTIFACTS+=("$artifact")
+            else
+              echo "::warning::Artifact not found (trying dev-named variant): $artifact"
+            fi
+          done
+
+          # The dev config names binaries with a "-dev-<sha>" suffix; fall back to those
+          # when running this workflow against a develop build.
+          if [ ${#RELEASE_ARTIFACTS[@]} -eq 0 ]; then
+            for artifact in \
+              "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}"/release/bundle/nsis/Packrinth*\*-setup.exe \
+              "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}"/universal-apple-darwin/release/bundle/dmg/Packrinth*.dmg \
+              "${LINUX_X64_BUNDLE_ARTIFACT_NAME}"/release/bundle/appimage/Packrinth*.AppImage; do
+              [ -f "$artifact" ] && RELEASE_ARTIFACTS+=("$artifact") || true
+            done
+          fi
+
+          if [ ${#RELEASE_ARTIFACTS[@]} -gt 0 ]; then
+            gh release create "v${VERSION}" \
+              --title "Packrinth App ${VERSION}" \
+              --notes-file release-notes.md \
+              "${RELEASE_ARTIFACTS[@]}"
+          else
+            echo "::error::No release artifacts found"
+            exit 1
+          fi

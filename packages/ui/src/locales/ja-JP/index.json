@@ -2640,16 +2640,16 @@
     "defaultMessage": "サーバーが変更したときにファイルを更新し続ける"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Modrinth Appを入手する"
+    "defaultMessage": "Packrinthを入手する"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth Appが自動で開きます…"
+    "defaultMessage": "Packrinthが自動で開きます…"
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Modrinth Appを開く"
+    "defaultMessage": "Packrinthを開く"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "なぜModrinth Appを使うのか"
+    "defaultMessage": "なぜPackrinthを使うのか"
   },
   "notification.error.title": {
     "defaultMessage": "エラーが発生しました"
@@ -4461,7 +4461,7 @@
     "defaultMessage": "新しいサーバー"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Modrinth Appを使えば、MODのインストール、友達の招待、そして一緒にプレイすることなど、すべてが可能です。"
+    "defaultMessage": "Packrinthを使えば、MODのインストール、友達の招待、そして一緒にプレイすることなど、すべてが可能です。"
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "お好みのModを選んだら、あとはすべて対応いたします。"

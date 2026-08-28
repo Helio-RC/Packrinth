@@ -44,12 +44,6 @@
   "app.action-bar.view-logs": {
     "message": "Vezi jurnalele"
   },
-  "app.ads-consent.accept": {
-    "message": "Acceptă tot"
-  },
-  "app.ads-consent.reject": {
-    "message": "Refuză tot"
-  },
   "app.auth-servers.unreachable.body": {
     "message": "Serverele de autentificare Minecraft pot fi indisponibile în acest moment. Verificați conexiunea la internet și încercați din nou mai târziu."
   },
@@ -165,13 +159,13 @@
     "message": "Administrare resurse"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Aplicația Modrinth v{version} a terminat descărcarea. Reîncărcați pentru a actualiza acum sau automat când închideți aplicația Modrinth."
+    "message": "Aplicația Packrinth v{version} a terminat descărcarea. Reîncărcați pentru a actualiza acum sau automat când închideți aplicația Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Aplicația Modrinth v{version} este disponibil. Utilizați managerul de pachete pentru a actualiza pentru cele mai recente funcții și remedieri!"
+    "message": "Aplicația Packrinth v{version} este disponibil. Utilizați managerul de pachete pentru a actualiza pentru cele mai recente funcții și remedieri!"
   },
   "app.update-popup.body.metered": {
-    "message": "Aplicația Modrinth v{version} este disponibil acum! Deoarece sunteți într-o rețea cu contorizare, nu am descărcat-o automat."
+    "message": "Aplicația Packrinth v{version} este disponibil acum! Deoarece sunteți într-o rețea cu contorizare, nu am descărcat-o automat."
   },
   "app.update-popup.changelog": {
     "message": "Jurnalul modificărilor"
@@ -347,12 +341,6 @@
   "instance.settings.tabs.general.name": {
     "message": "Nume"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Cârlige de lansare"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Cârlige de lansare personalizate"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Cârligele permit utilizatorilor avansați să ruleze anumite comenzi de sistem înainte și după lansarea jocului."
   },
@@ -391,9 +379,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "Versiune {loader}"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java și memorie"
   },
   "instance.settings.tabs.java.environment-variables": {
     "message": "Variabile de mediu"

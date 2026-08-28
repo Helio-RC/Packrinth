@@ -134,21 +134,6 @@
   "app.action-bar.view-logs": {
     "message": "로그 보기"
   },
-  "app.ads-consent.accept": {
-    "message": "모두 수락"
-  },
-  "app.ads-consent.body": {
-    "message": "광고는 Modrinth가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 우리의 파트너는 앱에서 광고를 개인 맞춤으로 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다."
-  },
-  "app.ads-consent.manage": {
-    "message": "환경 설정 관리"
-  },
-  "app.ads-consent.reject": {
-    "message": "모두 거절"
-  },
-  "app.ads-consent.title": {
-    "message": "개인정보와 광고가 Modrinth를 지원하는 방식"
-  },
   "app.appearance-settings.compact-mode.description": {
     "message": "라이브러리 인스턴스를 간결한 행 형태의 레이아웃으로 표시합니다."
   },
@@ -174,7 +159,7 @@
     "message": "세계나 인스턴스로 바로 입장"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "마인크래프트가 시작되면 Modrinth 앱을 최소화 합니다."
+    "message": "마인크래프트가 시작되면 Packrinth 앱을 최소화 합니다."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "앱 최소화"
@@ -339,10 +324,10 @@
     "message": "다운로드하여 업데이트"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "신난 Modrinth Bot"
+    "message": "신난 Packrinth Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App 업데이트 필요"
+    "message": "Packrinth 업데이트 필요"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "인스턴스에 무작위 아이콘을 표시하는 데 실패했습니다."
@@ -357,7 +342,7 @@
     "message": "닫기"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "Modrinth App에서 자신의 인스턴스에 사용자 지정 아이콘을 만들어 보세요. 배경을 Minecraft 및 인기 모드의 문양과 자유롭게 조합할 수 있습니다!"
+    "message": "Packrinth에서 자신의 인스턴스에 사용자 지정 아이콘을 만들어 보세요. 배경을 Minecraft 및 인기 모드의 문양과 자유롭게 조합할 수 있습니다!"
   },
   "app.icon-editor.apply-icons-modal.random-icons": {
     "message": "무작위 아이콘"
@@ -1175,12 +1160,6 @@
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Modrinth 계정으로 로그인"
   },
-  "app.nav.signed-in-as": {
-    "message": "<user>{username}</user> 으로 로그인됨"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Modrinth+ 로 업그레이드"
-  },
   "app.navigation.go-back": {
     "message": "뒤로 가기"
   },
@@ -1230,7 +1209,7 @@
     "message": "재시작 중..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth 앱 {version}"
+    "message": "Packrinth 앱 {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "인스턴스를 실행할 때 설정되는 환경 변수입니다."
@@ -1322,17 +1301,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "광고는 Modrinth가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 우리의 파트너는 앱에서 광고를 개인 맞춤으로 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다. 아래에서 거부하거나 환경 설정을 관리할 수 있습니다."
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discord의 현재 활동 상태에 Modrinth App을 표시합니다. 모드가 인스턴스에 추가한 Rich Presence에는 영향을 미치지 않습니다. 앱 재시작이 필요합니다."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord 활동 상태"
-  },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth는 사용자 경험 향상 및 맞춤 설정을 위해 익명화된 분석 데이터와 사용 데이터를 수집합니다. 이 옵션을 비활성화하면 데이터 수집을 거부하게 되며, 더 이상 데이터가 수집되지 않습니다."
+    "message": "Packrinth는 사용자 경험 향상 및 맞춤 설정을 위해 익명화된 분석 데이터와 사용 데이터를 수집합니다. 이 옵션을 비활성화하면 데이터 수집을 거부하게 되며, 더 이상 데이터가 수집되지 않습니다."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "원격 분석"
@@ -1371,7 +1341,7 @@
     "message": "앱 디렉터리 찾아보기"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App이 인스턴스 및 기타 파일을 저장하는 위치입니다. 변경 사항은 앱을 재시작한 후 적용됩니다."
+    "message": "Packrinth이 인스턴스 및 기타 파일을 저장하는 위치입니다. 변경 사항은 앱을 재시작한 후 적용됩니다."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "새 앱 디렉터리 선택"
@@ -1399,9 +1369,6 @@
   },
   "app.settings.tabs.behavior": {
     "message": "동작"
-  },
-  "app.settings.tabs.default-instance-options": {
-    "message": "기본 게임 옵션"
   },
   "app.settings.tabs.java-installations": {
     "message": "Java 설치"
@@ -1566,10 +1533,10 @@
     "message": "켜기"
   },
   "app.survey.body": {
-    "message": "Modrinth 앱 이용 경험에 대한 몇 가지 질문에 답변해 주시겠습니까?"
+    "message": "Packrinth 앱 이용 경험에 대한 몇 가지 질문에 답변해 주시겠습니까?"
   },
   "app.survey.footer": {
-    "message": "이 피드백은 Modrinth 팀에 직접 전달되어 향후 업데이트에 반영됩니다!"
+    "message": "이 피드백은 Packrinth 팀에 직접 전달되어 향후 업데이트에 반영됩니다!"
   },
   "app.survey.no-thanks": {
     "message": "괜찮습니다"
@@ -1578,16 +1545,16 @@
     "message": "설문 참여하기"
   },
   "app.survey.title": {
-    "message": "안녕하세요, Modrinth 사용자님!"
+    "message": "안녕하세요, Packrinth 사용자님!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} 다운로드가 완료되었습니다. 새로고침하거나 Modrinth App을 종료하면 자동으로 업데이트됩니다."
+    "message": "Packrinth v{version} 다운로드가 완료되었습니다. 새로고침하거나 Packrinth을 종료하면 자동으로 업데이트됩니다."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth 앱 v{version}을 사용할 수 있습니다. 최신 기능과 오류 수정을 적용하려면 패키지 관리자를 통해 업데이트하세요!"
+    "message": "Packrinth 앱 v{version}을 사용할 수 있습니다. 최신 기능과 오류 수정을 적용하려면 패키지 관리자를 통해 업데이트하세요!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth 앱 v{version}을 지금 사용할 수 있습니다! 데이터 통신 연결을 사용 중이므로, 자동으로 다운로드하지 않았습니다."
+    "message": "Packrinth 앱 v{version}을 지금 사용할 수 있습니다! 데이터 통신 연결을 사용 중이므로, 자동으로 다운로드하지 않았습니다."
   },
   "app.update-popup.changelog": {
     "message": "변경 내역"
@@ -1961,12 +1928,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "업데이트 채널 선택"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "실행 후크"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "사용자 지정 실행 후크"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "후크 기능을 사용하면 고급 사용자가 게임 실행 전후에 특정 시스템 명령을 실행할 수 있습니다."
   },
@@ -2008,9 +1969,6 @@
   },
   "instance.settings.tabs.installation.locked": {
     "message": "이 인스턴스가 잠긴 상태에서는 설치 설정을 사용할 수 없습니다."
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java 및 메모리"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "사용자 지정 환경 변수"

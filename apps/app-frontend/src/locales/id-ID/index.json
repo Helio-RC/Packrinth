@@ -366,13 +366,13 @@
     "message": "Pemilih rupa"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} telah selesai mengunduh. Muat ulang untuk memperbarui sekarang, atau secara otomatis saat Anda menutup Modrinth App."
+    "message": "Packrinth v{version} telah selesai mengunduh. Muat ulang untuk memperbarui sekarang, atau secara otomatis saat Anda menutup Packrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} tersedia. Gunakan pengelola paket Anda untuk memperbarui dan mendapatkan fitur-fitur dan perbaikan terbaru!"
+    "message": "Packrinth v{version} tersedia. Gunakan pengelola paket Anda untuk memperbarui dan mendapatkan fitur-fitur dan perbaikan terbaru!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} sudah tersedia! Karena Anda saat ini sedang berada dalam jaringan terukur, kami tidak mengunduhnya secara otomatis."
+    "message": "Packrinth v{version} sudah tersedia! Karena Anda saat ini sedang berada dalam jaringan terukur, kami tidak mengunduhnya secara otomatis."
   },
   "app.update-popup.changelog": {
     "message": "Catatan perubahan"
@@ -593,12 +593,6 @@
   "instance.settings.tabs.general.update-channel.select": {
     "message": "Pilih kanal pembaruan"
   },
-  "instance.settings.tabs.hooks": {
-    "message": "Luncurkan kait"
-  },
-  "instance.settings.tabs.hooks.custom-hooks": {
-    "message": "Luncurkan kait tersuai"
-  },
   "instance.settings.tabs.hooks.description": {
     "message": "Kait membolehkan pengguna ahli untuk menjalankan beberapa perintah sistem sebelum dan setelah meluncurkan permainan."
   },
@@ -637,9 +631,6 @@
   },
   "instance.settings.tabs.installation.loader-version": {
     "message": "Versi {loader}"
-  },
-  "instance.settings.tabs.java": {
-    "message": "Java dan memori"
   },
   "instance.settings.tabs.java.custom-environment-variables": {
     "message": "Variabel lingkungan tersuai"

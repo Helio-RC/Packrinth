@@ -1934,12 +1934,6 @@
   "icon-select.select": {
     "defaultMessage": "Выбрать иконку"
   },
-  "input.clear": {
-    "defaultMessage": "Очистить ввод"
-  },
-  "input.search": {
-    "defaultMessage": "Поиск"
-  },
   "input.search-version.placeholder": {
     "defaultMessage": "Поиск версии..."
   },
@@ -2784,16 +2778,16 @@
     "defaultMessage": "Обновление сборки при изменениях на сервере"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Скачать Modrinth App"
+    "defaultMessage": "Скачать Packrinth App"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App откроется автоматически..."
+    "defaultMessage": "Packrinth App откроется автоматически..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Открытие Modrinth App"
+    "defaultMessage": "Открытие Packrinth App"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Преимущества Modrinth App"
+    "defaultMessage": "Преимущества Packrinth App"
   },
   "notification.error.title": {
     "defaultMessage": "Произошла ошибка"
@@ -5037,7 +5031,7 @@
     "defaultMessage": "Новый сервер"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Играйте в сборки вместе с друзьями через Modrinth App."
+    "defaultMessage": "Играйте в сборки вместе с друзьями через Packrinth App."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Выбирайте любимые моды, а мы сделаем всё остальное."
@@ -5046,7 +5040,7 @@
     "defaultMessage": "Установка модов в один клик"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Пригласите ваших друзей поиграть на вашем сервере в один клик в Modrinth App."
+    "defaultMessage": "Пригласите ваших друзей поиграть на вашем сервере в один клик в Packrinth."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Совместная игра"
@@ -5625,7 +5619,7 @@
     "defaultMessage": "Результаты поиска"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Около {percentage}% Modrinth App переведено на этот язык."
+    "defaultMessage": "Около {percentage}% Packrinth переведено на этот язык."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "Поддерживается {percentage}%"

@@ -23,8 +23,6 @@ pub struct Settings {
     pub sync_behavior_across_devices: bool,
 
     pub telemetry: bool,
-    pub discord_rpc: bool,
-    pub personalized_ads: bool,
 
     pub extra_launch_args: Vec<String>,
     pub custom_env_vars: Vec<(String, String)>,
@@ -72,6 +70,7 @@ pub enum FeatureFlag {
     FriendsOfflineCollapsed,
     FriendsPendingCollapsed,
     DismissedPhotosensitivityFilterWarning,
+    LocalhostSignIn,
 }
 
 impl Settings {
@@ -84,8 +83,8 @@ impl Settings {
             "
             SELECT
                 max_concurrent_writes, max_concurrent_downloads,
-                theme, locale, default_page, collapsed_navigation, hide_nametag_skins_page, advanced_rendering, native_decorations,
-                discord_rpc, developer_mode, telemetry, personalized_ads,
+                theme, locale, default_page,                 collapsed_navigation, hide_nametag_skins_page, advanced_rendering, native_decorations,
+                developer_mode, telemetry,
                 json(extra_launch_args) extra_launch_args, json(custom_env_vars) custom_env_vars,
                 mc_memory_max, mc_force_fullscreen, mc_game_resolution_x, mc_game_resolution_y, hide_on_process_start,
                 hook_pre_launch, hook_wrapper, hook_post_exit,
@@ -111,9 +110,7 @@ impl Settings {
             native_decorations: res.native_decorations == 1,
             toggle_sidebar: res.toggle_sidebar == 1,
             telemetry: res.telemetry == 1,
-            discord_rpc: res.discord_rpc == 1,
             developer_mode: res.developer_mode == 1,
-            personalized_ads: res.personalized_ads == 1,
             extra_launch_args: res
                 .extra_launch_args
                 .as_ref()
@@ -183,39 +180,37 @@ impl Settings {
                 advanced_rendering = $7,
                 native_decorations = $8,
 
-                discord_rpc = $9,
-                developer_mode = $10,
-                telemetry = $11,
-                personalized_ads = $12,
+                developer_mode = $9,
+                telemetry = $10,
 
-                extra_launch_args = jsonb($13),
-                custom_env_vars = jsonb($14),
-                mc_memory_max = $15,
-                mc_force_fullscreen = $16,
-                mc_game_resolution_x = $17,
-                mc_game_resolution_y = $18,
-                hide_on_process_start = $19,
+                extra_launch_args = jsonb($11),
+                custom_env_vars = jsonb($12),
+                mc_memory_max = $13,
+                mc_force_fullscreen = $14,
+                mc_game_resolution_x = $15,
+                mc_game_resolution_y = $16,
+                hide_on_process_start = $17,
 
-                hook_pre_launch = $20,
-                hook_wrapper = $21,
-                hook_post_exit = $22,
+                hook_pre_launch = $18,
+                hook_wrapper = $19,
+                hook_post_exit = $20,
 
-                custom_dir = $23,
-                prev_custom_dir = $24,
-                migrated = $25,
+                custom_dir = $21,
+                prev_custom_dir = $22,
+                migrated = $23,
 
-                toggle_sidebar = $26,
-                feature_flags = $27,
-                hide_nametag_skins_page = $28,
+                toggle_sidebar = $24,
+                feature_flags = $25,
+                hide_nametag_skins_page = $26,
 
-                skipped_update = $29,
-                pending_update_toast_for_version = $30,
-                auto_download_updates = $31,
+                skipped_update = $27,
+                pending_update_toast_for_version = $28,
+                auto_download_updates = $29,
 
-                sync_theme_across_devices = $32,
-                sync_behavior_across_devices = $33,
+                sync_theme_across_devices = $30,
+                sync_behavior_across_devices = $31,
 
-                version = $34
+                version = $32
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -225,10 +220,8 @@ impl Settings {
             self.collapsed_navigation,
             self.advanced_rendering,
             self.native_decorations,
-            self.discord_rpc,
             self.developer_mode,
             self.telemetry,
-            self.personalized_ads,
             extra_launch_args,
             custom_env_vars,
             self.memory.maximum,

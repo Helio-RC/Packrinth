@@ -2256,16 +2256,16 @@
     "defaultMessage": "Luôn cập nhật các file khi server thay đổi"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Tải Modrinth App"
+    "defaultMessage": "Tải Packrinth"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App sẽ được tự động mở..."
+    "defaultMessage": "Packrinth sẽ được tự động mở..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Mở Modrinth App"
+    "defaultMessage": "Mở Packrinth"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Tại sao nên sử dụng Modrinth App"
+    "defaultMessage": "Tại sao nên sử dụng Packrinth"
   },
   "notification.error.title": {
     "defaultMessage": "Đã xảy ra lỗi"
@@ -3882,7 +3882,7 @@
     "defaultMessage": "Máy chủ mới"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Cài mod, mời bạn bè, và chơi cùng nhau mà chỉ cần Ứng dụng Modrinth."
+    "defaultMessage": "Cài mod, mời bạn bè, và chơi cùng nhau mà chỉ cần Ứng dụng Packrinth."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Chọn bản mod mà bạn yêu thích và chúng tôi sẽ làm tất cả phần còn lại."
@@ -4974,4 +4974,3 @@
     "defaultMessage": "Đội ngũ Modrinth"
   }
 }
-

@@ -1,71 +1,47 @@
-# Modrinth Monorepo
+# Packrinth
 
-This is the Modrinth monorepo — it contains all Modrinth projects, both frontend and backend. When entering a project, either to edit or analyse, you should read its AGENTS.md.
+This is the Packrinth monorepo — a fork of the Modrinth App for building AI-powered modpacks. When entering a project, either to edit or analyse, you should read its AGENTS.md.
 
 ## Architecture
 
 - **Monorepo tooling:** [Turborepo](https://turbo.build/) (`turbo.jsonc`) + [pnpm workspaces](https://pnpm.io/workspaces) (`pnpm-workspace.yaml`)
-- **Frontend:** Vue 3 / Nuxt 3, Tailwind CSS v3
-- **Backend:** Rust (Labrinth API), Postgres, Clickhouse
+- **Frontend:** Vue 3, Tailwind CSS v3
+- **Desktop shell:** Tauri 2 + theseus (Rust)
 - **Indentation:** Use TAB everywhere, never spaces
 
 ### Apps (`apps/`)
 
-| App               | Description                    |
-| ----------------- | ------------------------------ |
-| `frontend`        | Main Modrinth website (Nuxt 3) |
-| `app-frontend`    | Desktop/app frontend (Vue 3)   |
-| `app`             | Desktop/app shell (Tauri)      |
-| `app-playground`  | Testing playground for app     |
-| `labrinth`        | Backend API service            |
-| `daedalus_client` | Daedalus client implementation |
-| `docs`            | Documentation site (Astro)     |
+| App              | Description                          |
+| ---------------- | ------------------------------------ |
+| `app`            | Packrinth desktop shell (Tauri 2)    |
+| `app-frontend`   | Desktop/app frontend (Vue 3)         |
+| `app-playground` | Testing playground for app           |
 
 ### Packages (`packages/`)
 
-| Package            | Description                                           |
-| ------------------ | ----------------------------------------------------- |
-| `ui`               | Shared Vue component library (`@modrinth/ui`)         |
-| `assets`           | Styling and auto-generated icons (`@modrinth/assets`) |
-| `api-client`       | API client for Nuxt, Tauri, and Node/browser          |
-| `app-lib`          | Shared app library                                    |
-| `blog`             | Blog system and changelog data                        |
-| `utils`            | Shared utility functions (mostly deprecated)          |
-| `moderation`       | Moderation utilities                                  |
-| `daedalus`         | Daedalus protocol                                     |
-| `tooling-config`   | ESLint, Prettier, TypeScript configs                  |
-| `ariadne`          | Analytics library                                     |
-| `modrinth-log`     | Logging utilities                                     |
-| `modrinth-maxmind` | MaxMind GeoIP                                         |
-| `modrinth-util`    | General utilities                                     |
-| `muralpay`         | Payment processing                                    |
-| `path-util`        | Path utilities                                        |
-| `sqlx-tracing`     | SQLx query tracing                                    |
+| Package          | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| `ui`             | Shared Vue component library (`@modrinth/ui`)         |
+| `assets`         | Styling and auto-generated icons (`@modrinth/assets`) |
+| `api-client`     | API client for Tauri, and Node/browser                |
+| `app-lib`        | theseus core library                                  |
+| `blog`           | Blog system and changelog data                        |
+| `utils`          | Shared utility functions (mostly deprecated)          |
+| `daedalus`       | Daedalus protocol                                     |
+| `tooling-config` | ESLint, Prettier, TypeScript configs                  |
+| `ariadne`        | Analytics library                                     |
+| `path-util`      | Path utilities                                        |
 
 ## Pre-PR Commands
 
 Run these from the **root** folder before opening a pull request - do not run these after each prompt the user gives you, only run when asked, ask the user a question if they want to run it if the user indicates that they are about to create a pull request.
 
-- **Website:** `pnpm prepr:frontend:web`
 - **App frontend:** `pnpm prepr:frontend:app`
-- **Frontend libs:** `pnpm prepr:frontend:lib`
-- **All frontend (app+web):** `pnpm prepr`
-- **Labrinth (backend):** See `apps/labrinth/AGENTS.md`
-
-The website and app `prepr` commands
 
 ## Dev Commands
 
-- **Website:** `pnpm web:dev` (copy `.env` template in `apps/frontend/` first)
 - **App:** `pnpm app:dev` (copy `.env` template in `packages/app-lib/` first)
 - **Storybook (packages/ui):** `pnpm storybook`
-
-## Project-Specific Instructions
-
-Each project may have its own file with detailed instructions:
-
-- [`apps/labrinth/AGENTS.md`](apps/labrinth/AGENTS.md) — Backend API
-- [`apps/frontend/AGENTS.md`](apps/frontend/AGENTS.md) - Frontend Website
 
 ## Code Guidelines
 
