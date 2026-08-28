@@ -683,7 +683,6 @@ struct LegacySettings {
     #[serde(default)]
     pub developer_mode: bool,
     #[serde(default)]
-    #[serde(default)]
     pub advanced_rendering: bool,
     #[serde(default = "default_settings_dir")]
     pub loaded_config_dir: Option<PathBuf>,
