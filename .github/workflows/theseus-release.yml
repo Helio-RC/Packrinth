@@ -196,19 +196,25 @@ jobs:
         run: |
           VERSION="${VERSION_TAG#v}"
 
+          # 用 find 定位产物，兼容 <artifact-name>/release/... 与 <artifact-name>/target/release/...
+          # 两种下载布局，避免硬编码路径漂移导致"Artifact not found"。
           RELEASE_ARTIFACTS=()
-          for artifact in \
-            "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Packrinth_${VERSION}_x64-setup.exe" \
-            "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/dmg/Packrinth_${VERSION}_universal.dmg" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Packrinth_${VERSION}_amd64.AppImage" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/deb/Packrinth_${VERSION}_amd64.deb" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/rpm/Packrinth-${VERSION}-1.x86_64.rpm"; do
-            if [ -f "$artifact" ]; then
-              RELEASE_ARTIFACTS+=("$artifact")
-            else
-              echo "::warning::Artifact not found (trying dev-named variant): $artifact"
-            fi
+          for pattern in \
+            '*nsis/Packrinth_*_x64-setup.exe' \
+            '*dmg/Packrinth_*_universal.dmg' \
+            '*appimage/Packrinth_*.AppImage' \
+            '*deb/Packrinth_*.deb' \
+            '*rpm/Packrinth-*.rpm'; do
+            while IFS= read -r artifact; do
+              [ -n "$artifact" ] && RELEASE_ARTIFACTS+=("$artifact")
+            done <<< "$(find . -path "$pattern" 2>/dev/null)"
           done
+          # 去重（exe 同时命中 x64-setup 与 nsis.zip 等）
+          # mapfile：文件路径可能含空格（artifact 名为 "App bundle (...)"）
+          mapfile -t RELEASE_ARTIFACTS < <(printf '%s\n' "${RELEASE_ARTIFACTS[@]}" | sort -u)
+          if [ ${#RELEASE_ARTIFACTS[@]} -eq 0 ]; then
+            echo "::error::No release artifacts found via find-glob"
+          fi
 
           # The dev config names binaries with a "-dev-<sha>" suffix; fall back to those
           # when running this workflow against a develop build.
