@@ -82,6 +82,22 @@ jobs:
             echo "::warning::Update signatures not found (unsigned build); the updater manifest will be skipped"
           fi
 
+      - name: Check OSS configuration
+        id: oss
+        shell: bash
+        run: |
+          if [ -n "$AWS_BUCKET" ] && [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$LAUNCHER_FILES_BUCKET_BASE_URL" ]; then
+            echo "have-oss=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "have-oss=no" >> "$GITHUB_OUTPUT"
+            echo "::warning::OSS (S3/bucket base URL) 未配置，跳过版本 manifest 与产物上传（GitHub Release 仍会创建）"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY }}
+          AWS_BUCKET: ${{ vars.LAUNCHER_FILES_BUCKET_NAME }}
+          LAUNCHER_FILES_BUCKET_BASE_URL: ${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}
+
       - name: Extract app changelog
         env:
           GH_TOKEN: ${{ github.token }}
@@ -91,7 +107,7 @@ jobs:
           LAST_GITHUB_RELEASE_PUBLISHED_AT="$LAST_GITHUB_RELEASE_PUBLISHED_AT" npx --yes tsx scripts/build-theseus-release-notes.ts
 
       - name: Generate version manifest
-        if: steps.sigs.outputs.have-signatures == 'yes'
+        if: steps.sigs.outputs.have-signatures == 'yes' && steps.oss.outputs.have-oss == 'yes'
         run: |
           # Reference: https://tauri.app/plugin/updater/#server-support
           jq -nc \
@@ -137,7 +153,7 @@ jobs:
           cat updates.json
 
       - name: Upload release artifacts
-        if: steps.sigs.outputs.have-signatures == 'yes'
+        if: steps.sigs.outputs.have-signatures == 'yes' && steps.oss.outputs.have-oss == 'yes'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY }}
