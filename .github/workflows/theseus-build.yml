@@ -315,7 +315,10 @@ jobs:
             target/release/bundle/nsis/${{ env.PRODUCT_NAME }}_*-setup.nsis.zip*
 
       - name: Dispatch release workflow
-        if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release'
+        # 仅在 Linux job 上接力（Windows pwsh 传参会导致 422）；失败不把 run 标记为 failure，
+        # 否则 release 工作流因 workflow_conclusion: success 无法下载产物。
+        continue-on-error: true
+        if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release' && contains(matrix.artifact-target-name, 'linux')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
