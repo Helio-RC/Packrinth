@@ -196,26 +196,14 @@ jobs:
         run: |
           VERSION="${VERSION_TAG#v}"
 
-          echo "::debug::pwd=$(pwd)"
-          echo "::debug::dirs=$(find . -maxdepth 2 -type d -name 'App bundle*' 2>/dev/null | tr '\n' ' ')"
-          echo "::debug::bundle-files=$(find . -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) 2>/dev/null | head -20 | tr '\n' ' ')"
+          echo "::warning::artifact-dirs=$(find . -maxdepth 2 -type d -name 'App bundle*' 2>/dev/null | tr '\n' ' ')"
 
-          # 用 find 定位产物，兼容 <artifact-name>/release/... 与 <artifact-name>/target/release/...
-          # 两种下载布局，避免硬编码路径漂移导致"Artifact not found"。
-          RELEASE_ARTIFACTS=()
-          for pattern in \
-            '*nsis/Packrinth_*_x64-setup.exe' \
-            '*dmg/Packrinth_*_universal.dmg' \
-            '*appimage/Packrinth_*.AppImage' \
-            '*deb/Packrinth_*.deb' \
-            '*rpm/Packrinth-*.rpm'; do
-            while IFS= read -r artifact; do
-              [ -n "$artifact" ] && RELEASE_ARTIFACTS+=("$artifact")
-            done <<< "$(find . -path "$pattern" 2>/dev/null)"
-          done
-          # 去重（exe 同时命中 x64-setup 与 nsis.zip 等）
-          # mapfile：文件路径可能含空格（artifact 名为 "App bundle (...)"）
-          mapfile -t RELEASE_ARTIFACTS < <(printf '%s\n' "${RELEASE_ARTIFACTS[@]}" | sort -u)
+          # 按文件名（而非目录布局）定位产物：兼容任何 artifact 解压布局，
+          # 避免 Find/路径漂移导致"Artifact not found"。mapfile 兼容空格路径。
+          mapfile -t RELEASE_ARTIFACTS < <(
+            find . -type f \( -name '*x64-setup.exe' -o -name '*_universal.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) 2>/dev/null | sort -u
+          )
+          echo "::warning::found ${#RELEASE_ARTIFACTS[@]} bundle files"
           if [ ${#RELEASE_ARTIFACTS[@]} -eq 0 ]; then
             echo "::error::No release artifacts found via find-glob"
           fi
