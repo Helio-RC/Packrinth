@@ -265,5 +265,29 @@
 	},
 	"ai.workbench.title": {
 		"message": "AI 工作台"
+	},
+	"ai.activitybar.chat": {
+		"message": "对话"
+	},
+	"ai.activitybar.files": {
+		"message": "文件"
+	},
+	"ai.activitybar.knowledge": {
+		"message": "知识"
+	},
+	"ai.activitybar.skills": {
+		"message": "技能"
+	},
+	"ai.activitybar.tools": {
+		"message": "工具"
+	},
+	"ai.activitybar.console": {
+		"message": "控制台"
+	},
+	"ai.activitybar.settings": {
+		"message": "设置"
+	},
+	"ai.settings.retry": {
+		"message": "重试"
 	}
 }

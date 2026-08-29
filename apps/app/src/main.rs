@@ -49,7 +49,10 @@ async fn initialize_state(
     // === AI-WORKSHOP START ===
     // theseus State 已就绪：初始化 AI 工作台（原来在插件 setup 中执行，
     // 会先于 State 初始化导致启动失败/阻塞等待，移到此命令末尾执行）。
-    ai_workshop::initialize_after_state(&app).await?;
+    // 初始化失败仅记录日志，不阻塞应用其余功能（会话日志可看到真实原因）。
+    if let Err(e) = ai_workshop::initialize_after_state(&app).await {
+        tracing::error!("ai_workshop: initialization failed: {e}");
+    }
     // === AI-WORKSHOP END ===
 
     Ok(())
