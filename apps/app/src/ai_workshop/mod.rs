@@ -82,96 +82,6 @@ impl AiWorkshopState {
 
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::<R>::new("ai_workshop")
-        .setup(|app, _api| {
-            tauri::async_runtime::block_on(async {
-                // theseus State 由前端 webview 加载后的 initialize_state 命令初始化，
-                // 而插件 setup 先于它运行：此处轮询等待（最多 30 秒），
-                // 否则 State::get 会报 "state before initialized" 并导致应用启动失败。
-                let mut waited_secs = 0u32;
-                loop {
-                    if theseus::prelude::State::get().await.is_ok() {
-                        break;
-                    }
-                    if waited_secs >= 30 {
-                        tracing::warn!(
-                            "ai_workshop: theseus state not initialized after 30s; AI workbench skipped"
-                        );
-                        return Ok(());
-                    }
-                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                    waited_secs += 1;
-                }
-
-                let config_manager = ConfigManager::load(app).await?;
-                let chat_history = Arc::new(ChatHistoryRepository::open(
-                    &config_manager.chat_db_path(),
-                )?);
-                let tool_registry = Arc::new(ToolRegistry::new());
-                tools::register_builtin_tools(&tool_registry);
-                let toolchain_registry = Arc::new(ToolchainRegistry::new());
-                toolchain::register_builtin_toolchains(&toolchain_registry);
-                let skill_loader =
-                    Arc::new(SkillLoader::new(config_manager.skills_dir()));
-                let failed_skills = skill_loader.load_all().await;
-                if !failed_skills.is_empty() {
-                    tracing::warn!(
-                        "ai_workshop: failed to load skills: {failed_skills:?}"
-                    );
-                }
-                let knowledge_router = Arc::new(KnowledgeRouter::new(
-                    config_manager.bm25_index_dir(),
-                ));
-                knowledge_router.register_source(Arc::new(
-                    knowledge::source::SkillsSource::new(
-                        config_manager.skills_dir(),
-                    ),
-                ));
-                let log_buffer =
-                    Arc::new(LogBuffer::new(config_manager.config().log_lines));
-                // 行数阈值落盘：log_lines / 10（默认 500/10=50 行），与 §C.5 一致。
-                log_buffer.attach_dest(
-                    config_manager.logs_dir(),
-                    (config_manager.config().log_lines / 10).max(1),
-                );
-                let instance_lock_manager =
-                    Arc::new(InstanceLockManager::default());
-                let task_registry = Arc::new(TaskRegistry::default());
-
-                app.manage(AiWorkshopState {
-                    config_manager: config_manager.clone(),
-                    chat_history: chat_history.clone(),
-                    tool_registry: tool_registry.clone(),
-                    toolchain_registry: toolchain_registry.clone(),
-                    skill_loader: skill_loader.clone(),
-                    knowledge_router,
-                    instance_lock_manager,
-                    log_buffer: log_buffer.clone(),
-                    task_registry: task_registry.clone(),
-                    pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
-                });
-
-                spawn_log_persist_loop(&config_manager, &log_buffer);
-                spawn_skill_watcher(&config_manager, &skill_loader);
-
-                let mcp_cfg = config_manager.config().mcp;
-                if mcp_cfg.enabled {
-                    // MCP 客户端仅在配置启用时拉起（默认禁用）；工具注册进共享 ToolRegistry。
-                    mcp_client::McpClient::spawn(
-                        mcp_cfg.command,
-                        mcp_cfg.args,
-                        mcp_cfg.health_check_interval_secs,
-                        tool_registry.clone(),
-                    );
-                }
-
-                let close_task_registry = task_registry;
-                app.listen("tauri://close-requested", move |_| {
-                    close_task_registry.cancel_all();
-                });
-
-                Ok(())
-            })
-        })
         .invoke_handler(tauri::generate_handler![
             ai_chat,
             ai_stream,
@@ -210,6 +120,74 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
             inject_crash_log,
         ])
         .build()
+}
+
+/// AI 工作台初始化：必须在 `initialize_state` 命令（theseus State 就绪）之后调用。
+/// 此前放在插件 setup 中，因先于 State 初始化导致启动失败（state before initialized），
+/// 现在由 main.rs 的 `initialize_state` 末尾显式调用，无竞态。
+pub async fn initialize_after_state<R: Runtime>(
+    app: &tauri::AppHandle<R>,
+) -> crate::api::Result<()> {
+    let config_manager = ConfigManager::load(app).await?;
+    let chat_history =
+        Arc::new(ChatHistoryRepository::open(&config_manager.chat_db_path())?);
+    let tool_registry = Arc::new(ToolRegistry::new());
+    tools::register_builtin_tools(&tool_registry);
+    let toolchain_registry = Arc::new(ToolchainRegistry::new());
+    toolchain::register_builtin_toolchains(&toolchain_registry);
+    let skill_loader = Arc::new(SkillLoader::new(config_manager.skills_dir()));
+    let failed_skills = skill_loader.load_all().await;
+    if !failed_skills.is_empty() {
+        tracing::warn!("ai_workshop: failed to load skills: {failed_skills:?}");
+    }
+    let knowledge_router =
+        Arc::new(KnowledgeRouter::new(config_manager.bm25_index_dir()));
+    knowledge_router.register_source(Arc::new(
+        knowledge::source::SkillsSource::new(config_manager.skills_dir()),
+    ));
+    let log_buffer =
+        Arc::new(LogBuffer::new(config_manager.config().log_lines));
+    // 行数阈值落盘：log_lines / 10（默认 500/10=50 行），与 §C.5 一致。
+    log_buffer.attach_dest(
+        config_manager.logs_dir(),
+        (config_manager.config().log_lines / 10).max(1),
+    );
+    let instance_lock_manager = Arc::new(InstanceLockManager::default());
+    let task_registry = Arc::new(TaskRegistry::default());
+
+    app.manage(AiWorkshopState {
+        config_manager: config_manager.clone(),
+        chat_history: chat_history.clone(),
+        tool_registry: tool_registry.clone(),
+        toolchain_registry: toolchain_registry.clone(),
+        skill_loader: skill_loader.clone(),
+        knowledge_router,
+        instance_lock_manager,
+        log_buffer: log_buffer.clone(),
+        task_registry: task_registry.clone(),
+        pending_confirmations: Arc::new(Mutex::new(HashMap::new())),
+    });
+
+    spawn_log_persist_loop(&config_manager, &log_buffer);
+    spawn_skill_watcher(&config_manager, &skill_loader);
+
+    let mcp_cfg = config_manager.config().mcp;
+    if mcp_cfg.enabled {
+        // MCP 客户端仅在配置启用时拉起（默认禁用）；工具注册进共享 ToolRegistry。
+        mcp_client::McpClient::spawn(
+            mcp_cfg.command,
+            mcp_cfg.args,
+            mcp_cfg.health_check_interval_secs,
+            tool_registry.clone(),
+        );
+    }
+
+    let close_task_registry = task_registry;
+    app.listen("tauri://close-requested", move |_| {
+        close_task_registry.cancel_all();
+    });
+
+    Ok(())
 }
 
 /// 日志环形缓冲区周期性落盘（间隔可由配置 `log_flush_interval_secs` 调整，默认 120 秒），
