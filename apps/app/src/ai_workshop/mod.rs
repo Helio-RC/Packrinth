@@ -83,8 +83,25 @@ impl AiWorkshopState {
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::<R>::new("ai_workshop")
         .setup(|app, _api| {
-            // theseus State 已由 main.rs 的 initialize_state 命令初始化，此处直接使用
             tauri::async_runtime::block_on(async {
+                // theseus State 由前端 webview 加载后的 initialize_state 命令初始化，
+                // 而插件 setup 先于它运行：此处轮询等待（最多 30 秒），
+                // 否则 State::get 会报 "state before initialized" 并导致应用启动失败。
+                let mut waited_secs = 0u32;
+                loop {
+                    if theseus::prelude::State::get().await.is_ok() {
+                        break;
+                    }
+                    if waited_secs >= 30 {
+                        tracing::warn!(
+                            "ai_workshop: theseus state not initialized after 30s; AI workbench skipped"
+                        );
+                        return Ok(());
+                    }
+                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                    waited_secs += 1;
+                }
+
                 let config_manager = ConfigManager::load(app).await?;
                 let chat_history = Arc::new(ChatHistoryRepository::open(
                     &config_manager.chat_db_path(),
