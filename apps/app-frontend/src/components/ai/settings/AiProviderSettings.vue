@@ -90,7 +90,15 @@
 				</select>
 			</section>
 		</div>
-		<p v-else class="text-sm text-secondary">{{ formatMessage(messages.loading) }}</p>
+		<div v-else class="flex flex-col gap-2">
+			<p class="text-sm text-secondary">{{ formatMessage(messages.loading) }}</p>
+			<p v-if="errorMessages.length > 0" class="text-xs text-red-600">
+				{{ errorMessages.join('; ') }}
+			</p>
+			<Button v-if="errorMessages.length > 0" type="outlined" size="sm" @click="retry">
+				{{ formatMessage(messages.retry) }}
+			</Button>
+		</div>
 	</div>
 </template>
 
@@ -154,7 +162,18 @@ const messages = defineMessages({
 		id: 'ai.settings.loading',
 		defaultMessage: 'Loading AI configuration…',
 	},
+	retry: {
+		id: 'ai.settings.retry',
+		defaultMessage: 'Retry',
+	},
 })
+
+const errorMessages = computed(() => Object.values(store.initErrors))
+
+const retry = async () => {
+	store.initErrors = {}
+	await store.init()
+}
 
 const providerNames = computed(() => Object.keys(store.aiConfig?.providers ?? {}))
 const providerEntries = computed(

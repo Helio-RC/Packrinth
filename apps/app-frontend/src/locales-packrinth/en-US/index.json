@@ -1,6 +1,27 @@
 {
+	"ai.activitybar.chat": {
+		"message": "Chat"
+	},
+	"ai.activitybar.console": {
+		"message": "Console"
+	},
+	"ai.activitybar.files": {
+		"message": "Files"
+	},
+	"ai.activitybar.knowledge": {
+		"message": "Knowledge"
+	},
+	"ai.activitybar.settings": {
+		"message": "Settings"
+	},
+	"ai.activitybar.skills": {
+		"message": "Skills"
+	},
 	"ai.activitybar.toggle-position": {
 		"message": "Toggle activity bar position"
+	},
+	"ai.activitybar.tools": {
+		"message": "Tools"
 	},
 	"ai.bottom-panel.hide": {
 		"message": "Hide bottom panel"
@@ -202,6 +223,9 @@
 	},
 	"ai.settings.providers": {
 		"message": "Providers"
+	},
+	"ai.settings.retry": {
+		"message": "Retry"
 	},
 	"ai.settings.save-key": {
 		"message": "Save key"
