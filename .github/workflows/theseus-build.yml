@@ -314,14 +314,27 @@ jobs:
             target/release/bundle/nsis/${{ env.PRODUCT_NAME }} (dev-*)_*-setup.exe*
             target/release/bundle/nsis/${{ env.PRODUCT_NAME }}_*-setup.nsis.zip*
 
+  dispatch-release:
+    name: Dispatch release
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release'
+    needs: build
+    env:
+      TAG_SUFFIX: ${{ inputs.release-tag-suffix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
       - name: Dispatch release workflow
-        # 仅在 Linux job 上接力（Windows pwsh 传参会导致 422）；失败不把 run 标记为 failure，
-        # 否则 release 工作流因 workflow_conclusion: success 无法下载产物。
-        continue-on-error: true
-        if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release' && contains(matrix.artifact-target-name, 'linux')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          APP_VERSION="$(git describe --tags --always)${TAG_SUFFIX}"
+          # 与 build job 相同的 canary 语义：-N-gHASH → -canary+N.HASH
+          APP_VERSION="$(echo "$APP_VERSION" | sed -E 's/-([0-9]+)-(g[0-9a-fA-F]+)$/-canary+\1.\2/')"
+          APP_VERSION="${APP_VERSION#v}"
+          echo "Dispatching Packrinth App release for ${APP_VERSION}"
           gh workflow run "Packrinth App release" --ref "${{ github.ref }}" \
-            -f "version=${{ steps.version.outputs.app-version }}" \
+            -f "version=${APP_VERSION}" \
             -f "build-run-id=${{ github.run_id }}"
