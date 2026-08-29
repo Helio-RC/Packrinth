@@ -283,7 +283,6 @@ fn main() {
         .plugin(api::worlds::init())
         // === AI-WORKSHOP START ===
         .plugin(tauri_plugin_store::Builder::default().build())
-        .plugin(api::ai_workshop::init())
         // === AI-WORKSHOP END ===
         .manage(PendingUpdateData::default())
         .invoke_handler(tauri::generate_handler![
@@ -297,6 +296,41 @@ fn main() {
             toggle_decorations,
             show_window,
             restart_app,
+            ai_workshop::ai_chat,
+            ai_workshop::ai_stream,
+            ai_workshop::ai_confirm_tool,
+            ai_workshop::set_provider_api_key,
+            ai_workshop::test_provider_connection,
+            ai_workshop::tool_execute,
+            ai_workshop::cancel_task,
+            ai_workshop::list_tools,
+            ai_workshop::get_tool_schema,
+            ai_workshop::list_toolchains,
+            ai_workshop::execute_toolchain_command,
+            ai_workshop::list_conversations,
+            ai_workshop::get_conversation,
+            ai_workshop::create_conversation,
+            ai_workshop::rename_conversation,
+            ai_workshop::delete_conversation,
+            ai_workshop::export_conversation,
+            ai_workshop::clear_all_conversations,
+            ai_workshop::list_skills,
+            ai_workshop::get_skill_content,
+            ai_workshop::enable_skill,
+            ai_workshop::disable_skill,
+            ai_workshop::force_load_skill,
+            ai_workshop::refresh_skills,
+            ai_workshop::import_skill,
+            ai_workshop::search_knowledge,
+            ai_workshop::refresh_knowledge,
+            ai_workshop::get_ai_config,
+            ai_workshop::set_ai_config,
+            ai_workshop::get_ai_status,
+            ai_workshop::analyze_crash,
+            ai_workshop::get_logs_for_ai,
+            ai_workshop::suggest_fix,
+            ai_workshop::apply_fix,
+            ai_workshop::inject_crash_log,
         ]);
 
     tracing::info!("Initializing app...");

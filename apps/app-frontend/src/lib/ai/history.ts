@@ -17,7 +17,7 @@ export async function listConversations(
 	offset = 0,
 ): Promise<Conversation[]> {
 	try {
-		return await invoke<Conversation[]>('plugin:ai_workshop|list_conversations', {
+		return await invoke<Conversation[]>('list_conversations', {
 			instanceId,
 			limit,
 			offset,
@@ -35,7 +35,7 @@ export async function getConversation(
 ): Promise<{ conversation: Conversation; messages: Message[] } | null> {
 	try {
 		return await invoke<{ conversation: Conversation; messages: Message[] } | null>(
-			'plugin:ai_workshop|get_conversation',
+			'get_conversation',
 			{ conversationId, limit, offset },
 		)
 	} catch (err) {
@@ -49,7 +49,7 @@ export async function createConversation(
 	instanceId?: string,
 ): Promise<Conversation> {
 	try {
-		return await invoke<Conversation>('plugin:ai_workshop|create_conversation', {
+		return await invoke<Conversation>('create_conversation', {
 			title,
 			instanceId,
 		})
@@ -61,7 +61,7 @@ export async function createConversation(
 /** 重命名会话。 */
 export async function renameConversation(conversationId: string, newTitle: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|rename_conversation', {
+		await invoke<void>('rename_conversation', {
 			conversationId,
 			newTitle,
 		})
@@ -73,7 +73,7 @@ export async function renameConversation(conversationId: string, newTitle: strin
 /** 删除会话及其全部消息。 */
 export async function deleteConversation(conversationId: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|delete_conversation', { conversationId })
+		await invoke<void>('delete_conversation', { conversationId })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -85,7 +85,7 @@ export async function exportConversation(
 	format: 'json' | 'markdown',
 ): Promise<string> {
 	try {
-		return await invoke<string>('plugin:ai_workshop|export_conversation', {
+		return await invoke<string>('export_conversation', {
 			conversationId,
 			format,
 		})
@@ -97,7 +97,7 @@ export async function exportConversation(
 /** 清空全部会话（需 `confirm=true`），返回删除的会话数。 */
 export async function clearAllConversations(confirm: boolean): Promise<number> {
 	try {
-		return await invoke<number>('plugin:ai_workshop|clear_all_conversations', { confirm })
+		return await invoke<number>('clear_all_conversations', { confirm })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}

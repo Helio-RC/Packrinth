@@ -26,7 +26,6 @@ pub mod friends;
 pub mod worlds;
 
 // === AI-WORKSHOP START ===
-pub mod ai_workshop;
 // === AI-WORKSHOP END ===
 
 mod oauth_utils;

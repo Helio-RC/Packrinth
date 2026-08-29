@@ -80,48 +80,6 @@ impl AiWorkshopState {
     }
 }
 
-pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
-    tauri::plugin::Builder::<R>::new("ai_workshop")
-        .invoke_handler(tauri::generate_handler![
-            ai_chat,
-            ai_stream,
-            ai_confirm_tool,
-            set_provider_api_key,
-            test_provider_connection,
-            tool_execute,
-            cancel_task,
-            list_tools,
-            get_tool_schema,
-            list_toolchains,
-            execute_toolchain_command,
-            list_conversations,
-            get_conversation,
-            create_conversation,
-            rename_conversation,
-            delete_conversation,
-            export_conversation,
-            clear_all_conversations,
-            list_skills,
-            get_skill_content,
-            enable_skill,
-            disable_skill,
-            force_load_skill,
-            refresh_skills,
-            import_skill,
-            search_knowledge,
-            refresh_knowledge,
-            get_ai_config,
-            set_ai_config,
-            get_ai_status,
-            analyze_crash,
-            get_logs_for_ai,
-            suggest_fix,
-            apply_fix,
-            inject_crash_log,
-        ])
-        .build()
-}
-
 /// AI 工作台初始化：必须在 `initialize_state` 命令（theseus State 就绪）之后调用。
 /// 此前放在插件 setup 中，因先于 State 初始化导致启动失败（state before initialized），
 /// 现在由 main.rs 的 `initialize_state` 末尾显式调用，无竞态。
