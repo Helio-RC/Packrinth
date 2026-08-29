@@ -46,6 +46,12 @@ async fn initialize_state(
     app.fs_scope()
         .allow_directory(state.directories.instances_dir(), true)?;
 
+    // === AI-WORKSHOP START ===
+    // theseus State 已就绪：初始化 AI 工作台（原来在插件 setup 中执行，
+    // 会先于 State 初始化导致启动失败/阻塞等待，移到此命令末尾执行）。
+    ai_workshop::initialize_after_state(&app).await?;
+    // === AI-WORKSHOP END ===
+
     Ok(())
 }
 
