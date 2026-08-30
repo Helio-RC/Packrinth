@@ -150,7 +150,16 @@ fn main() {
 
     let tauri_context = tauri::generate_context!();
 
-    let _log_guard = theseus::start_logger(&tauri_context.config().identifier);
+    // 附加 AI 工作台日志缓冲层：与现有日志走同一 EnvFilter（RUST_LOG 级别一致），
+    // 行写入 LogBuffer（日志面板/排障读取）。缓冲实例由 initialize_after_state 注册。
+    let buffer_layer = tracing_subscriber::fmt::layer()
+        .with_writer(ai_workshop::troubleshooter::LogBufferWriter)
+        .with_ansi(false);
+
+    let _log_guard = theseus::start_logger_with_extra(
+        &tauri_context.config().identifier,
+        Some(Box::new(buffer_layer)),
+    );
 
     tracing::info!("Initialized tracing subscriber. Loading Packrinth!");
 

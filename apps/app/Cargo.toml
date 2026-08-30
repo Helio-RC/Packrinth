@@ -58,6 +58,7 @@ toml = { workspace = true }
 # === AI-WORKSHOP END ===
 tracing = { workspace = true }
 tracing-error = { workspace = true }
+tracing-subscriber = { workspace = true }
 url = { workspace = true }
 urlencoding = { workspace = true }
 uuid = { workspace = true, features = ["serde", "v4"] }

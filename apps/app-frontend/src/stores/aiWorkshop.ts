@@ -4,6 +4,7 @@
 import type { UnlistenFn } from '@tauri-apps/api/event'
 import { defineStore } from 'pinia'
 
+import { toError } from '@/helpers/errors'
 import {
 	aiConfirmTool,
 	aiStream,
@@ -144,7 +145,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 				try {
 					return await fn()
 				} catch (err) {
-					this.initErrors[key] = err instanceof Error ? err.message : String(err)
+					this.initErrors[key] = toError(err).message
 					return undefined
 				}
 			}
@@ -308,7 +309,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 					id: nextLocalId(),
 					conversationId,
 					role: 'assistant',
-					content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+					content: `Error: ${toError(err).message}`,
 					toolCalls: null,
 					toolCallId: null,
 					createdAt: Date.now(),
@@ -345,7 +346,7 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 				}
 			} catch (err) {
 				output.status = 'error'
-				output.error = err instanceof Error ? err.message : String(err)
+				output.error = toError(err).message
 			} finally {
 				output.finishedAt = Date.now()
 			}

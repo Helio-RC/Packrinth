@@ -96,6 +96,7 @@
 import { defineMessages, SettingsToggleCard, useVIntl } from '@modrinth/ui'
 import { ref, watch } from 'vue'
 
+import { toError } from '@/helpers/errors'
 import type { AiWorkshopConfig } from '@/lib/ai/types'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
 
@@ -193,7 +194,7 @@ const save = async (patch: Partial<AiWorkshopConfig>) => {
 	try {
 		await store.updateConfig(patch)
 	} catch (err) {
-		error.value = err instanceof Error ? err.message : String(err)
+		error.value = toError(err).message
 	}
 }
 

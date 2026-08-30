@@ -19,6 +19,24 @@
 // This will log to the console, and will not log to a file
 #[cfg(debug_assertions)]
 pub fn start_logger(_app_identifier: &str) -> Option<()> {
+    start_logger_with_extra(_app_identifier, None)
+}
+
+// Additional layer support for the development logging (e.g. a log buffer bridge).
+// The extra layer is registered first so it is covered by the same `EnvFilter`.
+#[cfg(debug_assertions)]
+pub fn start_logger_with_extra(
+    _app_identifier: &str,
+    extra_layer: Option<
+        Box<
+            dyn tracing_subscriber::layer::Layer<
+                    tracing_subscriber::registry::Registry,
+                > + Send
+                + Sync
+                + 'static,
+        >,
+    >,
+) -> Option<()> {
     use tracing_subscriber::prelude::*;
 
     let filter = tracing_subscriber::EnvFilter::try_from_default_env()
@@ -26,6 +44,7 @@ pub fn start_logger(_app_identifier: &str) -> Option<()> {
             tracing_subscriber::EnvFilter::new("theseus=info,theseus_gui=info")
         });
     tracing_subscriber::registry()
+        .with(extra_layer)
         .with(tracing_subscriber::fmt::layer())
         .with(filter)
         .with(tracing_error::ErrorLayer::default())
@@ -37,6 +56,24 @@ pub fn start_logger(_app_identifier: &str) -> Option<()> {
 // This will log to a file in the logs directory, and will not show any logs in the console
 #[cfg(not(debug_assertions))]
 pub fn start_logger(app_identifier: &str) -> Option<()> {
+    start_logger_with_extra(app_identifier, None)
+}
+
+// Additional layer support for the production logging (e.g. a log buffer bridge).
+// The extra layer is registered first so it is covered by the same `EnvFilter`.
+#[cfg(not(debug_assertions))]
+pub fn start_logger_with_extra(
+    app_identifier: &str,
+    extra_layer: Option<
+        Box<
+            dyn tracing_subscriber::layer::Layer<
+                    tracing_subscriber::registry::Registry,
+                > + Send
+                + Sync
+                + 'static,
+        >,
+    >,
+) -> Option<()> {
     use crate::prelude::DirectoryInfo;
     use chrono::Local;
     use std::fs::OpenOptions;
@@ -78,6 +115,7 @@ pub fn start_logger(app_identifier: &str) -> Option<()> {
         .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("theseus=info"));
 
     tracing_subscriber::registry()
+        .with(extra_layer)
         .with(
             tracing_subscriber::fmt::layer()
                 .with_writer(file)

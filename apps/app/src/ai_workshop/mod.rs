@@ -110,6 +110,8 @@ pub async fn initialize_after_state<R: Runtime>(
         config_manager.logs_dir(),
         (config_manager.config().log_lines / 10).max(1),
     );
+    // 注册全局实例：tracing 桥接层从这里开始写入日志面板可见的缓冲区。
+    troubleshooter::install_global(log_buffer.clone());
     let instance_lock_manager = Arc::new(InstanceLockManager::default());
     let task_registry = Arc::new(TaskRegistry::default());
 
@@ -267,6 +269,10 @@ pub async fn ai_stream<R: Runtime>(
     on_event: tauri::ipc::Channel<StreamEvent>,
 ) -> Result<()> {
     let state = app.state::<AiWorkshopState>().inner().clone();
+    tracing::info!(
+        "ai_workshop: ai_stream started ({conversation_id}, len {})",
+        content.len()
+    );
     state
         .chat_history
         .add_message(NewMessage {
@@ -299,6 +305,9 @@ pub async fn ai_stream<R: Runtime>(
             )
             .await
         {
+            tracing::error!(
+                "ai_workshop: ai_stream ({conversation_id}) failed: {e}"
+            );
             let _ = on_event.send(StreamEvent {
                 delta: None,
                 tool_calls: None,
@@ -308,6 +317,7 @@ pub async fn ai_stream<R: Runtime>(
             });
             done_event.error = Some(e.to_string());
         }
+        tracing::info!("ai_workshop: ai_stream ({conversation_id}) done");
         let _ = on_event.send(done_event);
     });
 
@@ -339,7 +349,14 @@ pub async fn set_provider_api_key<R: Runtime>(
     api_key: String,
 ) -> Result<()> {
     let state = app.state::<AiWorkshopState>();
-    state.config_manager.set_api_key(&provider, &api_key)
+    state
+        .config_manager
+        .set_api_key(&provider, &api_key)
+        .inspect_err(|e| {
+            tracing::warn!(
+                "ai_workshop: set_provider_api_key({provider}) failed: {e}"
+            )
+        })
 }
 
 /// 连接测试（设置页"连接测试"按钮）：用给定提供商发一条极简短消息验证 Key / 端点有效。
@@ -351,21 +368,38 @@ pub async fn test_provider_connection<R: Runtime>(
     use providers::provider_trait::AiMessage;
 
     let state = app.state::<AiWorkshopState>();
-    let provider_instance = providers::factory::create_provider(
+    let provider_instance = match providers::factory::create_provider(
         &state.config_manager,
         Some(&provider),
-    )
-    .map_err(other_err)?;
+    ) {
+        Ok(provider) => provider,
+        Err(e) => {
+            tracing::warn!(
+                "ai_workshop: test_provider_connection({provider}) setup failed: {e}"
+            );
+            return Err(other_err(e));
+        }
+    };
     let test_messages = vec![AiMessage::user("请只回复：OK".to_string())];
     match provider_instance.chat(&test_messages, &[]).await {
-        Ok(response) => Ok(serde_json::json!({
-            "ok": true,
-            "reply": response.content.unwrap_or_default(),
-        })),
-        Err(e) => Ok(serde_json::json!({
-            "ok": false,
-            "error": e.to_string(),
-        })),
+        Ok(response) => {
+            tracing::info!(
+                "ai_workshop: test_provider_connection({provider}) ok"
+            );
+            Ok(serde_json::json!({
+                "ok": true,
+                "reply": response.content.unwrap_or_default(),
+            }))
+        }
+        Err(e) => {
+            tracing::warn!(
+                "ai_workshop: test_provider_connection({provider}) failed: {e}"
+            );
+            Ok(serde_json::json!({
+                "ok": false,
+                "error": e.to_string(),
+            }))
+        }
     }
 }
 
@@ -380,6 +414,9 @@ pub async fn tool_execute<R: Runtime>(
 ) -> Result<serde_json::Value> {
     let state = app.state::<AiWorkshopState>();
     let task_id = uuid::Uuid::new_v4().to_string();
+    tracing::info!(
+        "ai_workshop: tool_execute started ({name}, task {task_id})"
+    );
     let mut response = ui_commands::execute_tool(
         state.inner(),
         Some(&app),
@@ -387,10 +424,19 @@ pub async fn tool_execute<R: Runtime>(
         &name,
         params,
     )
-    .await?;
+    .await
+    .inspect_err(|e| {
+        tracing::error!("ai_workshop: tool_execute({name}) failed: {e}")
+    })?;
     if let Some(obj) = response.as_object_mut() {
-        obj.insert("task_id".to_string(), serde_json::Value::String(task_id));
+        obj.insert(
+            "task_id".to_string(),
+            serde_json::Value::String(task_id.clone()),
+        );
     }
+    tracing::info!(
+        "ai_workshop: tool_execute done ({name}, task {task_id})"
+    );
     Ok(response)
 }
 
@@ -724,7 +770,14 @@ pub async fn set_ai_config<R: Runtime>(
     config: config::AiWorkshopConfigDto,
 ) -> Result<()> {
     let state = app.state::<AiWorkshopState>();
-    state.config_manager.save_config(config.into()).await
+    tracing::info!("ai_workshop: saving AI config");
+    state
+        .config_manager
+        .save_config(config.into())
+        .await
+        .inspect_err(|e| {
+            tracing::error!("ai_workshop: failed to save AI config: {e}")
+        })
 }
 
 /// 获取 AI 工作台运行状态摘要。

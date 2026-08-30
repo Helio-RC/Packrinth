@@ -26,7 +26,7 @@ pub use event::{
     AppEvent, EventState, LoadingBar, LoadingBarType, emit::emit_loading,
     emit::init_loading,
 };
-pub use logger::start_logger;
+pub use logger::{start_logger, start_logger_with_extra};
 pub use state::State;
 pub use util::fetch::DownloadReason;
 

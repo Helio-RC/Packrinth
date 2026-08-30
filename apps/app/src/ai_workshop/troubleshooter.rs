@@ -1,7 +1,17 @@
 // === AI-WORKSHOP START ===
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
+
+/// 全局日志缓冲实例：tracing 桥接层在缓冲注册前产生的日志行会丢弃，
+/// `install_global` 之后写入该实例（供日志面板/排障读取）。
+static GLOBAL_BUFFER: OnceLock<Arc<LogBuffer>> = OnceLock::new();
+
+/// 注册全局 LogBuffer（在 `initialize_after_state` 中调用）。
+pub fn install_global(buffer: Arc<LogBuffer>) {
+    let _ = GLOBAL_BUFFER.set(buffer);
+}
 
 /// 日志环形缓冲区：容量可配置，周期性落盘，供排障与 AI 分析使用。
 /// 流 C.5 实现：进程输出重定向捕获游戏日志、周期性落盘。
@@ -11,7 +21,11 @@ pub struct LogBuffer {
     /// 落盘目标目录（附加后启用行数阈值落盘）。
     dest: Mutex<Option<PathBuf>>,
     /// 距上次落盘多少行触发一次落盘（log_lines / 10）；0 表示仅按时间间隔落盘。
-    flush_after: std::sync::atomic::AtomicUsize,
+    flush_after: AtomicUsize,
+    /// 已写入磁盘的行数（全局行号，包含因容量淘汰的行）。
+    persisted: AtomicUsize,
+    /// 因容量满而被淘汰的行数。
+    dropped: AtomicUsize,
 }
 
 impl LogBuffer {
@@ -20,15 +34,16 @@ impl LogBuffer {
             inner: Mutex::new(VecDeque::with_capacity(capacity)),
             capacity,
             dest: Mutex::new(None),
-            flush_after: std::sync::atomic::AtomicUsize::new(0),
+            flush_after: AtomicUsize::new(0),
+            persisted: AtomicUsize::new(0),
+            dropped: AtomicUsize::new(0),
         }
     }
 
     /// 绑定落盘目录与行数阈值（阈值 = log_lines / 10，默认 50 行）。
     pub fn attach_dest(&self, dir: PathBuf, flush_after: usize) {
         *self.dest.lock().unwrap() = Some(dir);
-        self.flush_after
-            .store(flush_after, std::sync::atomic::Ordering::Relaxed);
+        self.flush_after.store(flush_after, Ordering::Relaxed);
     }
 
     pub fn push(&self, line: String) {
@@ -36,10 +51,10 @@ impl LogBuffer {
             let mut inner = self.inner.lock().unwrap();
             while inner.len() >= self.capacity {
                 inner.pop_front();
+                self.dropped.fetch_add(1, Ordering::Relaxed);
             }
             inner.push_back(line);
-            let flush_after =
-                self.flush_after.load(std::sync::atomic::Ordering::Relaxed);
+            let flush_after = self.flush_after.load(Ordering::Relaxed);
             flush_after > 0 && inner.len() >= flush_after
         };
         // 行数阈值落盘（锁外执行，避免与 flush_to_disk 的 inner 锁重入/死锁）。
@@ -50,10 +65,20 @@ impl LogBuffer {
         }
     }
 
-    /// 将缓冲区内容追加写入 `<dir>/app.log`（不覆盖历史）。
-    /// 写入成功后清空缓冲区（drain），避免周期性落盘重复累积已写过的日志。
+    /// 将缓冲区中新增的行追加写入 `<dir>/app.log`（增量落盘，不覆盖历史）。
+    /// 不清空内存缓冲区（日志面板实时读取），仅推进持久化偏移，避免重复累积。
     pub fn flush_to_disk(&self, dir: &Path) -> Result<(), String> {
-        let content = self.content().join("\n");
+        let (content, total) = {
+            let inner = self.inner.lock().unwrap();
+            let dropped = self.dropped.load(Ordering::Relaxed);
+            let persisted = self.persisted.load(Ordering::Relaxed);
+            // 缓冲区中仍保留的行全局序号为 [dropped, dropped + len)；
+            // 从 persisted 之后的本地偏移开始写，淘汰前的行无从找回则从 0 开始。
+            let from_local = persisted.saturating_sub(dropped).min(inner.len());
+            let new_lines: Vec<String> =
+                inner.iter().skip(from_local).cloned().collect();
+            (new_lines.join("\n"), dropped + inner.len())
+        };
         if content.is_empty() {
             return Ok(());
         }
@@ -70,8 +95,7 @@ impl LogBuffer {
             .map_err(|e| format!("failed to write {}: {e}", path.display()))?;
         file.write_all(b"\n")
             .map_err(|e| format!("failed to write {}: {e}", path.display()))?;
-        // 落盘成功后清空缓冲区。
-        self.inner.lock().unwrap().clear();
+        self.persisted.store(total, Ordering::Relaxed);
         Ok(())
     }
 
@@ -92,6 +116,52 @@ impl LogBuffer {
     /// 仅测试/调试用：注入虚假日志触发排障流程。
     pub fn inject(&self, log: String) {
         self.push(log);
+    }
+}
+
+/// tracing 桥接写入器：将应用日志按行写入全局 LogBuffer（日志面板与排障读取）。
+/// 缓冲实例在 `install_global` 前未注册，期间产生的日志行会被忽略（启动早期，影响有限）。
+pub struct LogBufferWriter;
+
+impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for LogBufferWriter {
+    type Writer = LineBufferWriter;
+
+    fn make_writer(&'a self) -> Self::Writer {
+        LineBufferWriter::default()
+    }
+}
+
+/// 单事件写入器：按换行拆分，完整行推入全局 LogBuffer。
+#[derive(Default)]
+pub struct LineBufferWriter {
+    buf: Vec<u8>,
+}
+
+impl std::io::Write for LineBufferWriter {
+    fn write(&mut self, data: &[u8]) -> std::io::Result<usize> {
+        self.buf.extend_from_slice(data);
+        while let Some(pos) = self.buf.iter().position(|b| *b == b'\n') {
+            let mut raw: Vec<u8> = self.buf.drain(..=pos).collect();
+            raw.pop();
+            if let Some(buffer) = GLOBAL_BUFFER.get() {
+                buffer.push(String::from_utf8_lossy(&raw).to_string());
+            }
+        }
+        Ok(data.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl Drop for LineBufferWriter {
+    fn drop(&mut self) {
+        if !self.buf.is_empty()
+            && let Some(buffer) = GLOBAL_BUFFER.get()
+        {
+            buffer.push(String::from_utf8_lossy(&self.buf).to_string());
+        }
     }
 }
 
@@ -143,7 +213,8 @@ mod tests {
             .flush_to_disk(&dir)
             .expect("first flush should succeed");
 
-        // flush 成功后缓冲区已清空：再次 flush 不应重复追加旧的 "first"。
+        // 首次 flush 后内存缓冲区保留（日志面板实时读取），但偏移已推进：
+        // 再次 flush 不应重复追加旧的 "first"。
         buffer.push("second".to_string());
         buffer
             .flush_to_disk(&dir)
@@ -155,11 +226,16 @@ mod tests {
             raw.contains("second"),
             "second flush content must be appended"
         );
-        // 缓冲区在首次 flush 后被 drain，故 "first" 只出现一次（追加，不覆盖，也不重复累积）。
         assert_eq!(
             raw.matches("first").count(),
             1,
-            "flushed buffer must be drained so old lines are not re-appended"
+            "persisted offset must prevent re-appending old lines"
+        );
+        // 增量落盘不清空内存：面板仍可读取已落盘的行。
+        assert_eq!(
+            buffer.content(),
+            vec!["first".to_string(), "second".to_string()],
+            "flush must not clear in-memory buffer"
         );
         fs::remove_dir_all(&dir).ok();
     }
@@ -177,11 +253,11 @@ mod tests {
         assert!(!dir.join("app.log").exists());
 
         buffer.push("line4".to_string());
-        // 达阈值：落盘且清空
+        // 达阈值：增量落盘，内存保留
         let raw = std::fs::read_to_string(dir.join("app.log")).unwrap();
         assert!(raw.contains("line4"));
         assert!(raw.contains("line0"), "整批写入，包含较早行");
-        assert!(buffer.content().is_empty(), "落盘后缓冲区清空");
+        assert_eq!(buffer.content().len(), 5, "落盘后内存缓冲区保留");
 
         std::fs::remove_dir_all(&dir).unwrap();
     }

@@ -4,10 +4,12 @@
  */
 import { type Channel, invoke } from '@tauri-apps/api/core'
 
+import { toError } from '@/helpers/errors'
+
 import type { AiStatus, AiWorkshopConfig, ChatResult, KnowledgeHit, StreamEvent } from './types'
 
 function toErrorMessage(err: unknown): string {
-	return err instanceof Error ? err.message : String(err)
+	return toError(err).message
 }
 
 /** 单轮非流式对话，返回 `{ reply, usage }`。 */

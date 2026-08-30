@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col gap-4 p-4">
+	<div class="flex flex-col gap-4 p-4 min-h-0 w-full overflow-y-auto">
 		<div v-if="store.aiConfig" class="flex flex-col gap-4">
 			<section>
 				<h3 class="mb-2 text-sm font-semibold text-contrast">
@@ -9,7 +9,7 @@
 					<label
 						v-for="[name, config] in providerEntries"
 						:key="name"
-						class="flex flex-col gap-1 rounded-lg border border-divider bg-bg p-3"
+						class="flex w-full min-w-0 flex-col gap-1 rounded-lg border border-divider bg-bg p-3"
 					>
 						<div class="flex items-center justify-between gap-2">
 							<span class="text-sm font-medium text-contrast">{{ name }}</span>
@@ -21,33 +21,33 @@
 								@change="(e) => setEnabled(name, (e.target as HTMLInputElement).checked)"
 							/>
 						</div>
-						<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+						<div class="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
 							<input
 								v-model="config.model"
-								class="rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand disabled:opacity-50"
+								class="w-full min-w-0 rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand disabled:opacity-50"
 								:placeholder="formatMessage(messages.model)"
 								@change="saveProvider(name)"
 							/>
 							<input
 								v-if="name === 'custom'"
 								v-model="config.baseUrl"
-								class="rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
+								class="w-full min-w-0 rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
 								:placeholder="formatMessage(messages.baseUrl)"
 								@change="saveProvider(name)"
 							/>
 							<input
 								v-if="name === 'ollama'"
 								v-model="config.baseUrl"
-								class="rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
+								class="w-full min-w-0 rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
 								:placeholder="formatMessage(messages.ollamaUrl)"
 								@change="saveProvider(name)"
 							/>
 						</div>
-						<div class="flex items-center gap-2">
+						<div class="flex flex-wrap items-center gap-2">
 							<input
 								v-model="apiKeys[name]"
 								type="password"
-								class="flex-1 rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
+								class="min-w-0 flex-1 rounded-lg border border-divider bg-bg px-2 py-1.5 text-sm text-contrast outline-none focus:border-brand"
 								:placeholder="
 									config.apiKeyHint
 										? `${formatMessage(messages.key)} (${config.apiKeyHint})`
@@ -106,6 +106,7 @@
 import { Button, defineMessages, useVIntl } from '@modrinth/ui'
 import { computed, reactive, watch } from 'vue'
 
+import { toError } from '@/helpers/errors'
 import { setProviderApiKey, testProviderConnection } from '@/lib/ai/client'
 import type { ProviderConfig } from '@/lib/ai/types'
 import { useAiWorkshopStore } from '@/stores/aiWorkshop'
@@ -221,7 +222,7 @@ const saveKey = async (name: string) => {
 		apiKeys[name] = ''
 		await store.loadConfig()
 	} catch (err) {
-		testResults[name] = { ok: false, error: err instanceof Error ? err.message : String(err) }
+		testResults[name] = { ok: false, error: toError(err).message }
 	}
 }
 
@@ -233,7 +234,7 @@ const test = async (name: string) => {
 	} catch (err) {
 		testResults[name] = {
 			ok: false,
-			error: err instanceof Error ? err.message : String(err),
+			error: toError(err).message,
 		}
 	}
 }
