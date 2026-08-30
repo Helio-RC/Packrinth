@@ -4,6 +4,28 @@ permissions:
 
 name: Packrinth App build
 on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+    paths:
+      - .github/workflows/theseus-build.yml
+      - 'apps/app/**'
+      - 'apps/app-frontend/**'
+      - 'packages/app-lib/**'
+      - 'packages/api-client/**'
+      - 'packages/ariadne/**'
+      - 'packages/assets/**'
+      - 'packages/async-minecraft-ping/**'
+      - 'packages/blog/**'
+      - 'packages/daedalus/**'
+      - 'packages/modrinth-content-management/**'
+      - 'packages/path-util/**'
+      - 'packages/serde-binhum/**'
+      - 'packages/tooling-config/**'
+      - 'packages/ui/**'
+      - 'packages/utils/**'
   pull_request:
     branches:
       - main
@@ -76,11 +98,11 @@ jobs:
       signed: ${{ steps.signing.outputs.signed }}
     env:
       RUSTC_WRAPPER: 'sccache'
-      TAG_TYPE: ${{ inputs.tag-type || 'develop' }}
+      TAG_TYPE: ${{ github.ref_type == 'tag' && 'release' || inputs.tag-type || 'develop' }}
       TAG_SUFFIX: ${{ inputs.release-tag-suffix }}
       BUILD_ENVIRONMENT: ${{ inputs.environment || 'prod' }}
       BASE_TAG: ${{ inputs.branch || 'main' }}
-      RELEASE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release' }}
+      RELEASE_BUILD: ${{ (github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release') || (github.event_name == 'push' && github.ref_type == 'tag') }}
     strategy:
       fail-fast: false
       matrix:
@@ -105,7 +127,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          ref: ${{ inputs.branch || '' }}
+          ref: ${{ inputs.branch || (github.ref_type == 'tag' && github.ref) || '' }}
 
       - name: Configure signing
         id: signing
@@ -318,7 +340,7 @@ jobs:
     name: Dispatch release
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release'
+    if: (github.event_name == 'workflow_dispatch' && inputs.tag-type == 'release') || (github.event_name == 'push' && github.ref_type == 'tag')
     needs: build
     env:
       TAG_SUFFIX: ${{ inputs.release-tag-suffix }}
