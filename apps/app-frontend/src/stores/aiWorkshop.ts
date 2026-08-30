@@ -118,6 +118,8 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 		tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
 		aiStatus: null as AiStatus | null,
 		aiConfig: null as AiWorkshopConfig | null,
+		/** init() 各步骤的错误（键: status/tools/conversations/config），供 UI 展示真实原因。 */
+		initErrors: {} as Record<string, string>,
 		providerConfigured: false,
 		tools: [] as ToolInfo[],
 		toolOutputs: [] as ToolOutput[],
@@ -135,20 +137,31 @@ export const useAiWorkshopStore = defineStore('aiWorkshop', {
 		},
 	},
 	actions: {
-		/** 初始化：并行加载状态/工具/会话，恢复布局并注册工具进度监听。 */
+		/** 初始化：并行加载状态/工具/会话，恢复布局并注册工具进度监听。
+		 *  单项失败不阻塞其余（记录 initErrors 供 UI 展示真实原因）。 */
 		async init() {
-			const [status, tools, conversations] = await Promise.all([
-				getAiStatus(),
-				listTools(),
-				listConversations(),
-				this.loadConfig(),
+			const safe = async <T>(key: string, fn: () => Promise<T>): Promise<T | undefined> => {
+				try {
+					return await fn()
+				} catch (err) {
+					this.initErrors[key] = err instanceof Error ? err.message : String(err)
+					return undefined
+				}
+			}
+			const [status, tools, conversations, config] = await Promise.all([
+				safe('status', getAiStatus),
+				safe('tools', listTools),
+				safe('conversations', listConversations),
+				safe('config', () => this.loadConfig()),
 			])
-			this.aiStatus = status
-			this.providerConfigured = status.providerConfigured
-			this.tools = tools
-			this.conversations = conversations
+			if (status) {
+				this.aiStatus = status
+				this.providerConfigured = status.providerConfigured
+			}
+			if (tools) this.tools = tools
+			if (conversations) this.conversations = conversations
 
-			await this.loadLayout(this.aiConfig)
+			if (config) await this.loadLayout(config)
 
 			if (!progressUnlisten) {
 				progressUnlisten = await listenToolProgress((payload) => {

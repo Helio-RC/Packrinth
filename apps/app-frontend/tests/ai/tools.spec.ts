@@ -23,7 +23,7 @@ describe('lib/ai/tools', () => {
 		invokeMock.mockResolvedValue({ success: true, taskId: 't-1' })
 		const result = await executeTool('search_mods', { query: 'JEI' })
 		expect(result.success).toBe(true)
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|tool_execute', {
+		expect(invokeMock).toHaveBeenCalledWith('tool_execute', {
 			name: 'search_mods',
 			params: { query: 'JEI' },
 		})
@@ -32,7 +32,7 @@ describe('lib/ai/tools', () => {
 	it('cancelTask 调用 cancel_task 并透传 taskId', async () => {
 		invokeMock.mockResolvedValue(undefined)
 		await cancelTask('t-1')
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|cancel_task', {
+		expect(invokeMock).toHaveBeenCalledWith('cancel_task', {
 			taskId: 't-1',
 		})
 	})

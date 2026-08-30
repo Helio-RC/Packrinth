@@ -224,8 +224,11 @@ jobs:
             exit 1
           fi
 
-          if gh release view "v${VERSION}" -R "${{ github.repository }}" >/dev/null 2>&1; then
-            # 幂等：release 已存在（如上次部分成功）→ 只补传缺失资产
+          # 先创建；若 tag 已存在（上次部分成功），改为只补传缺失资产。
+          if ! gh release create "v${VERSION}" \
+            --title "Packrinth App ${VERSION}" \
+            --notes-file release-notes.md \
+            "${RELEASE_ARTIFACTS[@]}" 2>/tmp/release-create.err; then
             EXISTING_ASSETS=$(gh release view "v${VERSION}" -R "${{ github.repository }}" --json assets -q '.assets[].name' 2>/dev/null || true)
             for artifact in "${RELEASE_ARTIFACTS[@]}"; do
               if ! echo "$EXISTING_ASSETS" | grep -qxF "$(basename "$artifact")"; then
@@ -233,11 +236,5 @@ jobs:
                 gh release upload "v${VERSION}" -R "${{ github.repository }}" "$artifact"
               fi
             done
-            echo "Release v${VERSION} already exists; missing assets uploaded (if any)"
-          else
-            gh release create "v${VERSION}" \
-              --title "Packrinth App ${VERSION}" \
-              --notes-file release-notes.md \
-              -R "${{ github.repository }}" \
-              "${RELEASE_ARTIFACTS[@]}"
+            echo "::warning::Release already existed; missing assets uploaded (if any)"
           fi

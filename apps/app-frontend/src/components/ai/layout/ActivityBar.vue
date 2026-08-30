@@ -7,7 +7,7 @@
 				v-for="item in orderedItems"
 				:key="item.id"
 				:icon="item.icon"
-				:title="item.title"
+				:title="item.title()"
 				:active="store.activeActivity === item.id"
 				@click="store.activeActivity = item.id"
 			/>
@@ -57,6 +57,13 @@ const messages = defineMessages({
 		id: 'ai.activitybar.toggle-position',
 		defaultMessage: 'Toggle activity bar position',
 	},
+	chat: { id: 'ai.activitybar.chat', defaultMessage: 'Chat' },
+	files: { id: 'ai.activitybar.files', defaultMessage: 'Files' },
+	knowledge: { id: 'ai.activitybar.knowledge', defaultMessage: 'Knowledge' },
+	skills: { id: 'ai.activitybar.skills', defaultMessage: 'Skills' },
+	tools: { id: 'ai.activitybar.tools', defaultMessage: 'Tools' },
+	console: { id: 'ai.activitybar.console', defaultMessage: 'Console' },
+	settings: { id: 'ai.activitybar.settings', defaultMessage: 'Settings' },
 })
 
 const togglePosition = () => {
@@ -65,13 +72,13 @@ const togglePosition = () => {
 }
 
 const allItems = [
-	{ id: 'chat', icon: MessagesSquareIcon, title: '对话' },
-	{ id: 'files', icon: FolderOpenIcon, title: '文件' },
-	{ id: 'knowledge', icon: BookTextIcon, title: '知识' },
-	{ id: 'skills', icon: SparklesIcon, title: '技能' },
-	{ id: 'tools', icon: WrenchIcon, title: '工具' },
-	{ id: 'console', icon: GaugeIcon, title: '控制台' },
-	{ id: 'settings', icon: SettingsIcon, title: '设置' },
+	{ id: 'chat', icon: MessagesSquareIcon, title: () => formatMessage(messages.chat) },
+	{ id: 'files', icon: FolderOpenIcon, title: () => formatMessage(messages.files) },
+	{ id: 'knowledge', icon: BookTextIcon, title: () => formatMessage(messages.knowledge) },
+	{ id: 'skills', icon: SparklesIcon, title: () => formatMessage(messages.skills) },
+	{ id: 'tools', icon: WrenchIcon, title: () => formatMessage(messages.tools) },
+	{ id: 'console', icon: GaugeIcon, title: () => formatMessage(messages.console) },
+	{ id: 'settings', icon: SettingsIcon, title: () => formatMessage(messages.settings) },
 ]
 
 /** 按 store 顺序渲染；拖拽完成后持久化到 layout.activityOrder。 */

@@ -1,5 +1,5 @@
 /**
- * `plugin:ai_workshop|` 插件的 invoke 封装。
+ * `` 插件的 invoke 封装。
  * 所有调用失败时统一抛出带 message 的 `Error`。
  */
 import { type Channel, invoke } from '@tauri-apps/api/core'
@@ -13,7 +13,7 @@ function toErrorMessage(err: unknown): string {
 /** 单轮非流式对话，返回 `{ reply, usage }`。 */
 export async function aiChat(conversationId: string, content: string): Promise<ChatResult> {
 	try {
-		return await invoke<ChatResult>('plugin:ai_workshop|ai_chat', { conversationId, content })
+		return await invoke<ChatResult>('ai_chat', { conversationId, content })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -28,7 +28,7 @@ export async function aiStream(
 	const channel = new Channel<StreamEvent>()
 	channel.onmessage = onEvent
 	try {
-		await invoke<void>('plugin:ai_workshop|ai_stream', {
+		await invoke<void>('ai_stream', {
 			conversationId,
 			content,
 			onEvent: channel,
@@ -45,7 +45,7 @@ export async function aiConfirmTool(
 	approved: boolean,
 ): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|ai_confirm_tool', {
+		await invoke<void>('ai_confirm_tool', {
 			conversationId,
 			toolCallId,
 			approved,
@@ -58,7 +58,7 @@ export async function aiConfirmTool(
 /** 获取 AI 工作台运行状态摘要。 */
 export async function getAiStatus(): Promise<AiStatus> {
 	try {
-		return await invoke<AiStatus>('plugin:ai_workshop|get_ai_status')
+		return await invoke<AiStatus>('get_ai_status')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -67,7 +67,7 @@ export async function getAiStatus(): Promise<AiStatus> {
 /** 保存指定提供商的 API Key（写入系统密钥环）。 */
 export async function setProviderApiKey(provider: string, apiKey: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|set_provider_api_key', { provider, apiKey })
+		await invoke<void>('set_provider_api_key', { provider, apiKey })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -79,7 +79,7 @@ export async function testProviderConnection(
 ): Promise<{ ok: boolean; reply?: string; error?: string }> {
 	try {
 		return await invoke<{ ok: boolean; reply?: string; error?: string }>(
-			'plugin:ai_workshop|test_provider_connection',
+			'test_provider_connection',
 			{ provider },
 		)
 	} catch (err) {
@@ -90,7 +90,7 @@ export async function testProviderConnection(
 /** 获取 AI 工作台完整配置。 */
 export async function getAiConfig(): Promise<AiWorkshopConfig> {
 	try {
-		return await invoke<AiWorkshopConfig>('plugin:ai_workshop|get_ai_config')
+		return await invoke<AiWorkshopConfig>('get_ai_config')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -99,7 +99,7 @@ export async function getAiConfig(): Promise<AiWorkshopConfig> {
 /** 保存 AI 工作台配置。 */
 export async function setAiConfig(config: AiWorkshopConfig): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|set_ai_config', { config })
+		await invoke<void>('set_ai_config', { config })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -108,7 +108,7 @@ export async function setAiConfig(config: AiWorkshopConfig): Promise<void> {
 /** 分析崩溃日志（当前返回原始日志，AI 分析由高级场景层实现）。 */
 export async function analyzeCrash(instanceId?: string): Promise<unknown> {
 	try {
-		return await invoke<unknown>('plugin:ai_workshop|analyze_crash', { instanceId })
+		return await invoke<unknown>('analyze_crash', { instanceId })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -117,7 +117,7 @@ export async function analyzeCrash(instanceId?: string): Promise<unknown> {
 /** 获取日志缓冲区内容（供 AI 分析）。 */
 export async function getLogsForAi(limit?: number): Promise<string[]> {
 	try {
-		return await invoke<string[]>('plugin:ai_workshop|get_logs_for_ai', { limit })
+		return await invoke<string[]>('get_logs_for_ai', { limit })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -126,7 +126,7 @@ export async function getLogsForAi(limit?: number): Promise<string[]> {
 /** 生成修复建议。 */
 export async function suggestFix(crashLog?: string): Promise<unknown> {
 	try {
-		return await invoke<unknown>('plugin:ai_workshop|suggest_fix', { crashLog })
+		return await invoke<unknown>('suggest_fix', { crashLog })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -135,7 +135,7 @@ export async function suggestFix(crashLog?: string): Promise<unknown> {
 /** 应用修复建议。 */
 export async function applyFix(fixId: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|apply_fix', { fixId })
+		await invoke<void>('apply_fix', { fixId })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -147,7 +147,7 @@ export async function injectCrashLog(logContent: string): Promise<void> {
 		throw new Error('仅开发构建可用')
 	}
 	try {
-		await invoke<void>('plugin:ai_workshop|inject_crash_log', { logContent })
+		await invoke<void>('inject_crash_log', { logContent })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -156,7 +156,7 @@ export async function injectCrashLog(logContent: string): Promise<void> {
 /** 列出全部技能（含启用状态）与加载失败清单。 */
 export async function listSkills(): Promise<SkillsListResponse> {
 	try {
-		return await invoke<SkillsListResponse>('plugin:ai_workshop|list_skills')
+		return await invoke<SkillsListResponse>('list_skills')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -165,7 +165,7 @@ export async function listSkills(): Promise<SkillsListResponse> {
 /** 启用技能。 */
 export async function enableSkill(skillName: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|enable_skill', { skillName })
+		await invoke<void>('enable_skill', { skillName })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -174,7 +174,7 @@ export async function enableSkill(skillName: string): Promise<void> {
 /** 禁用技能。 */
 export async function disableSkill(skillName: string): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|disable_skill', { skillName })
+		await invoke<void>('disable_skill', { skillName })
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -183,7 +183,7 @@ export async function disableSkill(skillName: string): Promise<void> {
 /** 重新扫描技能目录，返回加载失败的技能名列表。 */
 export async function refreshSkills(): Promise<string[]> {
 	try {
-		return await invoke<string[]>('plugin:ai_workshop|refresh_skills')
+		return await invoke<string[]>('refresh_skills')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}
@@ -196,7 +196,7 @@ export async function searchKnowledge(
 	source?: string,
 ): Promise<KnowledgeHit[]> {
 	try {
-		return await invoke<KnowledgeHit[]>('plugin:ai_workshop|search_knowledge', {
+		return await invoke<KnowledgeHit[]>('search_knowledge', {
 			query,
 			topK,
 			source,
@@ -209,7 +209,7 @@ export async function searchKnowledge(
 /** 手动刷新知识索引。 */
 export async function refreshKnowledge(): Promise<void> {
 	try {
-		await invoke<void>('plugin:ai_workshop|refresh_knowledge')
+		await invoke<void>('refresh_knowledge')
 	} catch (err) {
 		throw new Error(toErrorMessage(err))
 	}

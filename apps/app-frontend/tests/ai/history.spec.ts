@@ -22,7 +22,7 @@ describe('lib/ai/history', () => {
 	it('listConversations 传递分页参数（默认 50/0）', async () => {
 		invokeMock.mockResolvedValue([])
 		await listConversations()
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|list_conversations', {
+		expect(invokeMock).toHaveBeenCalledWith('list_conversations', {
 			instanceId: undefined,
 			limit: 50,
 			offset: 0,
@@ -32,7 +32,7 @@ describe('lib/ai/history', () => {
 	it('listConversations 支持显式 instanceId/limit/offset', async () => {
 		invokeMock.mockResolvedValue([])
 		await listConversations('inst-1', 10, 20)
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|list_conversations', {
+		expect(invokeMock).toHaveBeenCalledWith('list_conversations', {
 			instanceId: 'inst-1',
 			limit: 10,
 			offset: 20,
@@ -43,7 +43,7 @@ describe('lib/ai/history', () => {
 		invokeMock.mockResolvedValue(null)
 		const result = await getConversation('conv-1', 25, 50)
 		expect(result).toBeNull()
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|get_conversation', {
+		expect(invokeMock).toHaveBeenCalledWith('get_conversation', {
 			conversationId: 'conv-1',
 			limit: 25,
 			offset: 50,
@@ -53,19 +53,19 @@ describe('lib/ai/history', () => {
 	it('createConversation / rename / delete 参数正确', async () => {
 		invokeMock.mockResolvedValueOnce({ id: 'c1' })
 		await createConversation('新会话', 'inst-2')
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|create_conversation', {
+		expect(invokeMock).toHaveBeenCalledWith('create_conversation', {
 			title: '新会话',
 			instanceId: 'inst-2',
 		})
 
 		await renameConversation('c1', '新标题')
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|rename_conversation', {
+		expect(invokeMock).toHaveBeenCalledWith('rename_conversation', {
 			conversationId: 'c1',
 			newTitle: '新标题',
 		})
 
 		await deleteConversation('c1')
-		expect(invokeMock).toHaveBeenCalledWith('plugin:ai_workshop|delete_conversation', {
+		expect(invokeMock).toHaveBeenCalledWith('delete_conversation', {
 			conversationId: 'c1',
 		})
 	})
