@@ -48,12 +48,7 @@
 				"BUILD_ENV",
 				"PREVIEW"
 			],
-			"passThroughEnv": [
-				"SCCACHE_*",
-				"RUSTC_WRAPPER",
-				"AWS_ACCESS_KEY_ID",
-				"AWS_SECRET_ACCESS_KEY"
-			]
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
 		},
 		"lint": {
 			"env": [
@@ -65,12 +60,7 @@
 				"FORCE_COLOR",
 				"NEXTEST_*"
 			],
-			"passThroughEnv": [
-				"SCCACHE_*",
-				"RUSTC_WRAPPER",
-				"AWS_ACCESS_KEY_ID",
-				"AWS_SECRET_ACCESS_KEY"
-			]
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
 		},
 		"lint:ancillary": {},
 		"//#i18n:coverage": {
@@ -80,11 +70,11 @@
 				"scripts/coverage-i18n.ts",
 				"scripts/i18n-icu-contract.ts",
 				"apps/app-frontend/src/**/*.vue",
-			"apps/app-frontend/src/locales/**/*.json",
-			"apps/app-frontend/src/locales-packrinth/**/*.json",
-			"packages/ui/src/**/*.vue",
-			"packages/ui/src/locales/**/*.json"
-		],
+				"apps/app-frontend/src/locales/**/*.json",
+				"apps/app-frontend/src/locales-packrinth/**/*.json",
+				"packages/ui/src/**/*.vue",
+				"packages/ui/src/locales/**/*.json"
+			],
 			"outputs": [
 				"packages/ui/src/layouts/wrapped/settings/language-settings/language-settings-coverage.generated.ts"
 			]
@@ -97,20 +87,8 @@
 			"passThroughEnv": ["DISPLAY", "WEBKIT_DISABLE_DMABUF_RENDERER", "JAVA_HOME"]
 		},
 		"test": {
-			"env": [
-				"SQLX_OFFLINE",
-				"CARGO_*",
-				"RUST_*",
-				"RUSTFLAGS",
-				"FORCE_COLOR",
-				"NEXTEST_*"
-			],
-			"passThroughEnv": [
-				"SCCACHE_*",
-				"RUSTC_WRAPPER",
-				"AWS_ACCESS_KEY_ID",
-				"AWS_SECRET_ACCESS_KEY"
-			]
+			"env": ["SQLX_OFFLINE", "CARGO_*", "RUST_*", "RUSTFLAGS", "FORCE_COLOR", "NEXTEST_*"],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
 		},
 		"fix": {},
 		"fix:ancillary": {
