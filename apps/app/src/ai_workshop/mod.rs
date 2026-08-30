@@ -434,9 +434,7 @@ pub async fn tool_execute<R: Runtime>(
             serde_json::Value::String(task_id.clone()),
         );
     }
-    tracing::info!(
-        "ai_workshop: tool_execute done ({name}, task {task_id})"
-    );
+    tracing::info!("ai_workshop: tool_execute done ({name}, task {task_id})");
     Ok(response)
 }
 
